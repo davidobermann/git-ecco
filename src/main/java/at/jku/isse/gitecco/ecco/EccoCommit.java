@@ -10,16 +10,16 @@ import java.util.List;
  * Contains features for committing.
  * The getCommandMsg gets the command for committing, which will later be passed on to the ecco tool.
  */
-public class EccoCommit implements EccoCommand{
+public class EccoCommit implements EccoCommand {
 
     private final List<Feature> features;
 
     /**
      * Creates a new EccoCommit with the passed features.
+     *
      * @param f
      */
-    public EccoCommit(Feature[] f)
-    {
+    public EccoCommit(Feature[] f) {
         features = new ArrayList<Feature>();
         for (Feature feature : f) {
             features.add(feature);
@@ -28,9 +28,10 @@ public class EccoCommit implements EccoCommand{
 
     /**
      * Allows to add features to the commit after it was initialized by the constructor.
+     *
      * @param f
      */
-    public void addFeature(Feature f){
+    public void addFeature(Feature f) {
         features.add(f);
     }
 
@@ -39,9 +40,16 @@ public class EccoCommit implements EccoCommand{
     public String getCommandMsg() {
         String retFeatures = "";
         for (Feature feature : features) {
-            retFeatures += feature.getName() + "' ";
+            if (!retFeatures.contains(feature.getName()+"'")) {
+                retFeatures += feature.getName()+"' ";
+            }
         }
-        if(retFeatures == "") retFeatures = "BASE'";
-        return "ecco commit " + retFeatures;
+        if (retFeatures == "") {
+            retFeatures = "BASE'";
+        } else if (!retFeatures.contains("BASE'")) {
+            retFeatures += "BASE";
+        }
+
+        return "ecco commit "+retFeatures;
     }
 }

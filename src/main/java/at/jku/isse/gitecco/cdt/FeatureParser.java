@@ -1,14 +1,15 @@
 package at.jku.isse.gitecco.cdt;
 
+import at.jku.isse.gitecco.conditionparser.ConditionParser;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorElifStatement;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorElseStatement;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorEndifStatement;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorStatement;
 
-import java.util.Optional;
-import java.util.SortedSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Stack;
-import java.util.TreeSet;
 
 /**
  * Class for parsing features in the c++ file.
@@ -25,7 +26,7 @@ public class FeatureParser {
      * @return Array of al Features found in the preprocessor statements.
      */
     public static Feature[] parse(IASTPreprocessorStatement[] ppstatements) {
-        final SortedSet<Feature> features = new TreeSet<Feature>();
+        final List<Feature> features = new ArrayList<>();
         final Stack<IASTPreprocessorStatement> stack = new Stack<IASTPreprocessorStatement>();
         boolean elseFlag = false;
         PPStatement pp;
@@ -44,8 +45,10 @@ public class FeatureParser {
 
                         pp = new PPStatement(stack.pop());
                         String condName = CDTHelper.getCondName(pp.getStatement());
-                        features.add(new Feature(condName, Optional.ofNullable(null),
-                                pp.getLineStart()-1, pps.getFileLocation().getEndingLineNumber()-1));
+                        String[] fnames = ConditionParser.parseCondition(condName);
+                        for (String fname : fnames) {
+                            features.add(new Feature(fname, pp.getLineStart(), pps.getFileLocation().getEndingLineNumber()));
+                        }
                     } else {
                         throw new Exception("wrong definition of features");
                     }
@@ -61,8 +64,10 @@ public class FeatureParser {
                         elseFlag = true;
                         pp = new PPStatement(stack.pop());
                         String condName = CDTHelper.getCondName(pp.getStatement());
-                        features.add(new Feature(condName, Optional.ofNullable(null),
-                                pp.getLineStart()-1, pps.getFileLocation().getEndingLineNumber()-1));
+                        String[] fnames = ConditionParser.parseCondition(condName);
+                        for (String fname : fnames) {
+                            features.add(new Feature(fname, pp.getLineStart(), pps.getFileLocation().getEndingLineNumber()));
+                        }
                     } else {
                         throw new Exception("wrong definition of features");
                     }
@@ -78,8 +83,10 @@ public class FeatureParser {
 
                             pp = new PPStatement(stack.pop());
                             String condName = CDTHelper.getCondName(pp.getStatement());
-                            features.add(new Feature(condName, Optional.ofNullable(null),
-                                    pp.getLineStart()-1, pps.getFileLocation().getEndingLineNumber()-1));
+                            String[] fnames = ConditionParser.parseCondition(condName);
+                            for (String fname : fnames) {
+                                features.add(new Feature(fname, pp.getLineStart(), pps.getFileLocation().getEndingLineNumber()));
+                            }
                         } else {
                             throw new Exception("wrong definition of features");
                         }
@@ -90,6 +97,7 @@ public class FeatureParser {
                 System.out.println(e.getMessage());
             }
         }
+        Collections.sort(features);
         return features.toArray(new Feature[features.size()]);
     }
 }

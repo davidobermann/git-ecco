@@ -60,7 +60,7 @@ public class ConditionParserTest {
         }
     }
 
-    private static String parseLeveledExperssion(String expression, Token token) {
+    private static String parseLeveledExperssionWithDefines(String expression, Token token) {
         int i = 0;
         double offset = 0;
 
@@ -106,6 +106,49 @@ public class ConditionParserTest {
                                 System.out.println(tokens[i-1].tokenStr+" must be defined as "+(tokens[i+1].tokenValue+offset));
                             } else if (tokens[i+1].looksLike.equals("argument")) {
                                 System.out.println(tokens[i+1].tokenStr+" must be defined as "+(tokens[i-1].tokenValue+offset));
+                            }
+                        }
+                    }
+                }
+                i++;
+            }
+        }
+        return expression;
+    }
+
+    private static String parseLeveledExperssion(String expression, Token token) {
+        int i = 0;
+
+        if (expression.length() > 0) {
+            Expression ep = new Expression(expression);
+            Token[] tokens = ep.getCopyOfInitialTokens().toArray(new Token[ep.getCopyOfInitialTokens().size()]);
+            for (Token t : ep.getCopyOfInitialTokens()) {
+                if (t.looksLike.equals("argument")) {
+                    if (i == 0) {
+                        if (tokens.length == i+1) {
+                            System.out.println(t.tokenStr+" must be defined");
+                        } else if (tokens[i+1].tokenTypeId != BinaryRelation.TYPE_ID) {
+                            System.out.println(t.tokenStr+" must be defined");
+                        }
+                    } else if ((i-1 >= 0) && (i+1 < tokens.length)) {
+                        if (tokens[i-1].tokenTypeId != BinaryRelation.TYPE_ID
+                                && tokens[i+1].tokenTypeId != BinaryRelation.TYPE_ID) {
+                            System.out.println(t.tokenStr+" must be defined");
+                        }
+                    } else if (i+1 == tokens.length) {
+                        if (i-1 >= 0) {
+                            if (tokens[i-1].tokenTypeId != BinaryRelation.TYPE_ID) {
+                                System.out.println(t.tokenStr+" must be defined");
+                            }
+                        } else {
+                            System.out.println(t.tokenStr+" must be defined");
+                        }
+                    }
+                } else if (t.tokenTypeId == BinaryRelation.TYPE_ID) {
+                    if ((i+1 < tokens.length) && (i-1 >= 0)) {
+                        if ((tokens[i-1].tokenTypeId == 0) || tokens[i+1].tokenTypeId == 0) {
+                            if (tokens[i-1].looksLike.equals("argument") || tokens[i+1].looksLike.equals("argument")) {
+                                System.out.println(tokens[i-1].tokenStr + t.tokenStr + tokens[i+1].tokenStr + " must be defined");
                             }
                         }
                     }
