@@ -1,6 +1,7 @@
 package at.jku.isse.gitecco.git;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
@@ -24,6 +25,7 @@ import java.util.List;
 public class GitHelper {
 
     private final Git git;
+    private final String pathUrl;
 
     /**
      * Creates a new instance of GitHelper and clones the specified
@@ -34,6 +36,7 @@ public class GitHelper {
      */
     public GitHelper(String url, String path) throws Exception {
         git = cloneRepo(url, path);
+        pathUrl = path;
     }
 
     /**
@@ -45,6 +48,7 @@ public class GitHelper {
      */
     public GitHelper(String path) throws IOException {
         git = openRepo(path);
+        pathUrl = path;
     }
 
     /**
@@ -104,12 +108,17 @@ public class GitHelper {
 
     /**
      * Checks out a commit by the given name.
+     * Does this by using the runtime execution since JGit is buggy
+     * when it comes to checkouts and cleans, etc.
      * @param name The name of the commit, which should be checked out.
      */
     public void checkOutCommit(String name){
+        System.out.println("Checking out commit: " + name);
         try {
-            this.git.checkout().setName(name).call();
-        } catch (GitAPIException e) {
+            Runtime.getRuntime().exec(String.format("git -C %s clean --force",this.pathUrl));
+            Runtime.getRuntime().exec(String.format("git -C %s reset --hard",this.pathUrl));
+            Runtime.getRuntime().exec(String.format("git -C %s checkout %s",this.pathUrl,name));
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

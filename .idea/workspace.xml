@@ -2,17 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d1835011-f058-4702-b06a-f713b341f514" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/classes/at/jku/isse/gitecco/preprocessor/PreprocessorTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/at/jku/isse/gitecco/App.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/at/jku/isse/gitecco/App.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/at/jku/isse/gitecco/cdt/Feature.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/at/jku/isse/gitecco/cdt/Feature.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/at/jku/isse/gitecco/git/GitHelper.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/at/jku/isse/gitecco/git/GitHelper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/at/jku/isse/gitecco/preprocessor/FeaturePreprocessor.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/at/jku/isse/gitecco/preprocessor/FeaturePreprocessor.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/App.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/cdt/Feature.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/cdt/Feature.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/cdt/FeatureParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/cdt/FeatureParser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/conditionparser/ConditionParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/conditionparser/ConditionParser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/conditionparser/ConditionParserTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/conditionparser/ConditionParserTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/ecco/EccoCommit.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/ecco/EccoCommit.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/git/GitHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/git/GitHelper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/preprocessor/FeaturePreprocessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/preprocessor/FeaturePreprocessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/preprocessor/PreprocessorTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/preprocessor/PreprocessorTest.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -32,28 +29,29 @@
     <session id="343916605">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="12" />
+          <entry key="project.closed" value="13" />
           <entry key="project.open.time.19" value="1" />
           <entry key="project.open.time.20" value="2" />
           <entry key="project.open.time.22" value="4" />
           <entry key="project.open.time.24" value="1" />
+          <entry key="project.open.time.26" value="1" />
           <entry key="project.open.time.28" value="1" />
           <entry key="project.open.time.35" value="1" />
           <entry key="project.open.time.5" value="1" />
           <entry key="project.open.time.8" value="2" />
           <entry key="project.open.time.9" value="1" />
-          <entry key="project.opened" value="14" />
+          <entry key="project.opened" value="15" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="MF" value="1" />
           <entry key="class" value="6" />
-          <entry key="cpp" value="20" />
+          <entry key="cpp" value="23" />
           <entry key="g4" value="3" />
-          <entry key="gradle" value="10" />
+          <entry key="gradle" value="11" />
           <entry key="html" value="1" />
-          <entry key="java" value="207" />
+          <entry key="java" value="214" />
           <entry key="tokens" value="2" />
           <entry key="xml" value="1" />
         </counts>
@@ -61,11 +59,11 @@
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="ANTLR v4 grammar file" value="3" />
-          <entry key="C++" value="20" />
+          <entry key="C++" value="23" />
           <entry key="CLASS" value="6" />
-          <entry key="Groovy" value="10" />
+          <entry key="Groovy" value="11" />
           <entry key="HTML" value="1" />
-          <entry key="JAVA" value="207" />
+          <entry key="JAVA" value="214" />
           <entry key="Manifest" value="1" />
           <entry key="PLAIN_TEXT" value="2" />
           <entry key="XML" value="1" />
@@ -76,57 +74,89 @@
           <entry key="cpp" value="463" />
           <entry key="dummy" value="4" />
           <entry key="gradle" value="74" />
-          <entry key="java" value="29920" />
+          <entry key="java" value="31379" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="C++" value="463" />
           <entry key="Groovy" value="74" />
-          <entry key="JAVA" value="29920" />
+          <entry key="JAVA" value="31379" />
           <entry key="PLAIN_TEXT" value="4" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../git-to-ecco/test_repo/test.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="663">
-              <caret line="39" column="10" lean-forward="true" selection-start-line="39" selection-start-column="10" selection-end-line="39" selection-end-column="10" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/ecco/EccoCommit.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="687">
-              <caret line="50" column="9" selection-start-line="50" selection-start-column="9" selection-end-line="50" selection-end-column="9" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#854#855#0" expanded="true" />
-                <element signature="e#885#886#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/cdt/FeatureParser.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="833">
-              <caret line="49" column="122" selection-start-line="49" selection-start-column="122" selection-end-line="49" selection-end-column="122" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <splitter split-orientation="horizontal" split-proportion="0.24688427">
+      <split-first>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/preprocessor/FeaturePreprocessor.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="313">
+                  <caret line="29" column="56" lean-forward="true" selection-start-line="29" selection-start-column="56" selection-end-line="29" selection-end-column="56" />
+                  <folding>
+                    <element signature="imports" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/ecco/EccoCommit.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="765">
+                  <caret line="50" column="9" selection-start-line="50" selection-start-column="9" selection-end-line="50" selection-end-column="9" />
+                  <folding>
+                    <element signature="imports" expanded="true" />
+                    <element signature="e#854#855#0" expanded="true" />
+                    <element signature="e#885#886#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/cdt/FeatureParser.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="-119">
+                  <caret line="11" column="23" lean-forward="true" selection-start-line="11" selection-start-column="23" selection-end-line="11" selection-end-column="23" />
+                  <folding>
+                    <element signature="imports" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/App.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="585">
+                  <caret line="101" lean-forward="true" selection-start-line="101" selection-end-line="101" />
+                  <folding>
+                    <element signature="imports" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/git/GitHelper.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="551">
+                  <caret line="115" column="59" lean-forward="true" selection-start-line="115" selection-start-column="59" selection-end-line="115" selection-end-column="59" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -549,18 +579,18 @@
         <option value="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/cdt/PPStatement.java" />
         <option value="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/git/Change.java" />
         <option value="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/ecco/EccoCommand.java" />
-        <option value="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/git/GitHelper.java" />
         <option value="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/git/DiffParser.java" />
         <option value="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/CDTTest.java" />
         <option value="$PROJECT_DIR$/../git-to-ecco/test_repo/test.cpp" />
         <option value="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/conditionparser/ConditionParserTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/conditionparser/ConditionParser.java" />
         <option value="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/ecco/EccoCommit.java" />
-        <option value="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/App.java" />
         <option value="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/cdt/FeatureParser.java" />
-        <option value="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/preprocessor/FeaturePreprocessor.java" />
         <option value="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/preprocessor/PreprocessorTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/cdt/Feature.java" />
+        <option value="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/preprocessor/FeaturePreprocessor.java" />
+        <option value="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/App.java" />
+        <option value="$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/git/GitHelper.java" />
       </list>
     </option>
   </component>
@@ -675,9 +705,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="PackagesPane" />
-      <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -760,13 +787,16 @@
           <select />
         </subPane>
       </pane>
+      <pane id="AndroidView" />
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="$PROJECT_DIR$/src/main/resources/CPP14.g4::/auto-gen" value="false" />
     <property name="$PROJECT_DIR$/src/main/resources/CPP14.g4::/gen-listener" value="true" />
     <property name="$PROJECT_DIR$/src/main/resources/CPP14.g4::/gen-visitor" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1537359345849" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1537438385571" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
     <property name="settings.editor.selected.configurable" value="preferences.sourceCode.Java" />
   </component>
@@ -900,7 +930,7 @@
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.14392324" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.10181237" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Designer" order="2" />
       <window_info id="Image Layers" order="3" />
@@ -1037,13 +1067,6 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/Tree.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/FeatureTree.java" />
-    <entry file="file://$PROJECT_DIR$/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="30" column="17" selection-start-line="30" selection-start-column="17" selection-end-line="30" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$PROJECT_DIR$/libs/eclipse-core-5.6.0.jar!/org/eclipse/cdt/core/dom/ast/IASTPreprocessorElifStatement.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
@@ -1082,13 +1105,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="272">
           <caret line="16" column="7" lean-forward="true" selection-start-line="16" selection-start-column="7" selection-end-line="16" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/git/GitHelper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="459">
-          <caret line="106" column="71" selection-start-line="106" selection-start-column="71" selection-end-line="106" selection-end-column="71" />
         </state>
       </provider>
     </entry>
@@ -1142,52 +1158,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/preprocessor/FeaturePreprocessor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="194">
-          <caret line="16" column="17" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="17" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/App.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="20" column="18" selection-start-line="20" selection-start-column="18" selection-end-line="20" selection-end-column="18" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1229#1242#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/preprocessor/PreprocessorTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="289">
           <caret line="17" column="10" selection-start-line="17" selection-start-column="10" selection-end-line="17" selection-end-column="10" />
           <folding>
             <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../git-to-ecco/test_repo/test.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="663">
-          <caret line="39" column="10" lean-forward="true" selection-start-line="39" selection-start-column="10" selection-end-line="39" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/ecco/EccoCommit.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="687">
-          <caret line="50" column="9" selection-start-line="50" selection-start-column="9" selection-end-line="50" selection-end-column="9" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#854#855#0" expanded="true" />
-            <element signature="e#885#886#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1204,13 +1180,66 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/ecco/EccoCommit.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="765">
+          <caret line="50" column="9" selection-start-line="50" selection-start-column="9" selection-end-line="50" selection-end-column="9" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#854#855#0" expanded="true" />
+            <element signature="e#885#886#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/cdt/FeatureParser.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="833">
-          <caret line="49" column="122" selection-start-line="49" selection-start-column="122" selection-end-line="49" selection-end-column="122" />
+        <state relative-caret-position="-119">
+          <caret line="11" column="23" lean-forward="true" selection-start-line="11" selection-start-column="23" selection-end-line="11" selection-end-column="23" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../git-to-ecco/test_repo/test.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="714">
+          <caret line="42" selection-start-line="42" selection-end-line="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="30" column="17" selection-start-line="30" selection-start-column="17" selection-end-line="30" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/preprocessor/FeaturePreprocessor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="313">
+          <caret line="29" column="56" lean-forward="true" selection-start-line="29" selection-start-column="56" selection-end-line="29" selection-end-column="56" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/App.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="585">
+          <caret line="101" lean-forward="true" selection-start-line="101" selection-end-line="101" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/at/jku/isse/gitecco/git/GitHelper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="551">
+          <caret line="115" column="59" lean-forward="true" selection-start-line="115" selection-start-column="59" selection-end-line="115" selection-end-column="59" />
         </state>
       </provider>
     </entry>

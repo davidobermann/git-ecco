@@ -4,7 +4,6 @@ import at.jku.isse.gitecco.cdt.Feature;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +24,8 @@ public class FeaturePreprocessor {
      * @throws IOException
      */
     public String getCommitFileContent(Feature[] featuresToCut, String fileToCut) throws IOException {
-        Path path = Paths.get(fileToCut);
-        List<String> result = Files.lines(path).collect(Collectors.toList());
+        List<String> result = Files.readAllLines(Paths.get("C:\\obermanndavid\\git-to-ecco\\test_repo\\test.cpp"));
+
         result = cutLines(result, featuresToCut[0]);
         for (int i = 0; i < featuresToCut.length; i++) {
             result = cutLines(result, featuresToCut[i]);
@@ -60,6 +59,16 @@ public class FeaturePreprocessor {
             i++;
         }
         return ret;
+    }
+
+    private List<String> tryForever(String fileToCut){
+        List<String> result;
+        try {
+            result = Files.lines(Paths.get(fileToCut)).collect(Collectors.toList());
+        } catch(Exception e) {
+            result = tryForever(fileToCut);
+        }
+        return result;
     }
 
 }
