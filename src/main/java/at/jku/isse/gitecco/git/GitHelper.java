@@ -17,6 +17,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -145,7 +146,7 @@ public class GitHelper {
      * @throws GitAPIException
      * @throws IOException
      */
-    public void listDiff(String newCommit, String oldCommit) throws GitAPIException, IOException {
+    public void listDiff(String oldCommit, String newCommit) throws GitAPIException, IOException {
         final List<DiffEntry> diffs = git.diff()
                 .setOldTree(prepareTreeParser(git.getRepository(), oldCommit))
                 .setNewTree(prepareTreeParser(git.getRepository(), newCommit))
@@ -160,7 +161,7 @@ public class GitHelper {
 
 
     /**
-     * Gets alle commit names of all the commits of the opened repository.
+     * Gets all commit names of all the commits of the opened repository.
      * @return String[] of alle the commit names.
      * @throws GitAPIException
      */
@@ -171,7 +172,7 @@ public class GitHelper {
         for (RevCommit rc : log) {
             commitNames.add(rc.getName());
         }
-
+        Collections.reverse(commitNames);
         return commitNames.toArray(new String[commitNames.size()]);
     }
 
