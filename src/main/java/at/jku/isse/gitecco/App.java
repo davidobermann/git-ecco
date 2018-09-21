@@ -36,13 +36,23 @@ public class App {
         String code = "";
         Change[] changes;
 
+        /*for (String commit : commits) {
+            System.out.println(commit);
+        }*/
+
         for (int i = 0; i < commits.length-1; i++) {
+            code = "";
+
+            System.out.println("--------------------------------------");
+            System.out.println("Commit: "+commits[i]+" - "+commits[i+1]);
+
             gitHelper.checkOutCommit(commits[i+1]);
 
             //cloud probably use iterator.
             //code = Files.lines(Paths.get("C:\\obermanndavid\\git-to-ecco\\test_repo\\test.cpp")).collect(Collectors.joining("\n"));
             List<String> codelist = Files.readAllLines(Paths.get("C:\\obermanndavid\\git-to-ecco\\test_repo\\test.cpp"));
             code = codelist.stream().collect(Collectors.joining("\n"));
+
             if(code.length() > 1) {
                 //parse file and prepare the translation unit
                 final IASTTranslationUnit translationUnit = CDTHelper.parse(code.toCharArray());
@@ -50,9 +60,6 @@ public class App {
                 final IASTPreprocessorStatement[] ppstatements = translationUnit.getAllPreprocessorStatements();
                 Feature[] features = FeatureParser.parse(ppstatements);
 
-
-                System.out.println("--------------------------------------");
-                System.out.println("Commit: "+commits[i]+" - "+commits[i+1]);
                 changes = gitHelper.getFileDiffs(commits[i], commits[i+1]);
 
                 //print changes
@@ -92,7 +99,9 @@ public class App {
                 final FeaturePreprocessor fpp = new FeaturePreprocessor();
                 String newFile = fpp.getCommitFileContent(featuresToDelete.toArray(new Feature[featuresToDelete.size()]),
                         "C:\\obermanndavid\\git-to-ecco\\test_repo\\test.cpp");
+
                 System.out.println(newFile);
+
                 commands.add(
                         new EccoCommit(featuresToCommit.toArray(new Feature[featuresToCommit.size()]))
                 );

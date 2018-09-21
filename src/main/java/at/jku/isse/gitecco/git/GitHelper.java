@@ -61,7 +61,7 @@ public class GitHelper {
      * @return An Array of Changes which contains all the changes between the commits.
      * @throws Exception
      */
-    public Change[] getFileDiffs(String newCommit, String oldCommit) throws Exception {
+    public Change[] getFileDiffs(String oldCommit, String newCommit) throws Exception {
 
         List<DiffEntry> diff = git.diff().
                 setOldTree(prepareTreeParser(git.getRepository(), oldCommit)).
@@ -114,12 +114,17 @@ public class GitHelper {
      * @param name The name of the commit, which should be checked out.
      */
     public void checkOutCommit(String name){
-        System.out.println("Checking out commit: " + name);
+        System.out.println("Checking out commit: " + name
+                + "\n at " + pathUrl);
+        Process p;
         try {
-            Runtime.getRuntime().exec(String.format("git -C %s clean --force",this.pathUrl));
+            p = Runtime.getRuntime().exec(String.format("git -C %s clean --force",this.pathUrl));
+            p.waitFor();
             Runtime.getRuntime().exec(String.format("git -C %s reset --hard",this.pathUrl));
+            p.waitFor();
             Runtime.getRuntime().exec(String.format("git -C %s checkout %s",this.pathUrl,name));
-        } catch (IOException e) {
+            p.waitFor();
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -173,6 +178,7 @@ public class GitHelper {
             commitNames.add(rc.getName());
         }
         Collections.reverse(commitNames);
+        commitNames.add("master");
         return commitNames.toArray(new String[commitNames.size()]);
     }
 

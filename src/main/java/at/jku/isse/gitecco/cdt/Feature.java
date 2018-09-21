@@ -29,8 +29,8 @@ public class Feature implements Comparable<Feature> {
      */
     public Feature(String name, int startingLineNumber, int endingLineNumber) {
         this.name = name;
-        this.startingLineNumber = startingLineNumber-1;
-        this.endingLineNumber = endingLineNumber-1;
+        this.startingLineNumber = startingLineNumber;
+        this.endingLineNumber = endingLineNumber;
         changes = new ArrayList<Change>();
     }
 

@@ -24,7 +24,7 @@ public class FeaturePreprocessor {
      * @throws IOException
      */
     public String getCommitFileContent(Feature[] featuresToCut, String fileToCut) throws IOException {
-        List<String> result = Files.readAllLines(Paths.get("C:\\obermanndavid\\git-to-ecco\\test_repo\\test.cpp"));
+        List<String> result = Files.readAllLines(Paths.get(fileToCut));
 
         result = cutLines(result, featuresToCut[0]);
         for (int i = 0; i < featuresToCut.length; i++) {
@@ -32,7 +32,7 @@ public class FeaturePreprocessor {
         }
         String newFileContent = result.stream()
                 .filter(s -> !s.equals("###lineremoved###"))
-                .filter(s -> !s.contains("#if") && !s.contains("#endif"))
+                .filter(s -> !s.contains("#if") && !s.contains("#endif") && !s.contains("#else"))
                 .collect(Collectors.joining("\n"));
 
         return newFileContent;

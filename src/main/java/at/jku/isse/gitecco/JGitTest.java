@@ -1,6 +1,8 @@
 package at.jku.isse.gitecco;
 
+import at.jku.isse.gitecco.git.Change;
 import at.jku.isse.gitecco.git.DiffParser;
+import at.jku.isse.gitecco.git.GitHelper;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -16,12 +18,33 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class JGitTest {
     public static void main(String args[]) throws Exception {
-        cloneRepo();
+        final GitHelper gitHelper = new GitHelper("C:\\obermanndavid\\git-to-ecco\\test_repo");
+        final String[] commits = gitHelper.getAllCommitNames();
+
+        for (String commit : commits) {
+            System.out.println(commit);
+        }
+
+        for (String commit : commits) {
+            System.out.println("-----------------------------");
+            gitHelper.checkOutCommit(commit);
+            System.out.println(
+                    Files.readAllLines(
+                            (Paths.get(
+                                    "C:\\obermanndavid\\git-to-ecco\\test_repo\\test.cpp")))
+                            .stream()
+                            .collect(Collectors.joining("\n"))
+            );
+        }
+
     }
 
 
