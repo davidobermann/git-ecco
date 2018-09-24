@@ -54,6 +54,15 @@ public class Feature implements Comparable<Feature> {
     }
 
     /**
+     * Checks if a given feature is contained in this feature.
+     * @param f
+     * @return true if the feature is inside this feature, false if hey are not related.
+     */
+    public boolean contains(Feature f) {
+        return (this.startingLineNumber <= f.startingLineNumber && this.endingLineNumber >= f.endingLineNumber);
+    }
+
+    /**
      * Gets the line info where the feature starts.
      *
      * @return The line number of the start.

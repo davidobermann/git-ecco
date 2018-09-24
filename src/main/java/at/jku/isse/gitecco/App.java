@@ -40,6 +40,8 @@ public class App {
             System.out.println(commit);
         }*/
 
+        gitHelper.checkOutCommit("master");
+
         for (int i = 0; i < commits.length-1; i++) {
             code = "";
 
@@ -58,7 +60,12 @@ public class App {
                 final IASTTranslationUnit translationUnit = CDTHelper.parse(code.toCharArray());
                 //get all the preprocessor statements
                 final IASTPreprocessorStatement[] ppstatements = translationUnit.getAllPreprocessorStatements();
-                Feature[] features = FeatureParser.parse(ppstatements);
+                final FeatureParser featureParser = new FeatureParser();
+                Feature[] features = featureParser.parse(ppstatements, codelist.size());
+
+                for (Feature feature : features) {
+                    System.out.println(feature);
+                }
 
                 changes = gitHelper.getFileDiffs(commits[i], commits[i+1]);
 

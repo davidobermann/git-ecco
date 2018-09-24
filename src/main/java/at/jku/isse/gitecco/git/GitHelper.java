@@ -1,7 +1,6 @@
 package at.jku.isse.gitecco.git;
 
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
@@ -116,13 +115,14 @@ public class GitHelper {
     public void checkOutCommit(String name){
         System.out.println("Checking out commit: " + name
                 + "\n at " + pathUrl);
+
         Process p;
         try {
             p = Runtime.getRuntime().exec(String.format("git -C %s clean --force",this.pathUrl));
             p.waitFor();
-            Runtime.getRuntime().exec(String.format("git -C %s reset --hard",this.pathUrl));
+            p = Runtime.getRuntime().exec(String.format("git -C %s reset --hard",this.pathUrl));
             p.waitFor();
-            Runtime.getRuntime().exec(String.format("git -C %s checkout %s",this.pathUrl,name));
+            p = Runtime.getRuntime().exec(String.format("git -C %s checkout %s",this.pathUrl,name));
             p.waitFor();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -178,7 +178,6 @@ public class GitHelper {
             commitNames.add(rc.getName());
         }
         Collections.reverse(commitNames);
-        commitNames.add("master");
         return commitNames.toArray(new String[commitNames.size()]);
     }
 
