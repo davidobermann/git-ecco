@@ -40,8 +40,8 @@ public class EccoCommit implements EccoCommand {
     public String getCommandMsg() {
         String retFeatures = "";
         for (Feature feature : features) {
-            if (!retFeatures.contains(feature.getName()+"'")) {
-                retFeatures += feature.getName()+"' ";
+            if (!retFeatures.contains(feature.getNames()+"'")) {
+                retFeatures += feature.getNames()+"' ";
             }
         }
         if (retFeatures == "") {

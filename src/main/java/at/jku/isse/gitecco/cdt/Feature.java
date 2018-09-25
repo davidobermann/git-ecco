@@ -15,23 +15,39 @@ import java.util.List;
  * It may or may not contain changes. <br>
  */
 public class Feature implements Comparable<Feature> {
-    private final String name;
+    private final String[] names;
     private final int startingLineNumber;
-    private final int endingLineNumber;
+    private int endingLineNumber;
     private final List<Change> changes;
 
     /**
      * Creates a new Feature
      *
-     * @param name               the name of the feature
-     * @param startingLineNumber line info where the feature begins
-     * @param endingLineNumber   line info where the feature ends
+     * @param startingLineNumber the number of the line in which this feature starts
+     * @param endingLineNumber the number of the line in which the feature ends
+     * @param names vararg of the feature names. (A&&B has two names but is one block of feature)
      */
-    public Feature(String name, int startingLineNumber, int endingLineNumber) {
-        this.name = name;
+    public Feature(int startingLineNumber, int endingLineNumber, String... names) {
+        this.names = names;
         this.startingLineNumber = startingLineNumber;
         this.endingLineNumber = endingLineNumber;
         changes = new ArrayList<Change>();
+    }
+
+    /**
+     * Creates a new Feature
+     *
+     * @param names               the name of the feature
+     * @param startingLineNumber line info where the feature begins
+     */
+    public Feature(int startingLineNumber, String... names) {
+        this.names = names;
+        this.startingLineNumber = startingLineNumber;
+        changes = new ArrayList<Change>();
+    }
+
+    public void setEndingLineNumber(int lnr) {
+        this.endingLineNumber = lnr;
     }
 
     /**
@@ -39,8 +55,23 @@ public class Feature implements Comparable<Feature> {
      *
      * @return the feature name
      */
-    public String getName() {
-        return name;
+    public String getNames() {
+        String ret = "";
+        if(names.length == 1) return names[0];
+        for (int i = 0; i < names.length-1; i++) {
+            ret += names[i] + ", ";
+        }
+        ret += names[names.length-1];
+        return ret;
+    }
+
+    /**
+     * gets the name of the feature
+     *
+     * @return the feature name
+     */
+    public String[] getName() {
+        return names;
     }
 
     /**
@@ -54,12 +85,11 @@ public class Feature implements Comparable<Feature> {
     }
 
     /**
-     * Checks if a given feature is contained in this feature.
-     * @param f
-     * @return true if the feature is inside this feature, false if hey are not related.
+     * Checks if this Feature is BASE
+     * @return true if this feature is BASE
      */
-    public boolean contains(Feature f) {
-        return (this.startingLineNumber <= f.startingLineNumber && this.endingLineNumber >= f.endingLineNumber);
+    public boolean isBase(){
+        return this.startingLineNumber == 0;
     }
 
     /**
@@ -118,7 +148,7 @@ public class Feature implements Comparable<Feature> {
 
     @Override
     public String toString() {
-        return this.getName()+": "+this.getStartingLineNumber()+" - "+this.getEndingLineNumber();
+        return this.getNames() +": "+this.getStartingLineNumber()+" - "+this.getEndingLineNumber();
     }
 
     @Override

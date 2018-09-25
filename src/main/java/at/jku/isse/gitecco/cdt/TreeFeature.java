@@ -1,8 +1,7 @@
 package at.jku.isse.gitecco.cdt;
 
-import at.jku.isse.gitecco.git.Change;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -12,13 +11,13 @@ public class TreeFeature extends Feature{
     private final List<TreeFeature> children;
 
     public TreeFeature(Feature self, TreeFeature parent) {
-        super(self.getName(), self.getStartingLineNumber(), self.getEndingLineNumber());
+        super(self.getStartingLineNumber(), self.getEndingLineNumber(), self.getName());
         this.parent = parent;
         this.children = new ArrayList<TreeFeature>();
     }
 
     public TreeFeature(Feature self) {
-        super(self.getName(), self.getStartingLineNumber(), self.getEndingLineNumber());
+        super(self.getStartingLineNumber(), self.getEndingLineNumber(), self.getName());
         this.parent = null;
         this.children = new ArrayList<TreeFeature>();
         root = this;
@@ -36,6 +35,14 @@ public class TreeFeature extends Feature{
 
     public TreeFeature getParent() {
         return this.parent;
+    }
+
+    public  boolean isLeaf() {
+        return children.size() == 0;
+    }
+
+    public List<TreeFeature> getChildren(){
+        return Collections.unmodifiableList(children);
     }
 
 }

@@ -1,10 +1,7 @@
 package at.jku.isse.gitecco.cdt;
 
 import at.jku.isse.gitecco.conditionparser.ConditionParser;
-import org.eclipse.cdt.core.dom.ast.IASTPreprocessorElifStatement;
-import org.eclipse.cdt.core.dom.ast.IASTPreprocessorElseStatement;
-import org.eclipse.cdt.core.dom.ast.IASTPreprocessorEndifStatement;
-import org.eclipse.cdt.core.dom.ast.IASTPreprocessorStatement;
+import org.eclipse.cdt.core.dom.ast.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +28,7 @@ public class FeatureParser {
         boolean elseFlag = false;
         PPStatement pp;
 
-        features.add(new Feature("BASE", 0, linecnt));
+        features.add(new Feature(0, linecnt, "BASE"));
 
         for (IASTPreprocessorStatement pps : ppstatements) {
             try {
@@ -49,7 +46,7 @@ public class FeatureParser {
                         String condName = CDTHelper.getCondName(pp.getStatement());
                         String[] fnames = ConditionParser.parseCondition(condName);
                         for (String fname : fnames) {
-                            features.add(new Feature(fname, pp.getLineStart(), pps.getFileLocation().getEndingLineNumber()));
+                            features.add(new Feature(pp.getLineStart(), pps.getFileLocation().getEndingLineNumber(), fname));
                         }
                     } else {
                         throw new Exception("wrong definition of features");
@@ -68,7 +65,8 @@ public class FeatureParser {
                         String condName = CDTHelper.getCondName(pp.getStatement());
                         String[] fnames = ConditionParser.parseCondition(condName);
                         for (String fname : fnames) {
-                            features.add(new Feature(fname, pp.getLineStart(), pps.getFileLocation().getEndingLineNumber()));
+                            features.add(new Feature(pp.getLineStart(), pps.getFileLocation().getEndingLineNumber(), fname));
+
                         }
                     } else {
                         throw new Exception("wrong definition of features");
@@ -87,7 +85,8 @@ public class FeatureParser {
                             String condName = CDTHelper.getCondName(pp.getStatement());
                             String[] fnames = ConditionParser.parseCondition(condName);
                             for (String fname : fnames) {
-                                features.add(new Feature(fname, pp.getLineStart(), pps.getFileLocation().getEndingLineNumber()));
+                                features.add(new Feature(pp.getLineStart(), pps.getFileLocation().getEndingLineNumber(), fname));
+
                             }
                         } else {
                             throw new Exception("wrong definition of features");
@@ -105,25 +104,44 @@ public class FeatureParser {
 
 
 
-    public TreeFeature parse(Feature[] features, int linecnt, boolean b) {
-        final TreeFeature root = new TreeFeature(new Feature("BASE", 0, linecnt));
-        final Stack<Feature> stack = new Stack<>();
+    public TreeFeature parseToTree(IASTPreprocessorStatement[] ppstatements, int linecnt) throws Exception {
+        final TreeFeature root = new TreeFeature(new Feature(0, linecnt, "BASE"));
         TreeFeature currentNode = root;
-        Feature curElem;
+        boolean elseFlag = false;
+        PPStatement pp;
 
-        for (int i = 0; i < features.length-1; i++) {
-            features[i].contains(features[i+1]);
-            if(features[i].contains(features[i+1])){
-                stack.push(features[i]);
-                currentNode = currentNode.addChild(features[i]);
-            } else {
-                while(!stack.empty() && !stack.peek().contains(features[i]))
-                    stack.pop();
+        for(IASTPreprocessorStatement pps : ppstatements) {
+            if(pps instanceof IASTPreprocessorIfStatement
+                    || pps instanceof  IASTPreprocessorIfdefStatement
+                    || pps instanceof  IASTPreprocessorIfndefStatement) {
+                pp = new PPStatement(pps);
+                String condName = CDTHelper.getCondName(pp.getStatement());
+                String[] fnames = ConditionParser.parseCondition(condName);
+                currentNode = currentNode.addChild(new Feature(pp.getLineStart(), fnames));
+            }else if(pps instanceof IASTPreprocessorElifStatement) {
+                pp = new PPStatement(pps);
+                String condName = CDTHelper.getCondName(pp.getStatement());
+                String[] fnames = ConditionParser.parseCondition(condName);
+                currentNode.setEndingLineNumber(pp.getLineEnd());
+                currentNode = currentNode.getParent();
+                currentNode = currentNode.addChild(new Feature(pp.getLineStart(), fnames));
+            } else if(pps instanceof IASTPreprocessorElseStatement) {
+                pp = new PPStatement(pps);
+                currentNode.setEndingLineNumber(pp.getLineEnd());
+                currentNode = currentNode.getParent();
+                elseFlag = true;
+            } else if(pps instanceof IASTPreprocessorEndifStatement) {
+                if(!elseFlag){
+                    pp = new PPStatement(pps);
+                    currentNode.setEndingLineNumber(pp.getLineEnd());
+                    currentNode = currentNode.getParent();
+                } else {
+                    elseFlag = false;
+                }
             }
         }
 
         return root;
     }
-
 
 }

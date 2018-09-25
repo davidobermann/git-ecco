@@ -3,6 +3,7 @@ package at.jku.isse.gitecco;
 import at.jku.isse.gitecco.cdt.CDTHelper;
 import at.jku.isse.gitecco.cdt.Feature;
 import at.jku.isse.gitecco.cdt.FeatureParser;
+import at.jku.isse.gitecco.cdt.TreeFeature;
 import at.jku.isse.gitecco.ecco.EccoCommand;
 import at.jku.isse.gitecco.ecco.EccoCommit;
 import at.jku.isse.gitecco.git.Change;
@@ -28,17 +29,13 @@ public class App {
      * @param args
      * @throws Exception
      */
-    public static void main(String args[]) throws Exception {
+    public static void main(String... args) throws Exception {
 
         final List<EccoCommand> commands = new ArrayList<EccoCommand>();
         final GitHelper gitHelper = new GitHelper("C:\\obermanndavid\\git-to-ecco\\test_repo");
         final String[] commits = gitHelper.getAllCommitNames();
         String code = "";
         Change[] changes;
-
-        /*for (String commit : commits) {
-            System.out.println(commit);
-        }*/
 
         gitHelper.checkOutCommit("master");
 
@@ -63,9 +60,12 @@ public class App {
                 final FeatureParser featureParser = new FeatureParser();
                 Feature[] features = featureParser.parse(ppstatements, codelist.size());
 
-                for (Feature feature : features) {
-                    System.out.println(feature);
-                }
+                TreeFeature newFeat = featureParser.parseToTree(ppstatements, codelist.size());
+                System.out.println("++++++++++++++++++++++");
+                traverse(newFeat,0);
+                System.out.println("++++++++++++++++++++++");
+
+
 
                 changes = gitHelper.getFileDiffs(commits[i], commits[i+1]);
 
@@ -74,14 +74,15 @@ public class App {
                 for (Change change : changes) {
                     System.out.print(change.toString()+"; ");
                 }
-                System.out.println();
 
+
+                /*
                 //link changes to features
                 for (Change c : changes) {
                     int j = 0;
                     for (Feature f : features) {
                         if (f.checkAndAddChange(c)) {
-                            System.out.println("Linked "+c.toString()+" to "+f.getName());
+                            System.out.println("Linked "+c.toString()+" to "+f.getNames());
                             if (!((j+1 < features.length) && (features[j+1].compareTo(f) == 0))) {
                                 break;
                             }
@@ -96,10 +97,10 @@ public class App {
                 System.out.println("\nCommits to make:");
                 for (Feature f : features) {
                     if (f.hasChanges()) {
-                        System.out.println(" -"+f.getName());
+                        System.out.println(" -"+f.getNames());
                         featuresToCommit.add(f);
                     } else {
-                        featuresToDelete.add(f);
+                        if(!f.isBase()) featuresToDelete.add(f);
                     }
                 }
 
@@ -111,7 +112,7 @@ public class App {
 
                 commands.add(
                         new EccoCommit(featuresToCommit.toArray(new Feature[featuresToCommit.size()]))
-                );
+                );*/
             }
 
         }
@@ -125,4 +126,16 @@ public class App {
         gitHelper.checkOutCommit("master");
 
     }
+    //Traverse preorder, later on post order might be the way to go (to get the deepest leaf, which contains the change)
+    private static void traverse(TreeFeature tf, int lvl){
+        for (int i = 0; i < lvl; i++) {
+            System.out.print("-");
+        }
+        System.out.print(tf.toString() + "\n");
+
+        for(TreeFeature f : tf.getChildren()){
+            traverse(f, lvl+1);
+        }
+    }
+
 }
