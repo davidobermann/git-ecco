@@ -23,6 +23,10 @@ import java.util.stream.Collectors;
  * Main app for the git to ecco tool.
  */
 public class App {
+
+    private static boolean DEBUG = false;
+    private static int COMMIT_CNT = 3;
+
     /**
      * Main method.
      *
@@ -36,19 +40,26 @@ public class App {
         final String[] commits = gitHelper.getAllCommitNames();
         String code = "";
         Change[] changes;
+        int nrCommits = 0;
 
         gitHelper.checkOutCommit("master");
 
-        for (int i = 0; i < commits.length-1; i++) {
+        /*Debug stuff*/
+        if(DEBUG) {
+            nrCommits = COMMIT_CNT;
+        } else {
+            nrCommits = commits.length-1;
+        }
+
+        for (int i = 0; i < nrCommits; i++) { //i < commits.length-1
             code = "";
 
-            System.out.println("--------------------------------------");
+            System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++"
+                    +"+++++++++++++++++++++++++++++++++++++++++++++++++++++");
             System.out.println("Commit: "+commits[i]+" - "+commits[i+1]);
 
             gitHelper.checkOutCommit(commits[i+1]);
 
-            //cloud probably use iterator.
-            //code = Files.lines(Paths.get("C:\\obermanndavid\\git-to-ecco\\test_repo\\test.cpp")).collect(Collectors.joining("\n"));
             List<String> codelist = Files.readAllLines(Paths.get("C:\\obermanndavid\\git-to-ecco\\test_repo\\test.cpp"));
             code = codelist.stream().collect(Collectors.joining("\n"));
 
@@ -58,44 +69,39 @@ public class App {
                 //get all the preprocessor statements
                 final IASTPreprocessorStatement[] ppstatements = translationUnit.getAllPreprocessorStatements();
                 final FeatureParser featureParser = new FeatureParser();
-                Feature[] features = featureParser.parse(ppstatements, codelist.size());
 
-                TreeFeature newFeat = featureParser.parseToTree(ppstatements, codelist.size());
-                System.out.println("++++++++++++++++++++++");
-                traverse(newFeat,0);
-                System.out.println("++++++++++++++++++++++");
-
-
+                TreeFeature featureTree = featureParser.parseToTree(ppstatements, codelist.size());
+                featureTree.printAll();
+                System.out.println("-----------------------");
 
                 changes = gitHelper.getFileDiffs(commits[i], commits[i+1]);
 
                 //print changes
-                System.out.print("\nChanges at: ");
+                System.out.print("Changes at:");
                 for (Change change : changes) {
                     System.out.print(change.toString()+"; ");
                 }
+                System.out.println();
 
+                featureTree.linkChanges(changes);
 
-                /*
-                //link changes to features
-                for (Change c : changes) {
-                    int j = 0;
-                    for (Feature f : features) {
-                        if (f.checkAndAddChange(c)) {
-                            System.out.println("Linked "+c.toString()+" to "+f.getNames());
-                            if (!((j+1 < features.length) && (features[j+1].compareTo(f) == 0))) {
-                                break;
-                            }
-                        }
-                        j++;
-                    }
+                List<TreeFeature> featuresToCommit = featureTree.getChangedAsList();
+                List<Feature> featuresToDelete = new ArrayList<>();
+
+                System.out.println("-----------------------");
+                //generate ecco commits
+                System.out.println("Commits to make:");
+                for (TreeFeature feature : featuresToCommit) {
+                    System.out.println(feature.getNames());
+                }
+                System.out.println("-----------------------");
+
+                System.out.println("To delete:");
+                for(TreeFeature tf : featureTree.getToDeleteAsList()) {
+                    System.out.println(tf.getNames());
                 }
 
-                List<Feature> featuresToCommit = new ArrayList<>();
-                List<Feature> featuresToDelete = new ArrayList<>();
-                //generate ecco commits
-                System.out.println("\nCommits to make:");
-                for (Feature f : features) {
+                /*for (Feature f : features) {
                     if (f.hasChanges()) {
                         System.out.println(" -"+f.getNames());
                         featuresToCommit.add(f);
@@ -118,24 +124,14 @@ public class App {
         }
 
         int i = 0;
-        System.out.println("---------------------------------------");
+        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++"
+                +"+++++++++++++++++++++++++++++++++++++++++++++++++++++");
         for (EccoCommand command : commands) {
             System.out.println(i++ + " " + command.getCommandMsg());
         }
 
         gitHelper.checkOutCommit("master");
 
-    }
-    //Traverse preorder, later on post order might be the way to go (to get the deepest leaf, which contains the change)
-    private static void traverse(TreeFeature tf, int lvl){
-        for (int i = 0; i < lvl; i++) {
-            System.out.print("-");
-        }
-        System.out.print(tf.toString() + "\n");
-
-        for(TreeFeature f : tf.getChildren()){
-            traverse(f, lvl+1);
-        }
     }
 
 }

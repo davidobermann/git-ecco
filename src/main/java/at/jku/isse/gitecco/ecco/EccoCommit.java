@@ -1,6 +1,7 @@
 package at.jku.isse.gitecco.ecco;
 
 import at.jku.isse.gitecco.cdt.Feature;
+import at.jku.isse.gitecco.cdt.TreeFeature;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,18 +13,16 @@ import java.util.List;
  */
 public class EccoCommit implements EccoCommand {
 
-    private final List<Feature> features;
+    private final List<TreeFeature> features;
 
     /**
      * Creates a new EccoCommit with the passed features.
      *
-     * @param f
+     * @param tf
      */
-    public EccoCommit(Feature[] f) {
-        features = new ArrayList<Feature>();
-        for (Feature feature : f) {
-            features.add(feature);
-        }
+    public EccoCommit(TreeFeature tf) {
+        features = new ArrayList<TreeFeature>();
+        //TODO: get all the changed features in the tree and add them to the list.
     }
 
     /**
@@ -32,12 +31,16 @@ public class EccoCommit implements EccoCommand {
      * @param f
      */
     public void addFeature(Feature f) {
-        features.add(f);
+        //TODO: create a method to add ned features to this commit command
+        //features.add(f);
     }
 
 
     @Override
     public String getCommandMsg() {
+
+        //TODO: take every changed feature from the list and get the name and all parent names.
+
         String retFeatures = "";
         for (Feature feature : features) {
             if (!retFeatures.contains(feature.getNames()+"'")) {

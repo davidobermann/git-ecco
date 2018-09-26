@@ -22,6 +22,7 @@ public class FeatureParser {
      * @param ppstatements all the Preprocessor Statements of a Eclipse CDT C++ AST.
      * @return Array of al Features found in the preprocessor statements.
      */
+    @Deprecated
     public Feature[] parse(IASTPreprocessorStatement[] ppstatements, int linecnt) {
         final List<Feature> features = new ArrayList<>();
         final Stack<IASTPreprocessorStatement> stack = new Stack<IASTPreprocessorStatement>();
@@ -103,7 +104,14 @@ public class FeatureParser {
     }
 
 
-
+    /**
+     * Retains all the features contained in the file as a tree of features --> TreeFeature
+     *
+     * @param ppstatements
+     * @param linecnt
+     * @return The root of the tree.
+     * @throws Exception
+     */
     public TreeFeature parseToTree(IASTPreprocessorStatement[] ppstatements, int linecnt) throws Exception {
         final TreeFeature root = new TreeFeature(new Feature(0, linecnt, "BASE"));
         TreeFeature currentNode = root;

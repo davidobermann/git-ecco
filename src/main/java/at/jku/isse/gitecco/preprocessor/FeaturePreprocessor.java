@@ -26,16 +26,19 @@ public class FeaturePreprocessor {
     public String getCommitFileContent(Feature[] featuresToCut, String fileToCut) throws IOException {
         List<String> result = Files.readAllLines(Paths.get(fileToCut));
 
-        result = cutLines(result, featuresToCut[0]);
-        for (int i = 0; i < featuresToCut.length; i++) {
-            result = cutLines(result, featuresToCut[i]);
-        }
-        String newFileContent = result.stream()
-                .filter(s -> !s.equals("###lineremoved###"))
-                .filter(s -> !s.contains("#if") && !s.contains("#endif") && !s.contains("#else"))
-                .collect(Collectors.joining("\n"));
+        if(featuresToCut.length > 0) {
+            result = cutLines(result, featuresToCut[0]);
+            for (int i = 0; i < featuresToCut.length; i++) {
+                result = cutLines(result, featuresToCut[i]);
+            }
+            String newFileContent = result.stream()
+                    .filter(s -> !s.equals("###lineremoved###"))
+                    .filter(s -> !s.contains("#if") && !s.contains("#endif") && !s.contains("#else"))
+                    .collect(Collectors.joining("\n"));
 
-        return newFileContent;
+            return newFileContent;
+        }
+        return "";
     }
 
     /**
