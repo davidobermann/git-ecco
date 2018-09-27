@@ -73,13 +73,17 @@ public class TreeFeature extends Feature{
         return false;
     }
 
-
+    /**
+     * Prints the entire tree under the node which this method was called from.
+     */
     public void printAll() {
-        if(this.getParent() != null)
-            System.out.println("Warning this is not a tree root!");
         printPreOrder(this, 0);
     }
 
+    /**
+     * Gets all the changed Features of the Tree and returns them as a List oft TreeFeatures
+     * @return List of TreeFeatures containing all changed Features of the Tree.
+     */
     public List<TreeFeature> getChangedAsList() {
         final List<TreeFeature> ret = new ArrayList<>();
         if(this.hasChanges()) ret.add(this);
@@ -89,6 +93,10 @@ public class TreeFeature extends Feature{
         return ret;
     }
 
+    /**
+     * Gets all the Features which can and should be cut out of the source file.
+     * @return All the Features of the sub trees which are fully unchanged.
+     */
     public List<TreeFeature> getToDelete() {
         final List<TreeFeature> changed = new ArrayList<>();
         for(TreeFeature tf : getChangedAsList()) {
@@ -122,10 +130,18 @@ public class TreeFeature extends Feature{
         }
     }
 
+    /**
+     * Gets the parent TreeFeature node.
+     * @return The parent TreeFeature node.
+     */
     public TreeFeature getParent() {
         return this.parent;
     }
 
+    /**
+     * Gets all the children this TreeFeature has as a List of TreeFeatures.
+     * @return Children of this TreeFeature as a List.
+     */
     public List<TreeFeature> getChildren(){
         return Collections.unmodifiableList(children);
     }

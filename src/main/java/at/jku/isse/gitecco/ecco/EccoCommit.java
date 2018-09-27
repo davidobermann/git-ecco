@@ -20,37 +20,39 @@ public class EccoCommit implements EccoCommand {
      *
      * @param tf
      */
-    public EccoCommit(TreeFeature tf) {
-        features = new ArrayList<TreeFeature>();
-        //TODO: get all the changed features in the tree and add them to the list.
+    public EccoCommit(List<TreeFeature> tf) {
+        features = new ArrayList<TreeFeature>(tf);
     }
 
     /**
      * Allows to add features to the commit after it was initialized by the constructor.
      *
-     * @param f
+     * @param tf
      */
-    public void addFeature(Feature f) {
-        //TODO: create a method to add ned features to this commit command
-        //features.add(f);
+    public void addFeature(TreeFeature tf) {
+        features.add(tf);
     }
 
 
     @Override
     public String getCommandMsg() {
-
-        //TODO: take every changed feature from the list and get the name and all parent names.
-
         String retFeatures = "";
-        for (Feature feature : features) {
-            if (!retFeatures.contains(feature.getNames()+"'")) {
-                retFeatures += feature.getNames()+"' ";
+        String buf = "";
+        for (TreeFeature feature : features) {
+            buf = "";
+            for(String name : feature.getName()) {
+                buf += name + "' ";
             }
-        }
-        if (retFeatures == "") {
-            retFeatures = "BASE'";
-        } else if (!retFeatures.contains("BASE'")) {
-            retFeatures += "BASE";
+            if (!retFeatures.contains(buf)) {
+                retFeatures += buf;
+            }
+            TreeFeature t = feature.getParent();
+            while(t != null) {
+                for(String name : t.getName()) {
+                    if (!retFeatures.contains(name)) retFeatures += name + " ";
+                }
+                t = t.getParent();
+            }
         }
 
         return "ecco commit "+retFeatures;

@@ -107,24 +107,7 @@ public class App {
 
                 System.out.println("\n" + newFile);
 
-                /*for (Feature f : features) {
-                    if (f.hasChanges()) {
-                        System.out.println(" -"+f.getNames());
-                        featuresToCommit.add(f);
-                    } else {
-                        if(!f.isBase()) featuresToDelete.add(f);
-                    }
-                }
-
-                final FeaturePreprocessor fpp = new FeaturePreprocessor();
-                String newFile = fpp.getCommitFileContent(featuresToDelete.toArray(new Feature[featuresToDelete.size()]),
-                        "C:\\obermanndavid\\git-to-ecco\\test_repo\\test.cpp");
-
-                System.out.println(newFile);
-
-                commands.add(
-                        new EccoCommit(featuresToCommit.toArray(new Feature[featuresToCommit.size()]))
-                );*/
+                commands.add(new EccoCommit(featuresToCommit));
             }
 
         }
