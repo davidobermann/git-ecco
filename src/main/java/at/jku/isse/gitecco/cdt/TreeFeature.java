@@ -6,18 +6,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
+/**
+ * Class for storing features as a tree of features. <br>
+ * Each Subtree can be represented by this TreeFeature class.
+ */
 public class TreeFeature extends Feature{
     private static TreeFeature root;
     private final TreeFeature parent;
     private final List<TreeFeature> children;
 
-    public TreeFeature(Feature self, TreeFeature parent) {
-        super(self.getStartingLineNumber(), self.getEndingLineNumber(), self.getName());
-        this.parent = parent;
-        this.children = new ArrayList<TreeFeature>();
-    }
-
+    /**
+     * Creates a new Tree root.
+     * @param self The Feature to be stored.
+     */
     public TreeFeature(Feature self) {
         super(self.getStartingLineNumber(), self.getEndingLineNumber(), self.getName());
         this.parent = null;
@@ -25,16 +26,36 @@ public class TreeFeature extends Feature{
         root = this;
     }
 
+    private TreeFeature(Feature self, TreeFeature parent) {
+        super(self.getStartingLineNumber(), self.getEndingLineNumber(), self.getName());
+        this.parent = parent;
+        this.children = new ArrayList<TreeFeature>();
+    }
+
+    /**
+     * Gets the root of the Tree.
+     * @return The root of the tree.
+     */
     public TreeFeature getRoot() {
         return root;
     }
 
+    /**
+     * Adds a Child to the tree.
+     * @param child The Feature which should be added as a child to the current node.
+     * @return The added Feature/The newly created child.
+     */
     public TreeFeature addChild(Feature child) {
         TreeFeature t = new TreeFeature(child, this);
         children.add(t);
         return t;
     }
 
+    /**
+     * Links the given Changes to the Tree. <br>
+     * Preferably used on the tree root.
+     * @param changes Array of the changes which should be linked to the feature.
+     */
     public void linkChanges(Change[] changes) {
         for (Change c : changes) {
             linkChange(this,c);
@@ -52,6 +73,7 @@ public class TreeFeature extends Feature{
         return false;
     }
 
+
     public void printAll() {
         if(this.getParent() != null)
             System.out.println("Warning this is not a tree root!");
@@ -59,7 +81,7 @@ public class TreeFeature extends Feature{
     }
 
     public List<TreeFeature> getChangedAsList() {
-        List<TreeFeature> ret = new ArrayList<>();
+        final List<TreeFeature> ret = new ArrayList<>();
         if(this.hasChanges()) ret.add(this);
         for(TreeFeature f : this.getChildren()) {
             ret.addAll(f.getChangedAsList());
@@ -67,23 +89,25 @@ public class TreeFeature extends Feature{
         return ret;
     }
 
-    public List<TreeFeature> getToDeleteAsList() {
-        List<TreeFeature> ret = new ArrayList<>();
-        for(TreeFeature tf : this.getLeafs()){
+    public List<TreeFeature> getToDelete() {
+        final List<TreeFeature> changed = new ArrayList<>();
+        for(TreeFeature tf : getChangedAsList()) {
             TreeFeature t = tf;
-            while(t.parent != null && !t.hasChanges()) {
-                if(!ret.contains(t))ret.add(t);
+            while(t != null) {
+                if(!changed.contains(t)){
+                    changed.add(t);
+                }
                 t = t.parent;
             }
         }
-        return ret;
+        return filterTree(changed);
     }
 
-    private List<TreeFeature> getLeafs() {
-        List<TreeFeature> ret = new ArrayList<>();
-        if(this.isLeaf()) ret.add(this);
-        for(TreeFeature tf : this.getChildren()) {
-            ret.addAll(tf.getLeafs());
+    private List<TreeFeature> filterTree(List<TreeFeature> changedSubtrees) {
+        final List<TreeFeature> ret = new ArrayList<>();
+        if(!changedSubtrees.contains(this)) ret.add(this);
+        for (TreeFeature tf : this.getChildren()) {
+            ret.addAll(tf.filterTree(changedSubtrees));
         }
         return ret;
     }
@@ -100,10 +124,6 @@ public class TreeFeature extends Feature{
 
     public TreeFeature getParent() {
         return this.parent;
-    }
-
-    public  boolean isLeaf() {
-        return children.size() == 0;
     }
 
     public List<TreeFeature> getChildren(){
