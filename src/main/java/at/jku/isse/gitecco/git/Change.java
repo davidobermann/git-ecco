@@ -29,7 +29,7 @@ public class Change {
      * @return True if the Feature is in fact in this change, otherwise false.
      */
     public boolean contains(Feature feature) {
-        return (from < feature.getStartingLineNumber()) && (to > feature.getEndingLineNumber());
+        return (from <= feature.getStartingLineNumber()) && (to >= feature.getEndingLineNumber());
     }
 
     /**

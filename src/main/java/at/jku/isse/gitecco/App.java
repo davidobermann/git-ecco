@@ -1,9 +1,6 @@
 package at.jku.isse.gitecco;
 
-import at.jku.isse.gitecco.cdt.CDTHelper;
-import at.jku.isse.gitecco.cdt.Feature;
-import at.jku.isse.gitecco.cdt.FeatureParser;
-import at.jku.isse.gitecco.cdt.TreeFeature;
+import at.jku.isse.gitecco.cdt.*;
 import at.jku.isse.gitecco.ecco.EccoCommand;
 import at.jku.isse.gitecco.ecco.EccoCommit;
 import at.jku.isse.gitecco.git.Change;
@@ -93,6 +90,9 @@ public class App {
                 System.out.println("Commits to make:");
                 for (TreeFeature feature : featuresToCommit) {
                     System.out.println(feature.getNames());
+                    if(!(feature.getFeatureType() == FeatureType.IF)) {
+                        System.out.println("--exclusive");
+                    }
                 }
                 System.out.println("-----------------------");
 

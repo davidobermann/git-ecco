@@ -21,14 +21,14 @@ public class TreeFeature extends Feature {
      * @param self The Feature to be stored.
      */
     public TreeFeature(Feature self) {
-        super(self.getStartingLineNumber(), self.getEndingLineNumber(), self.getName());
+        super(self.getStartingLineNumber(), self.getEndingLineNumber(), self.getFeatureType(), self.getName());
         this.parent = null;
         this.children = new ArrayList<TreeFeature>();
         root = this;
     }
 
     private TreeFeature(Feature self, TreeFeature parent) {
-        super(self.getStartingLineNumber(), self.getEndingLineNumber(), self.getName());
+        super(self.getStartingLineNumber(), self.getEndingLineNumber(), self.getFeatureType(), self.getName());
         this.parent = parent;
         this.children = new ArrayList<TreeFeature>();
     }
@@ -71,6 +71,7 @@ public class TreeFeature extends Feature {
             if (linkChange(f, c)) return true;
         }
 
+        //detects if there is a newly added feature
         if(c.contains(tf)) {
             tf.addUnchecked(c);
             System.out.println("Linked "+c.toString()+" to "+tf.getNames());

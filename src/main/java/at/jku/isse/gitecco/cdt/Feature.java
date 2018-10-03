@@ -15,6 +15,7 @@ import java.util.List;
  * It may or may not contain changes. <br>
  */
 public class Feature implements Comparable<Feature> {
+    private final FeatureType featureType;
     private final String[] names;
     private final int startingLineNumber;
     private int endingLineNumber;
@@ -27,10 +28,11 @@ public class Feature implements Comparable<Feature> {
      * @param endingLineNumber the number of the line in which the feature ends
      * @param names vararg of the feature names. (A&&B has two names but is one block of feature)
      */
-    public Feature(int startingLineNumber, int endingLineNumber, String... names) {
+    public Feature(int startingLineNumber, int endingLineNumber, FeatureType ft, String... names) {
         this.names = names;
         this.startingLineNumber = startingLineNumber;
         this.endingLineNumber = endingLineNumber;
+        this.featureType = ft;
         changes = new ArrayList<Change>();
     }
 
@@ -40,9 +42,10 @@ public class Feature implements Comparable<Feature> {
      * @param names               the name of the feature
      * @param startingLineNumber line info where the feature begins
      */
-    public Feature(int startingLineNumber, String... names) {
+    public Feature(int startingLineNumber, FeatureType ft, String... names) {
         this.names = names;
         this.startingLineNumber = startingLineNumber;
+        this.featureType = ft;
         changes = new ArrayList<Change>();
     }
 
@@ -63,6 +66,14 @@ public class Feature implements Comparable<Feature> {
         }
         ret += names[names.length-1];
         return ret;
+    }
+
+    /**
+     * Gets the Type of the Feature
+     * @return the Type of the Feature
+     */
+    public FeatureType getFeatureType() {
+        return featureType;
     }
 
     /**
@@ -157,7 +168,7 @@ public class Feature implements Comparable<Feature> {
 
     @Override
     public String toString() {
-        return this.getNames() +": "+this.getStartingLineNumber()+" - "+this.getEndingLineNumber();
+        return this.getNames() +": "+this.getStartingLineNumber()+" - "+this.getEndingLineNumber() + "  --> Typ: " + this.getFeatureType();
     }
 
     @Override
