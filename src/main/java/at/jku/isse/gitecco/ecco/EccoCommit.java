@@ -55,6 +55,7 @@ public class EccoCommit implements EccoCommand {
             }
         }
 
+        retFeatures = retFeatures.equals("") ? "BASE" : retFeatures;
         return "ecco commit "+retFeatures;
     }
 }

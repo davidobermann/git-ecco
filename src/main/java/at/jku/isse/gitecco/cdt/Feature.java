@@ -128,6 +128,15 @@ public class Feature implements Comparable<Feature> {
     }
 
     /**
+     * Adds a Change, but does not check if the Feature
+     * Actually contains the Change.
+     * @param c The change to be added.
+     */
+    public void addUnchecked(Change c) {
+        if(!changes.contains(c)) changes.add(c);
+    }
+
+    /**
      * Returns all the changes currently contained in this feature. <br>
      * Does not assure that already all changes have been checked.
      *

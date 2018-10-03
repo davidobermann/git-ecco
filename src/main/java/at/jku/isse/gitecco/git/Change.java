@@ -1,5 +1,7 @@
 package at.jku.isse.gitecco.git;
 
+import at.jku.isse.gitecco.cdt.Feature;
+
 /**
  * Class to store a change.
  * A change is defined by two coordinates.<br>
@@ -18,6 +20,16 @@ public class Change {
     public Change(int from, int cnt){
         this.from = from;
         this.to = from + cnt - 1;
+    }
+
+    /**
+     * Checks if a given Feature lays inside of this change.
+     * Used to determine if a new Feature was added.
+     * @param feature The feature, which should be checked.
+     * @return True if the Feature is in fact in this change, otherwise false.
+     */
+    public boolean contains(Feature feature) {
+        return (from < feature.getStartingLineNumber()) && (to > feature.getEndingLineNumber());
     }
 
     /**
