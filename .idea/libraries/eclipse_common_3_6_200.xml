@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="eclipse-common-3.6.200">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/libs/eclipse-common-3.6.200.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
