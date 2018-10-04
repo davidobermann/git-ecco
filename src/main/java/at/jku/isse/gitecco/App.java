@@ -107,8 +107,7 @@ public class App {
 
                 System.out.println("\n" + newFile);
 
-                commands.add(new EccoCommit(featuresToCommit));
-            }
+                commands.add(new EccoCommit(featuresToCommit));            }
 
         }
 
