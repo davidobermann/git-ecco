@@ -2,6 +2,7 @@ package at.jku.isse.gitecco.ecco;
 
 import at.jku.isse.gitecco.cdt.Feature;
 import at.jku.isse.gitecco.cdt.TreeFeature;
+import at.jku.isse.gitecco.conditionparser.ParsedCondition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,16 +41,16 @@ public class EccoCommit implements EccoCommand {
         String buf = "";
         for (TreeFeature feature : features) {
             buf = "";
-            for(String name : feature.getName()) {
-                buf += name + "' ";
+            for(ParsedCondition pc : feature.getConditions()) {
+                buf += pc.getName() + "' ";
             }
             if (!retFeatures.contains(buf)) {
                 retFeatures += buf;
             }
             TreeFeature t = feature.getParent();
             while(t != null) {
-                for(String name : t.getName()) {
-                    if (!retFeatures.contains(name)) retFeatures += name + " ";
+                for(ParsedCondition pc : t.getConditions()) {
+                    if (!retFeatures.contains(pc.getName())) retFeatures += pc.getName() + " ";
                 }
                 t = t.getParent();
             }

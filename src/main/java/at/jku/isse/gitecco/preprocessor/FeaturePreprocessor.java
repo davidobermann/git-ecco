@@ -1,6 +1,8 @@
 package at.jku.isse.gitecco.preprocessor;
 
 import at.jku.isse.gitecco.cdt.Feature;
+import at.jku.isse.gitecco.cdt.TreeFeature;
+import at.jku.isse.gitecco.conditionparser.ParsedCondition;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,6 +16,19 @@ import java.util.stream.Collectors;
  * With the provided methods it is possible the cut the unchanged features
  */
 public class FeaturePreprocessor {
+
+    public void preprocess(TreeFeature tree, String file) {
+        List<TreeFeature> changed = tree.getChangedAsList();
+        String command = "coan source ";
+        for (TreeFeature tf : changed) {
+            for (ParsedCondition pc : tf.getConditions()) {
+                int value = (int)pc.getDefinition();
+                command += "-D" + pc.getName() + "=" + value +  " ";
+            }
+        }
+        command += "-m -ge -P -r " + file;
+        System.out.println(command);
+    }
 
     /**
      * Cuts all the unchanged features of
@@ -64,14 +79,5 @@ public class FeaturePreprocessor {
         return ret;
     }
 
-    private List<String> tryForever(String fileToCut){
-        List<String> result;
-        try {
-            result = Files.lines(Paths.get(fileToCut)).collect(Collectors.toList());
-        } catch(Exception e) {
-            result = tryForever(fileToCut);
-        }
-        return result;
-    }
 
 }

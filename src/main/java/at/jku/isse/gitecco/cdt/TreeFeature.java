@@ -21,14 +21,14 @@ public class TreeFeature extends Feature {
      * @param self The Feature to be stored.
      */
     public TreeFeature(Feature self) {
-        super(self.getStartingLineNumber(), self.getEndingLineNumber(), self.getFeatureType(), self.getName());
+        super(self.getStartingLineNumber(), self.getEndingLineNumber(), self.getFeatureType(), self.getConditions());
         this.parent = null;
         this.children = new ArrayList<TreeFeature>();
         root = this;
     }
 
     private TreeFeature(Feature self, TreeFeature parent) {
-        super(self.getStartingLineNumber(), self.getEndingLineNumber(), self.getFeatureType(), self.getName());
+        super(self.getStartingLineNumber(), self.getEndingLineNumber(), self.getFeatureType(), self.getConditions());
         this.parent = parent;
         this.children = new ArrayList<TreeFeature>();
     }

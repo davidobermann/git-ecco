@@ -67,7 +67,7 @@ public class App {
                 final IASTPreprocessorStatement[] ppstatements = translationUnit.getAllPreprocessorStatements();
                 final FeatureParser featureParser = new FeatureParser();
 
-                TreeFeature featureTree = featureParser.parseToTree(ppstatements, codelist.size());
+                TreeFeature featureTree = featureParser.parseToTreeDef(ppstatements, codelist.size());
                 featureTree.printAll();
                 System.out.println("-----------------------");
 
@@ -85,7 +85,7 @@ public class App {
                 final List<TreeFeature> featuresToCommit = featureTree.getChangedAsList();
                 final List<TreeFeature> featuresToDelete = featureTree.getToDelete();
 
-                System.out.println("-----------------------");
+                /*System.out.println("-----------------------");
                 //generate ecco commits
                 System.out.println("Commits to make:");
                 for (TreeFeature feature : featuresToCommit) {
@@ -99,13 +99,13 @@ public class App {
                 System.out.println("To delete:");
                 for(TreeFeature tf : featuresToDelete) {
                     System.out.println(tf.getNames());
-                }
+                }*/
 
                 final FeaturePreprocessor fpp = new FeaturePreprocessor();
-                String newFile = fpp.getCommitFileContent(featuresToDelete.toArray(new Feature[featuresToDelete.size()]),
-                        "C:\\obermanndavid\\git-to-ecco\\test_repo\\test.cpp");
+                /*String newFile = fpp.getCommitFileContent(featuresToDelete.toArray(new Feature[featuresToDelete.size()]),
+                        "C:\\obermanndavid\\git-to-ecco\\test_repo\\test.cpp");*/
 
-                System.out.println("\n" + newFile);
+                fpp.preprocess(featureTree, "<filepath>");
 
                 commands.add(new EccoCommit(featuresToCommit));            }
 

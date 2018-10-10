@@ -1,5 +1,6 @@
 package at.jku.isse.gitecco.cdt;
 
+import at.jku.isse.gitecco.conditionparser.ParsedCondition;
 import at.jku.isse.gitecco.git.Change;
 
 import java.util.ArrayList;
@@ -16,37 +17,42 @@ import java.util.List;
  */
 public class Feature implements Comparable<Feature> {
     private final FeatureType featureType;
-    private final String[] names;
     private final int startingLineNumber;
     private int endingLineNumber;
     private final List<Change> changes;
+    private final ParsedCondition[] conditions;
+
 
     /**
-     * Creates a new Feature
-     *
-     * @param startingLineNumber the number of the line in which this feature starts
-     * @param endingLineNumber the number of the line in which the feature ends
-     * @param names vararg of the feature names. (A&&B has two names but is one block of feature)
+     * Creates a new Feature with the given parameters
+     * @param startingLineNumber
+     * @param ft
+     * @param conds
      */
-    public Feature(int startingLineNumber, int endingLineNumber, FeatureType ft, String... names) {
-        this.names = names;
+    public Feature(int startingLineNumber, FeatureType ft, ParsedCondition... conds) {
+        this.conditions = conds;
+        this.startingLineNumber = startingLineNumber;
+        this.featureType = ft;
+        changes = new ArrayList<Change>();
+    }
+
+    /**
+     * Creates a new Feature with the given parameters
+     * @param startingLineNumber
+     * @param endingLineNumber
+     * @param ft
+     * @param conds
+     */
+    public Feature(int startingLineNumber, int endingLineNumber, FeatureType ft, ParsedCondition... conds) {
+        this.conditions = conds;
         this.startingLineNumber = startingLineNumber;
         this.endingLineNumber = endingLineNumber;
         this.featureType = ft;
         changes = new ArrayList<Change>();
     }
 
-    /**
-     * Creates a new Feature
-     *
-     * @param names               the name of the feature
-     * @param startingLineNumber line info where the feature begins
-     */
-    public Feature(int startingLineNumber, FeatureType ft, String... names) {
-        this.names = names;
-        this.startingLineNumber = startingLineNumber;
-        this.featureType = ft;
-        changes = new ArrayList<Change>();
+    public ParsedCondition[] getConditions() {
+        return conditions;
     }
 
     public void setEndingLineNumber(int lnr) {
@@ -60,11 +66,11 @@ public class Feature implements Comparable<Feature> {
      */
     public String getNames() {
         String ret = "";
-        if(names.length == 1) return names[0];
-        for (int i = 0; i < names.length-1; i++) {
-            ret += names[i] + ", ";
+        if(conditions.length == 1) return conditions[0].getName();
+        for (int i = 0; i < conditions.length-1; i++) {
+            ret += conditions[i].getName() + ", ";
         }
-        ret += names[names.length-1];
+        ret += conditions[conditions.length-1].getName();
         return ret;
     }
 
@@ -74,15 +80,6 @@ public class Feature implements Comparable<Feature> {
      */
     public FeatureType getFeatureType() {
         return featureType;
-    }
-
-    /**
-     * gets the name of the feature
-     *
-     * @return the feature name
-     */
-    public String[] getName() {
-        return names;
     }
 
     /**

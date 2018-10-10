@@ -22,6 +22,38 @@ public class ConditionParser {
     }
 
     /**
+     * Parses the given condition for possible features
+     *
+     * @param condition The condition to be parsed.
+     * @return
+     */
+    public static ParsedCondition[] parseConditionWithDefition(String condition) {
+        Expression exp = new Expression(condition);
+        Token[] tokens = exp.getCopyOfInitialTokens().toArray(new Token[exp.getCopyOfInitialTokens().size()]);
+        List<ParsedCondition> conditions = new ArrayList<>();
+
+        String leveledExpression = "";
+        int lvlbuf = 0;
+        int i = 0;
+        for (Token token : tokens) {
+            if (token.tokenLevel == lvlbuf) {
+                leveledExpression += (token.tokenTypeId == ParserSymbol.TYPE_ID)
+                        || (token.looksLike.equals("function"))
+                        || (token.tokenTypeId == 1) ? "" : token.tokenStr;
+                if (i == tokens.length-1) {
+                    conditions.addAll(parseLeveledExpressionWithDefine(leveledExpression));
+                }
+            } else {
+                conditions.addAll(parseLeveledExpressionWithDefine(leveledExpression));
+                lvlbuf = token.tokenLevel;
+                leveledExpression = (token.tokenTypeId == ParserSymbol.TYPE_ID) ? "" : token.tokenStr;
+            }
+            i++;
+        }
+        return conditions.toArray(new ParsedCondition[conditions.size()]);
+    }
+
+    /**
      * Parses the given condition for possible features and
      * if existing the corresponding definition for preprocessing.
      *
@@ -55,18 +87,16 @@ public class ConditionParser {
         return featureNames.toArray(new String[featureNames.size()]);
     }
 
-
-
     /**
      * Currently not needed:
      * Extracts the Features + its definition if there is one.
      * @param expression
      * @return
      */
-    private static List<Feature> parseLeveledExpressionWithDefine(String expression) {
+    private static List<ParsedCondition> parseLeveledExpressionWithDefine(String expression) {
         int i = 0;
         double offset = 0;
-        List<Feature> features = new ArrayList<>();
+        List<ParsedCondition> parsedCond = new ArrayList<>();
 
         if (expression.length() > 0) {
             Expression ep = new Expression(expression);
@@ -76,21 +106,26 @@ public class ConditionParser {
                     if (i == 0) {
                         if (tokens.length == i+1) {
                             System.out.println(t.tokenStr+" must be defined");
+                            parsedCond.add(new ParsedCondition(t.tokenStr, 1));
                         } else if (tokens[i+1].tokenTypeId != BinaryRelation.TYPE_ID) {
                             System.out.println(t.tokenStr+" must be defined");
+                            parsedCond.add(new ParsedCondition(t.tokenStr, 1));
                         }
                     } else if ((i-1 >= 0) && (i+1 < tokens.length)) {
                         if (tokens[i-1].tokenTypeId != BinaryRelation.TYPE_ID
                                 && tokens[i+1].tokenTypeId != BinaryRelation.TYPE_ID) {
                             System.out.println(t.tokenStr+" must be defined");
+                            parsedCond.add(new ParsedCondition(t.tokenStr, 1));
                         }
                     } else if (i+1 == tokens.length) {
                         if (i-1 >= 0) {
                             if (tokens[i-1].tokenTypeId != BinaryRelation.TYPE_ID) {
                                 System.out.println(t.tokenStr+" must be defined");
+                                parsedCond.add(new ParsedCondition(t.tokenStr, 1));
                             }
                         } else {
                             System.out.println(t.tokenStr+" must be defined");
+                            parsedCond.add(new ParsedCondition(t.tokenStr, 1));
                         }
                     }
                 } else if (t.tokenTypeId == BinaryRelation.TYPE_ID) {
@@ -108,8 +143,10 @@ public class ConditionParser {
                             //Left/Right is an argument
                             if (tokens[i-1].looksLike.equals("argument")) {
                                 System.out.println(tokens[i-1].tokenStr+" must be defined as "+(tokens[i+1].tokenValue+offset));
+                                parsedCond.add(new ParsedCondition(tokens[i-1].tokenStr, tokens[i+1].tokenValue));
                             } else if (tokens[i+1].looksLike.equals("argument")) {
                                 System.out.println(tokens[i+1].tokenStr+" must be defined as "+(tokens[i-1].tokenValue+offset));
+                                parsedCond.add(new ParsedCondition(tokens[i+1].tokenStr, tokens[i-1].tokenValue));
                             }
                         }
                     }
@@ -117,14 +154,14 @@ public class ConditionParser {
                 i++;
             }
             //features.add(new ExtractedFeature(tokens[i-1].tokenStr, Optional.ofNullable(tokens[i+1].tokenValue)));
+            //parsedCond.add(new ParsedCondition(t.tokenStr, 1));
         }
-        return features;
+        return parsedCond;
     }
 
 
     private static String parseLeveledExpression(String expression) {
         int i = 0;
-
         if (expression.length() > 0) {
             Expression ep = new Expression(expression);
             expression = "";
