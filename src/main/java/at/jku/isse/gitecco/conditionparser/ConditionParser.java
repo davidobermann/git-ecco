@@ -1,6 +1,5 @@
 package at.jku.isse.gitecco.conditionparser;
 
-import at.jku.isse.gitecco.cdt.Feature;
 import org.mariuszgromada.math.mxparser.Expression;
 import org.mariuszgromada.math.mxparser.parsertokens.BinaryRelation;
 import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
@@ -105,26 +104,21 @@ public class ConditionParser {
                 if (t.looksLike.equals("argument")) {
                     if (i == 0) {
                         if (tokens.length == i+1) {
-                            System.out.println(t.tokenStr+" must be defined");
                             parsedCond.add(new ParsedCondition(t.tokenStr, 1));
                         } else if (tokens[i+1].tokenTypeId != BinaryRelation.TYPE_ID) {
-                            System.out.println(t.tokenStr+" must be defined");
                             parsedCond.add(new ParsedCondition(t.tokenStr, 1));
                         }
                     } else if ((i-1 >= 0) && (i+1 < tokens.length)) {
                         if (tokens[i-1].tokenTypeId != BinaryRelation.TYPE_ID
                                 && tokens[i+1].tokenTypeId != BinaryRelation.TYPE_ID) {
-                            System.out.println(t.tokenStr+" must be defined");
                             parsedCond.add(new ParsedCondition(t.tokenStr, 1));
                         }
                     } else if (i+1 == tokens.length) {
                         if (i-1 >= 0) {
                             if (tokens[i-1].tokenTypeId != BinaryRelation.TYPE_ID) {
-                                System.out.println(t.tokenStr+" must be defined");
                                 parsedCond.add(new ParsedCondition(t.tokenStr, 1));
                             }
                         } else {
-                            System.out.println(t.tokenStr+" must be defined");
                             parsedCond.add(new ParsedCondition(t.tokenStr, 1));
                         }
                     }
@@ -135,26 +129,22 @@ public class ConditionParser {
                                 || t.tokenStr.equals(BinaryRelation.LEQ_STR)) {
                             offset = 0;
                         } else if (t.tokenStr.equals(BinaryRelation.GT_STR)) {
-                            offset = -10;
+                            offset = -1;
                         } else if (t.tokenStr.equals(BinaryRelation.LT_STR)) {
-                            offset = 10;
+                            offset = 1;
                         }
                         if ((tokens[i-1].tokenTypeId == 0) || tokens[i+1].tokenTypeId == 0) {
                             //Left/Right is an argument
                             if (tokens[i-1].looksLike.equals("argument")) {
-                                System.out.println(tokens[i-1].tokenStr+" must be defined as "+(tokens[i+1].tokenValue+offset));
-                                parsedCond.add(new ParsedCondition(tokens[i-1].tokenStr, tokens[i+1].tokenValue));
+                                parsedCond.add(new ParsedCondition(tokens[i-1].tokenStr, tokens[i+1].tokenValue+offset));
                             } else if (tokens[i+1].looksLike.equals("argument")) {
-                                System.out.println(tokens[i+1].tokenStr+" must be defined as "+(tokens[i-1].tokenValue+offset));
-                                parsedCond.add(new ParsedCondition(tokens[i+1].tokenStr, tokens[i-1].tokenValue));
+                                parsedCond.add(new ParsedCondition(tokens[i+1].tokenStr, tokens[i-1].tokenValue+offset));
                             }
                         }
                     }
                 }
                 i++;
             }
-            //features.add(new ExtractedFeature(tokens[i-1].tokenStr, Optional.ofNullable(tokens[i+1].tokenValue)));
-            //parsedCond.add(new ParsedCondition(t.tokenStr, 1));
         }
         return parsedCond;
     }

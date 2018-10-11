@@ -85,22 +85,6 @@ public class App {
                 final List<TreeFeature> featuresToCommit = featureTree.getChangedAsList();
                 final List<TreeFeature> featuresToDelete = featureTree.getToDelete();
 
-                /*System.out.println("-----------------------");
-                //generate ecco commits
-                System.out.println("Commits to make:");
-                for (TreeFeature feature : featuresToCommit) {
-                    System.out.println(feature.getNames());
-                    if(!(feature.getFeatureType() == FeatureType.IF)) {
-                        System.out.println("--exclusive");
-                    }
-                }
-                System.out.println("-----------------------");
-
-                System.out.println("To delete:");
-                for(TreeFeature tf : featuresToDelete) {
-                    System.out.println(tf.getNames());
-                }*/
-
                 final FeaturePreprocessor fpp = new FeaturePreprocessor();
                 /*String newFile = fpp.getCommitFileContent(featuresToDelete.toArray(new Feature[featuresToDelete.size()]),
                         "C:\\obermanndavid\\git-to-ecco\\test_repo\\test.cpp");*/
