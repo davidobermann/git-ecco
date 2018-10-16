@@ -1,14 +1,17 @@
 package at.jku.isse.gitecco;
 
-import at.jku.isse.gitecco.cdt.*;
+import at.jku.isse.gitecco.cdt.CDTHelper;
+import at.jku.isse.gitecco.cdt.FeatureParser;
+import at.jku.isse.gitecco.cdt.TreeFeature;
 import at.jku.isse.gitecco.ecco.EccoCommand;
 import at.jku.isse.gitecco.ecco.EccoCommit;
 import at.jku.isse.gitecco.git.Change;
+import at.jku.isse.gitecco.git.GitCommit;
+import at.jku.isse.gitecco.git.GitCommitType;
 import at.jku.isse.gitecco.git.GitHelper;
 import at.jku.isse.gitecco.preprocessor.FeaturePreprocessor;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
-
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -34,7 +37,7 @@ public class App {
 
         final List<EccoCommand> commands = new ArrayList<EccoCommand>();
         final GitHelper gitHelper = new GitHelper("C:\\obermanndavid\\git-to-ecco\\test_repo");
-        final String[] commits = gitHelper.getAllCommitNames();
+        final List<GitCommit> commits = gitHelper.getAllCommits();
         String code = "";
         Change[] changes;
         int nrCommits = 0;
@@ -45,17 +48,27 @@ public class App {
         if(DEBUG) {
             nrCommits = COMMIT_CNT;
         } else {
-            nrCommits = commits.length-1;
+            nrCommits = commits.size()-1;
         }
 
-        for (int i = 0; i < nrCommits; i++) { //i < commits.length-1
+        for (GitCommit commit : commits) {
+            if(commit.getType() == GitCommitType.BRANCH){
+                //TODO: Fire listeners for branch
+            } else {
+                //TODO: Fire Listeners for commit
+            }
+            System.out.println(commit.getType());
+        }
+
+
+        /*for (int i = 0; i < nrCommits; i++) { //i < commits.length-1
             code = "";
 
             System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++"
                     +"+++++++++++++++++++++++++++++++++++++++++++++++++++++");
-            System.out.println("Commit: "+commits[i]+" - "+commits[i+1]);
+            System.out.println("Commit: "+commits.get(i)+" - "+commits.get(i+1));
 
-            gitHelper.checkOutCommit(commits[i+1]);
+            gitHelper.checkOutCommit(commits.get(i+1).getCommitName());
 
             List<String> codelist = Files.readAllLines(Paths.get("C:\\obermanndavid\\git-to-ecco\\test_repo\\test.cpp"));
             code = codelist.stream().collect(Collectors.joining("\n"));
@@ -71,7 +84,7 @@ public class App {
                 featureTree.printAll();
                 System.out.println("-----------------------");
 
-                changes = gitHelper.getFileDiffs(commits[i], commits[i+1]);
+                changes = gitHelper.getFileDiffs(commits.get(i), commits.get(i+1));
 
                 //print changes
                 System.out.print("Changes at:");
@@ -86,14 +99,13 @@ public class App {
                 final List<TreeFeature> featuresToDelete = featureTree.getToDelete();
 
                 final FeaturePreprocessor fpp = new FeaturePreprocessor();
-                /*String newFile = fpp.getCommitFileContent(featuresToDelete.toArray(new Feature[featuresToDelete.size()]),
-                        "C:\\obermanndavid\\git-to-ecco\\test_repo\\test.cpp");*/
+
 
                 fpp.preprocess(featureTree, "<filepath>");
 
                 commands.add(new EccoCommit(featuresToCommit));            }
 
-        }
+        }*/
 
         int i = 0;
         System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++"

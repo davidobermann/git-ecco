@@ -4,8 +4,10 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.revplot.PlotCommitList;
+import org.eclipse.jgit.revplot.PlotLane;
+import org.eclipse.jgit.revplot.PlotWalk;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -15,9 +17,7 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * HelperClass for working with JGit.
@@ -60,7 +60,7 @@ public class GitHelper {
      * @return An Array of Changes which contains all the changes between the commits.
      * @throws Exception
      */
-    public Change[] getFileDiffs(String oldCommit, String newCommit) throws Exception {
+    public Change[] getFileDiffs(GitCommit oldCommit, GitCommit newCommit) throws Exception {
 
         List<DiffEntry> diff = git.diff().
                 setOldTree(prepareTreeParser(git.getRepository(), oldCommit)).
@@ -151,7 +151,7 @@ public class GitHelper {
      * @throws GitAPIException
      * @throws IOException
      */
-    public void listDiff(String oldCommit, String newCommit) throws GitAPIException, IOException {
+    public void listDiff(GitCommit oldCommit, GitCommit newCommit) throws GitAPIException, IOException {
         final List<DiffEntry> diffs = git.diff()
                 .setOldTree(prepareTreeParser(git.getRepository(), oldCommit))
                 .setNewTree(prepareTreeParser(git.getRepository(), newCommit))
@@ -170,19 +170,96 @@ public class GitHelper {
      * @return String[] of alle the commit names.
      * @throws GitAPIException
      */
-    public String[] getAllCommitNames() throws GitAPIException {
+    private String[] getAllCommitNames() throws GitAPIException {
         ArrayList<String> commitNames = new ArrayList();
         Iterable<RevCommit> log = git.log().call();
 
         for (RevCommit rc : log) {
             commitNames.add(rc.getName());
         }
+
         Collections.reverse(commitNames);
         return commitNames.toArray(new String[commitNames.size()]);
     }
 
+    /**
+     * Retrieves all of the commits including their type (commit, branch, merge)
+     * @return
+     * @throws GitAPIException
+     * @throws IOException
+     */
+    public List<GitCommit> getAllCommits() throws GitAPIException, IOException {
+        List<GitCommit> commits = new ArrayList<>();
+        String[] commitNames = getAllCommitNames();
+        Repository repo = git.getRepository();
+        PlotWalk revWalk = new PlotWalk(repo);
+        RevCommit root = revWalk.parseCommit(repo.resolve("refs/heads/master"));
+        revWalk.markStart(root);
 
-    private AbstractTreeIterator prepareTreeParser(Repository repository, String objectId) throws IOException {
+        PlotCommitList<PlotLane> plotCommitList = new PlotCommitList<>();
+        plotCommitList.source(revWalk);
+        plotCommitList.fillTo(Integer.MAX_VALUE);
+        Collections.reverse(plotCommitList);
+
+        for (int i = 0; i < commitNames.length; i++) {
+            GitCommitType type =
+                    plotCommitList.get(i).getChildCount() > 1 ? GitCommitType.BRANCH : GitCommitType.COMMIT;
+            commits.add(new GitCommit(commitNames[i], type));
+            //plotCommitList.get(i).getParentCount();
+            //TODO: if parent count is > 1 then type is merge
+            //Can there be a merge and a branch point be at the same time?
+        }
+
+        return Collections.unmodifiableList(commits);
+    }
+
+    /**
+     * Should determine to which branch a feature belongs.
+     * Not working yet!!!
+     * @param commitName
+     * @return
+     * @throws GitAPIException
+     * @throws IOException
+     */
+    public String belongsToBranch(String commitName) throws GitAPIException, IOException {
+        List<Ref> branches = git.branchList().call();
+        Repository repo = git.getRepository();
+        RevWalk walk = new RevWalk(repo);
+        RevCommit commit = walk.parseCommit(repo.resolve(commitName));
+        String retval = "";
+        for (Ref branch : branches) {
+            String branchName = branch.getName();
+            boolean foundInThisBranch = false;
+            for (Map.Entry<String, Ref> e : repo.getAllRefs().entrySet()) {
+                if (e.getKey().startsWith(Constants.R_HEADS)) {
+                    if (walk.isMergedInto(commit, walk.parseCommit(
+                            e.getValue().getObjectId()))) {
+                        String foundInBranch = e.getValue().getName();
+                        if (branchName.equals(foundInBranch)) {
+                            foundInThisBranch = true;
+                            retval = branchName;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (foundInThisBranch) {
+                System.out.println(commit.getName());
+                System.out.println(branchName);
+                System.out.println(commit.getAuthorIdent().getName());
+                System.out.println(new Date(commit.getCommitTime() * 1000L));
+                System.out.println(commit.getFullMessage());
+            }
+        }
+
+
+        return retval;
+    }
+
+
+    private AbstractTreeIterator prepareTreeParser(Repository repository, GitCommit gitcommit) throws IOException {
+        String objectId = gitcommit.getCommitName();
         try (RevWalk walk = new RevWalk(repository)) {
             RevCommit commit = walk.parseCommit(repository.resolve(objectId));
             RevTree tree = walk.parseTree(commit.getTree().getId());
