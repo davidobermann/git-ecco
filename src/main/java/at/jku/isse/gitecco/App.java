@@ -5,10 +5,7 @@ import at.jku.isse.gitecco.cdt.FeatureParser;
 import at.jku.isse.gitecco.cdt.TreeFeature;
 import at.jku.isse.gitecco.ecco.EccoCommand;
 import at.jku.isse.gitecco.ecco.EccoCommit;
-import at.jku.isse.gitecco.git.Change;
-import at.jku.isse.gitecco.git.GitCommit;
-import at.jku.isse.gitecco.git.GitCommitType;
-import at.jku.isse.gitecco.git.GitHelper;
+import at.jku.isse.gitecco.git.*;
 import at.jku.isse.gitecco.preprocessor.FeaturePreprocessor;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
@@ -24,9 +21,6 @@ import java.util.stream.Collectors;
  */
 public class App {
 
-    private static boolean DEBUG = false;
-    private static int COMMIT_CNT = 3;
-
     /**
      * Main method.
      *
@@ -37,29 +31,20 @@ public class App {
 
         final List<EccoCommand> commands = new ArrayList<EccoCommand>();
         final GitHelper gitHelper = new GitHelper("C:\\obermanndavid\\git-to-ecco\\test_repo");
-        final List<GitCommit> commits = gitHelper.getAllCommits();
+        final GitCommitList commits = new GitCommitList();
         String code = "";
         Change[] changes;
         int nrCommits = 0;
 
+        //just to make sure it works
         gitHelper.checkOutCommit("master");
 
-        /*Debug stuff*/
-        if(DEBUG) {
-            nrCommits = COMMIT_CNT;
-        } else {
-            nrCommits = commits.size()-1;
-        }
+        //Test for Listeners
+        commits.addGitBranchListener(x -> System.out.println(x.getType()));
+        commits.addGitMergeListener(x -> System.out.println(x.getType()));
+        commits.addGitCommitListener(x -> System.out.println(x.getType()));
 
-        for (GitCommit commit : commits) {
-            if(commit.getType() == GitCommitType.BRANCH){
-                //TODO: Fire listeners for branch
-            } else {
-                //TODO: Fire Listeners for commit
-            }
-            System.out.println(commit.getType());
-        }
-
+        gitHelper.getAllCommits(commits);
 
         /*for (int i = 0; i < nrCommits; i++) { //i < commits.length-1
             code = "";

@@ -188,12 +188,12 @@ public class GitHelper {
      * @throws GitAPIException
      * @throws IOException
      */
-    public List<GitCommit> getAllCommits() throws GitAPIException, IOException {
-        List<GitCommit> commits = new ArrayList<>();
-        String[] commitNames = getAllCommitNames();
-        Repository repo = git.getRepository();
-        PlotWalk revWalk = new PlotWalk(repo);
-        RevCommit root = revWalk.parseCommit(repo.resolve("refs/heads/master"));
+    public GitCommitList getAllCommits(GitCommitList commits) throws GitAPIException, IOException {
+        final List<GitCommitType> types = new ArrayList<>();
+        final String[] commitNames = getAllCommitNames();
+        final Repository repo = git.getRepository();
+        final PlotWalk revWalk = new PlotWalk(repo);
+        final RevCommit root = revWalk.parseCommit(repo.resolve("refs/heads/master"));
         revWalk.markStart(root);
 
         PlotCommitList<PlotLane> plotCommitList = new PlotCommitList<>();
@@ -202,15 +202,19 @@ public class GitHelper {
         Collections.reverse(plotCommitList);
 
         for (int i = 0; i < commitNames.length; i++) {
-            GitCommitType type =
-                    plotCommitList.get(i).getChildCount() > 1 ? GitCommitType.BRANCH : GitCommitType.COMMIT;
-            commits.add(new GitCommit(commitNames[i], type));
-            //plotCommitList.get(i).getParentCount();
-            //TODO: if parent count is > 1 then type is merge
-            //Can there be a merge and a branch point be at the same time?
+            types.clear();
+            types.add(GitCommitType.COMMIT);
+            if(plotCommitList.get(i).getChildCount() > 1) {
+                types.add(GitCommitType.BRANCH);
+            }
+            if(plotCommitList.get(i).getParentCount() > 1) {
+                types.add(GitCommitType.MERGE);
+            }
+            commits.add(new GitCommit(commitNames[i], new ArrayList<GitCommitType>(types)));
+            //Can there be a merge and a branch point at the same time? YES -> trigger both
         }
 
-        return Collections.unmodifiableList(commits);
+        return commits;
     }
 
     /**
