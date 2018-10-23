@@ -10,15 +10,26 @@ import java.util.List;
 public class GitCommit {
     private final String commitName;
     private final List<GitCommitType> types;
+    private final String branch;
 
     /**
      * Creates a new GitCommit
      * @param commitName
      * @param types
+     * @param branch
      */
-    public GitCommit(String commitName, List<GitCommitType> types) {
+    public GitCommit(String commitName, List<GitCommitType> types, String branch) {
         this.commitName = commitName;
         this.types = types;
+        this.branch = branch;
+    }
+
+    /**
+     * Gets the brnach of the commit
+     * @return
+     */
+    public String getBranch() {
+        return branch;
     }
 
     /**

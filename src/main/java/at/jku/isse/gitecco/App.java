@@ -7,6 +7,7 @@ import at.jku.isse.gitecco.ecco.EccoCommand;
 import at.jku.isse.gitecco.ecco.EccoCommit;
 import at.jku.isse.gitecco.git.*;
 import at.jku.isse.gitecco.preprocessor.FeaturePreprocessor;
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 
@@ -30,7 +31,8 @@ public class App {
     public static void main(String... args) throws Exception {
 
         final List<EccoCommand> commands = new ArrayList<EccoCommand>();
-        final GitHelper gitHelper = new GitHelper("C:\\obermanndavid\\git-to-ecco\\test_repo");
+        final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo";
+        final GitHelper gitHelper = new GitHelper(repositoryPath);
         final GitCommitList commits = new GitCommitList();
         String code = "";
         Change[] changes;
@@ -40,11 +42,51 @@ public class App {
         gitHelper.checkOutCommit("master");
 
         //Test for Listeners
-        commits.addGitBranchListener(x -> System.out.println(x.getType()));
-        commits.addGitMergeListener(x -> System.out.println(x.getType()));
-        commits.addGitCommitListener(x -> System.out.println(x.getType()));
+        //commits.addGitBranchListener(x -> System.out.println("B " + x.getBranch()));
+        //commits.addGitMergeListener(x -> System.out.println("M " + x.getBranch()));
+        //commits.addGitCommitListener(x -> System.out.println("C " + x.getBranch()));
 
         gitHelper.getAllCommits(commits);
+
+        for(int i = 0; i < commits.size()-1; i++) {
+            System.out.println("---------");
+            gitHelper.checkOutCommit(commits.get(i+1).getCommitName());
+            for (String cf : gitHelper.getChangedFiles(commits.get(i), commits.get(i+1))) {
+                if(FilenameUtils.getExtension(cf).equals("cpp")
+                        || FilenameUtils.getExtension(cf).equals("c")) {
+                    List<String> codelist = Files.readAllLines(Paths.get(cf));
+                    code = codelist.stream().collect(Collectors.joining("\n"));
+
+                    final IASTTranslationUnit translationUnit = CDTHelper.parse(code.toCharArray());
+                    final IASTPreprocessorStatement[] ppstatements = translationUnit.getAllPreprocessorStatements();
+                    final FeatureParser featureParser = new FeatureParser();
+
+                    TreeFeature featureTree = featureParser.parseToTreeDef(ppstatements, codelist.size());
+                    featureTree.printAll();
+                    System.out.println("-----------------------");
+
+                    changes = gitHelper.getFileDiffs(commits.get(i), commits.get(i+1), repositoryPath + "\\test.cpp");
+
+                    //print changes
+                    System.out.print("Changes at:");
+                    for (Change change : changes) {
+                        System.out.print(change.toString()+"; ");
+                    }
+                    System.out.println();
+
+                    featureTree.linkChanges(changes);
+
+                    final List<TreeFeature> featuresToCommit = featureTree.getChangedAsList();
+
+                    final FeaturePreprocessor fpp = new FeaturePreprocessor();
+                    fpp.preprocess(featureTree, "<filepath>");
+
+                    commands.add(new EccoCommit(featuresToCommit));
+                }
+            }
+        }
+
+
 
         /*for (int i = 0; i < nrCommits; i++) { //i < commits.length-1
             code = "";
@@ -69,7 +111,7 @@ public class App {
                 featureTree.printAll();
                 System.out.println("-----------------------");
 
-                changes = gitHelper.getFileDiffs(commits.get(i), commits.get(i+1));
+                changes = gitHelper.getFileDiffs(commits.get(i), commits.get(i+1), repositoryPath + "\\test.cpp");
 
                 //print changes
                 System.out.print("Changes at:");
@@ -95,6 +137,7 @@ public class App {
         int i = 0;
         System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++"
                 +"+++++++++++++++++++++++++++++++++++++++++++++++++++++");
+
         for (EccoCommand command : commands) {
             System.out.println(i++ + " " + command.getCommandMsg());
         }

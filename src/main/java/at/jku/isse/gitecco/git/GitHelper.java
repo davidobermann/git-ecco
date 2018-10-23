@@ -1,9 +1,11 @@
 package at.jku.isse.gitecco.git;
 
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revplot.PlotCommitList;
 import org.eclipse.jgit.revplot.PlotLane;
@@ -13,6 +15,7 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import org.eclipse.jgit.treewalk.filter.PathFilter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -57,17 +60,19 @@ public class GitHelper {
      * All the changes will be returned as an Array.
      * @param newCommit The name of the newer commit
      * @param oldCommit The name of the older commit.
+     * @param filePath The FilePath for which the Diff should be applied.
      * @return An Array of Changes which contains all the changes between the commits.
      * @throws Exception
      */
-    public Change[] getFileDiffs(GitCommit oldCommit, GitCommit newCommit) throws Exception {
+    public Change[] getFileDiffs(GitCommit oldCommit, GitCommit newCommit, String filePath) throws Exception {
 
         List<DiffEntry> diff = git.diff().
                 setOldTree(prepareTreeParser(git.getRepository(), oldCommit)).
-                setNewTree(prepareTreeParser(git.getRepository(), newCommit))
-                .call();
+                setNewTree(prepareTreeParser(git.getRepository(), newCommit)).
+                setPathFilter(PathFilter.create(FilenameUtils.getName(filePath))).
+                call();
 
-        // to filter on Suffix use the following instead
+        //to filter on Suffix use the following instead
         //setPathFilter(PathSuffixFilter.create(".cpp"))
 
         List<Change> changes = new ArrayList<Change>();
@@ -76,8 +81,6 @@ public class GitHelper {
 
         for (DiffEntry entry : diff) {
             diffStream.reset();
-            //System.out.println("Entry: " + entry + ", from: " + entry.getOldId() + ", to: " + entry.getNewId());
-
             try (DiffFormatter formatter = new DiffFormatter(diffStream)) {
                 formatter.setRepository(git.getRepository());
                 formatter.setContext(0);
@@ -96,6 +99,26 @@ public class GitHelper {
             fileDiffParser.reset();
         }
         return changes.toArray(new Change[changes.size()]);
+    }
+
+    /**
+     * Returns all paths to files that have changed in the repo between 2 commits.
+     * @param oldCommit
+     * @param newCommit
+     * @return List of Strings of paths.
+     * @throws IOException
+     * @throws GitAPIException
+     */
+    public List<String> getChangedFiles(GitCommit oldCommit, GitCommit newCommit) throws IOException, GitAPIException {
+        final List<String> paths = new ArrayList<>();
+        List<DiffEntry> diffs = git.diff().
+                setOldTree(prepareTreeParser(git.getRepository(), oldCommit)).
+                setNewTree(prepareTreeParser(git.getRepository(), newCommit)).
+                call();
+        for (DiffEntry entry : diffs) {
+            paths.add(pathUrl + "\\" + entry.getNewPath().replace('/','\\'));
+        }
+        return Collections.unmodifiableList(paths);
     }
 
 
@@ -210,11 +233,22 @@ public class GitHelper {
             if(plotCommitList.get(i).getParentCount() > 1) {
                 types.add(GitCommitType.MERGE);
             }
-            commits.add(new GitCommit(commitNames[i], new ArrayList<GitCommitType>(types)));
+            String branch = getBranchOfCommit(commitNames[i]);
+            commits.add(new GitCommit(commitNames[i], new ArrayList<GitCommitType>(types), branch));
             //Can there be a merge and a branch point at the same time? YES -> trigger both
         }
 
         return commits;
+    }
+
+    private String getBranchOfCommit(String commit) throws MissingObjectException, GitAPIException {
+        Map<ObjectId, String> map = git
+                .nameRev()
+                .addPrefix( "refs/heads" )
+                .add(ObjectId.fromString(commit))
+                .call();
+
+        return map.isEmpty() ? "" : map.get(ObjectId.fromString(commit)).split("~")[0];
     }
 
     /**
