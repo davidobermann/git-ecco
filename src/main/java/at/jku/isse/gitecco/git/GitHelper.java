@@ -15,6 +15,7 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 
 import java.io.ByteArrayOutputStream;
@@ -227,14 +228,15 @@ public class GitHelper {
         for (int i = 0; i < commitNames.length; i++) {
             types.clear();
             types.add(GitCommitType.COMMIT);
-            if(plotCommitList.get(i).getChildCount() > 1) {
+            if(plotCommitList.get(i).getChildCount() > 1
+                    || plotCommitList.get(i).getChildCount() == 0 &&  plotCommitList.get(i).getChildCount() > 0) {
                 types.add(GitCommitType.BRANCH);
             }
             if(plotCommitList.get(i).getParentCount() > 1) {
                 types.add(GitCommitType.MERGE);
             }
             String branch = getBranchOfCommit(commitNames[i]);
-            commits.add(new GitCommit(commitNames[i], new ArrayList<GitCommitType>(types), branch));
+            commits.add(new GitCommit(commitNames[i], new ArrayList<GitCommitType>(types), branch), commits);
             //Can there be a merge and a branch point at the same time? YES -> trigger both
         }
 
@@ -297,7 +299,11 @@ public class GitHelper {
 
 
     private AbstractTreeIterator prepareTreeParser(Repository repository, GitCommit gitcommit) throws IOException {
+
+        if(gitcommit == null) return new EmptyTreeIterator();
+
         String objectId = gitcommit.getCommitName();
+
         try (RevWalk walk = new RevWalk(repository)) {
             RevCommit commit = walk.parseCommit(repository.resolve(objectId));
             RevTree tree = walk.parseTree(commit.getTree().getId());

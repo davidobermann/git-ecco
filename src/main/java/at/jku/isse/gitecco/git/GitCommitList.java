@@ -1,5 +1,8 @@
 package at.jku.isse.gitecco.git;
 
+import org.eclipse.jgit.api.errors.GitAPIException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,31 +48,41 @@ public class GitCommitList extends ArrayList<GitCommit> {
         observersB.add(gbl);
     }
 
+    @Override
+    public boolean add(GitCommit gitCommit){
+        try {
+            throw new Exception("Not allowed to add unobserved");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return false;
+    }
+
     /**
      * adds an element to the list.
      * also triggers the observers.
      * @param gitCommit
      * @return
      */
-    @Override
-    public boolean add(GitCommit gitCommit) {
-        notifyObservers(gitCommit);
+    public boolean add(GitCommit gitCommit, GitCommitList self) {
+        notifyObservers(gitCommit, self);
         return super.add(gitCommit);
     }
 
-    private void notifyObservers(GitCommit gc) {
+    private void notifyObservers(GitCommit gc, GitCommitList self) {
         for (GitCommitListener oc : observersC) {
-            oc.onCommit(gc);
-        }
-        for (GitCommitType gct : gc.getType()) {
-            if(gct.equals(GitCommitType.BRANCH)) {
-                for (GitBranchListener ob : observersB) {
-                    ob.onBranch(gc);
+            oc.onCommit(gc, self);
+            for (GitCommitType gct : gc.getType()) {
+                if (gct.equals(GitCommitType.BRANCH)) {
+                    for (GitBranchListener ob : observersB) {
+                        ob.onBranch(gc, self);
+                    }
                 }
-            }
-            if(gct.equals(GitCommitType.MERGE)) {
-                for (GitMergeListener gm : observersM) {
-                    gm.onMerge(gc);
+                if (gct.equals(GitCommitType.MERGE)) {
+                    for (GitMergeListener gm : observersM) {
+                        gm.onMerge(gc, self);
+                    }
                 }
             }
         }

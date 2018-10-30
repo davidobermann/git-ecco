@@ -25,7 +25,7 @@ public class GitCommit {
     }
 
     /**
-     * Gets the brnach of the commit
+     * Gets the branch of the commit
      * @return
      */
     public String getBranch() {
