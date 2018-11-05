@@ -9,6 +9,7 @@ import at.jku.isse.gitecco.preprocessor.FeaturePreprocessor;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
+import org.eclipse.jgit.lib.Constants;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -28,12 +29,13 @@ public class App {
      */
     public static void main(String... args) throws Exception {
 
-        final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo";
+        //final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo";
+        final String repositoryPath = "C:\\obermanndavid\\git-ecco-test\\test1\\Unity";
         final GitHelper gitHelper = new GitHelper(repositoryPath);
         final GitCommitList commits = new GitCommitList();
 
         //just to make sure it works
-        gitHelper.checkOutCommit("master");
+        gitHelper.checkOutCommit(Constants.HEAD);
 
         //Test for Listeners
         commits.addGitCommitListener(
@@ -84,6 +86,8 @@ public class App {
                                     System.out.println(
                                             new EccoCommit(featuresToCommit).getCommandMsg()
                                     );
+                                } else {
+                                    System.out.println("changed binary file --> commit BASE'");
                                 }
                                 System.out.println("-----------------------");
                             }
@@ -95,7 +99,7 @@ public class App {
         );
 
         gitHelper.getAllCommits(commits);
-        gitHelper.checkOutCommit("master");
+        gitHelper.checkOutCommit(Constants.HEAD);
 
     }
 

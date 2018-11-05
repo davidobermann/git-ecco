@@ -21,6 +21,8 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -67,10 +69,12 @@ public class GitHelper {
      */
     public Change[] getFileDiffs(GitCommit oldCommit, GitCommit newCommit, String filePath) throws Exception {
 
+        String filterPath = filePath.substring(pathUrl.length()+1).replace("\\", "/");
+
         List<DiffEntry> diff = git.diff().
                 setOldTree(prepareTreeParser(git.getRepository(), oldCommit)).
                 setNewTree(prepareTreeParser(git.getRepository(), newCommit)).
-                setPathFilter(PathFilter.create(FilenameUtils.getName(filePath))).
+                setPathFilter(PathFilter.create(filterPath)).
                 call();
 
         //to filter on Suffix use the following instead
@@ -98,6 +102,9 @@ public class GitHelper {
                 }
             }
             fileDiffParser.reset();
+        }
+        if(changes.size() == 0) {
+            changes.add(new Change(0, Files.readAllLines(Paths.get(filePath)).size()));
         }
         return changes.toArray(new Change[changes.size()]);
     }
@@ -207,8 +214,9 @@ public class GitHelper {
     }
 
     /**
-     * Retrieves all of the commits including their type (commit, branch, merge)
-     * @return
+     * Method to retrieve all commits form a repository and put it to a GitCommitList.
+     * @param commits the GitCommitList to which the commits a re saved to.
+     * @return The GitCommitList which was passed to the method.
      * @throws GitAPIException
      * @throws IOException
      */
@@ -237,7 +245,6 @@ public class GitHelper {
             }
             String branch = getBranchOfCommit(commitNames[i]);
             commits.add(new GitCommit(commitNames[i], new ArrayList<GitCommitType>(types), branch), commits);
-            //Can there be a merge and a branch point at the same time? YES -> trigger both
         }
 
         return commits;
