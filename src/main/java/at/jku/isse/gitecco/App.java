@@ -80,6 +80,7 @@ public class App {
                                     final List<TreeFeature> featuresToCommit = featureTree.getChangedAsList();
 
                                     final FeaturePreprocessor fpp = new FeaturePreprocessor();
+
                                     //replace filepath with "cf" variable later
                                     fpp.preprocess(featureTree, "<filepath>");
 
