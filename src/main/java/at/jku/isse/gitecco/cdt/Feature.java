@@ -70,7 +70,12 @@ public class Feature implements Comparable<Feature> {
         for (int i = 0; i < conditions.length-1; i++) {
             ret += conditions[i].getName() + ", ";
         }
-        ret += conditions[conditions.length-1].getName();
+        if(conditions.length == 0) {
+            //later on take care of !A and ifdef-->1 and ifndef-->0.
+            ret += "1";
+        } else {
+            ret += conditions[conditions.length-1].getName();
+        }
         return ret;
     }
 

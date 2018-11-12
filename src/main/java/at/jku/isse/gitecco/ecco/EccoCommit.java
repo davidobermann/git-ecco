@@ -1,6 +1,7 @@
 package at.jku.isse.gitecco.ecco;
 
 import at.jku.isse.gitecco.cdt.Feature;
+import at.jku.isse.gitecco.cdt.FeatureType;
 import at.jku.isse.gitecco.cdt.TreeFeature;
 import at.jku.isse.gitecco.conditionparser.ParsedCondition;
 
@@ -23,6 +24,18 @@ public class EccoCommit implements EccoCommand {
      */
     public EccoCommit(List<TreeFeature> tf) {
         features = new ArrayList<TreeFeature>(tf);
+    }
+
+    /**
+     * Creates a new EccoCommit.
+     * If the parameter is true --> mark BASE as changed
+     * If the parameter is false --> nothing changed
+     *
+     * @param baseChanged
+     */
+    public EccoCommit(boolean baseChanged) {
+        features = new ArrayList<TreeFeature>();
+        features.add(new TreeFeature(new Feature(0, FeatureType.IF,new ParsedCondition("BASE",1))));
     }
 
     /**

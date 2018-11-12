@@ -22,6 +22,7 @@ public class ConditionParser {
 
     /**
      * Parses the given condition for possible features
+     * and if existing the corresponding definition for preprocessing
      *
      * @param condition The condition to be parsed.
      * @return
@@ -54,7 +55,6 @@ public class ConditionParser {
 
     /**
      * Parses the given condition for possible features and
-     * if existing the corresponding definition for preprocessing.
      *
      * @param condition The condition to be parsed.
      * @return

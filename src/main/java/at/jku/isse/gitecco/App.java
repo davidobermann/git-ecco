@@ -29,8 +29,8 @@ public class App {
      */
     public static void main(String... args) throws Exception {
 
-        //final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo";
-        final String repositoryPath = "C:\\obermanndavid\\git-ecco-test\\test1\\Unity";
+        final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo";
+        //final String repositoryPath = "C:\\obermanndavid\\git-ecco-test\\test1\\Unity";
         final GitHelper gitHelper = new GitHelper(repositoryPath);
         final GitCommitList commits = new GitCommitList();
 
@@ -88,7 +88,10 @@ public class App {
                                             new EccoCommit(featuresToCommit).getCommandMsg()
                                     );
                                 } else {
-                                    System.out.println("changed binary file --> commit BASE'");
+                                    //binary file
+                                    System.out.println(
+                                            new EccoCommit(true).getCommandMsg()
+                                    );
                                 }
                                 System.out.println("-----------------------");
                             }

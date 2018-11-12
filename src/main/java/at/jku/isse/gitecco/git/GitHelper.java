@@ -1,6 +1,5 @@
 package at.jku.isse.gitecco.git;
 
-import org.apache.commons.io.FilenameUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -69,6 +68,7 @@ public class GitHelper {
      */
     public Change[] getFileDiffs(GitCommit oldCommit, GitCommit newCommit, String filePath) throws Exception {
 
+        //prepare for file path filter.
         String filterPath = filePath.substring(pathUrl.length()+1).replace("\\", "/");
 
         List<DiffEntry> diff = git.diff().
