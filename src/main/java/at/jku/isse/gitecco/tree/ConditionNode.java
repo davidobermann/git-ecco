@@ -17,4 +17,12 @@ public abstract class ConditionNode extends Node {
     public int getLineTo() {
         return lineTo;
     }
+
+    public SourceFileNode getContainingSourceFile() {
+        Node temp = this;
+        while(!(temp instanceof SourceFileNode) && temp.parent != null) {
+            temp = temp.parent;
+        }
+        return (SourceFileNode)temp;
+    }
 }

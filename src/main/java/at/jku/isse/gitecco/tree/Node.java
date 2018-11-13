@@ -18,6 +18,10 @@ public abstract class Node {
         changed = true;
     }
 
+    public Node getParent() {
+        return this.parent;
+    }
+
     //TODO: implement some mechanism to add chidren.
     /* maybe better solution
     public abstract void addChild(Node n);
