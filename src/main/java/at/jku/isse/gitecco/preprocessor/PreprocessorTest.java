@@ -18,7 +18,7 @@ public class PreprocessorTest {
         //String[] lines = Files.lines(path).toArray(String[]::new);
         List<String> result = Files.lines(path).collect(Collectors.toList());
         //result = cutLines(result, changes[0]);
-        for (int i = 0; i < changes.length; i++) {
+        for (int i = 0; i<changes.length; i++) {
             //result = cutLines(result,changes[i]);
         }
         String newFileContent = result.stream().filter(s -> !s.equals("###lineremoved###")).collect(Collectors.joining("\n"));
@@ -29,7 +29,7 @@ public class PreprocessorTest {
         Path path = Paths.get(fileToCut);
         List<String> result = Files.lines(path).collect(Collectors.toList());
         result = cutLines(result, featuresToCut[0]);
-        for (int i = 0; i < featuresToCut.length; i++) {
+        for (int i = 0; i<featuresToCut.length; i++) {
             result = cutLines(result, featuresToCut[i]);
         }
         String newFileContent = result.stream().filter(s -> !s.equals("###lineremoved###")).collect(Collectors.joining("\n"));
@@ -41,7 +41,7 @@ public class PreprocessorTest {
 
         int i = 1;
         for (String line : lines) {
-            if (i < feature.getStartingLineNumber() || i > feature.getEndingLineNumber()) {
+            if (i<feature.getStartingLineNumber() || i>feature.getEndingLineNumber()) {
                 ret.add(line);
             } else {
                 ret.add("###lineremoved###");

@@ -6,6 +6,7 @@ package at.jku.isse.gitecco.ecco;
 public interface EccoCommand {
     /**
      * Produces and returnes the command for ecco
+     *
      * @return ecco command message as String
      */
     public String getCommandMsg();

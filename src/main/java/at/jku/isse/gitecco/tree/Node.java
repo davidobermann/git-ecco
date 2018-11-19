@@ -1,9 +1,8 @@
 package at.jku.isse.gitecco.tree;
 
-
 public abstract class Node {
-    boolean changed;
-    final Node parent;
+    private final Node parent;
+    private boolean changed;
 
     public Node(Node parent) {
         this.parent = parent;
@@ -22,9 +21,6 @@ public abstract class Node {
         return this.parent;
     }
 
-    //TODO: implement some mechanism to add chidren.
-    /* maybe better solution
-    public abstract void addChild(Node n);
-     */
+    //TODO: implement a visitor pattern for tree traversal
 
 }

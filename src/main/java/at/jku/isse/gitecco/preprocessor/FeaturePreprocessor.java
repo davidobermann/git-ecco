@@ -16,13 +16,13 @@ public class FeaturePreprocessor {
         String command = "coan source ";
         for (TreeFeature tf : changed) {
             for (ParsedCondition pc : tf.getConditions()) {
-                int value = (int)pc.getDefinition();
-                if(!command.contains("-D" + pc.getName() + "=" + value)) {
-                    command += "-D" + pc.getName() + "=" + value +  " ";
+                int value = (int) pc.getDefinition();
+                if (!command.contains("-D"+pc.getName()+"="+value)) {
+                    command += "-D"+pc.getName()+"="+value+" ";
                 }
             }
         }
-        command += "-m -ge -P -r " + file;
+        command += "-m -ge -P -r "+file;
         System.out.println(command);
     }
 }

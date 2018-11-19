@@ -47,11 +47,11 @@ public class ConditionParserTest {
                         || (token.looksLike.equals("function"))
                         || (token.tokenTypeId == 1) ? "" : token.tokenStr;
                 if (i == tokens.length-1) {
-                    if (s.length() > 0) System.out.println(s);
+                    if (s.length()>0) System.out.println(s);
                     parseLeveledExperssion(s, token);
                 }
             } else {
-                if (s.length() > 0) System.out.println(s);
+                if (s.length()>0) System.out.println(s);
                 parseLeveledExperssion(s, token);
                 lvlbuf = token.tokenLevel;
                 s = (token.tokenTypeId == ParserSymbol.TYPE_ID) ? "" : token.tokenStr;// || (token.tokenTypeId == 1)
@@ -64,7 +64,7 @@ public class ConditionParserTest {
         int i = 0;
         double offset = 0;
 
-        if (expression.length() > 0) {
+        if (expression.length()>0) {
             Expression ep = new Expression(expression);
             Token[] tokens = ep.getCopyOfInitialTokens().toArray(new Token[ep.getCopyOfInitialTokens().size()]);
             for (Token t : ep.getCopyOfInitialTokens()) {
@@ -75,7 +75,7 @@ public class ConditionParserTest {
                         } else if (tokens[i+1].tokenTypeId != BinaryRelation.TYPE_ID) {
                             System.out.println(t.tokenStr+" must be defined");
                         }
-                    } else if ((i-1 >= 0) && (i+1 < tokens.length)) {
+                    } else if ((i-1 >= 0) && (i+1<tokens.length)) {
                         if (tokens[i-1].tokenTypeId != BinaryRelation.TYPE_ID
                                 && tokens[i+1].tokenTypeId != BinaryRelation.TYPE_ID) {
                             System.out.println(t.tokenStr+" must be defined");
@@ -90,7 +90,7 @@ public class ConditionParserTest {
                         }
                     }
                 } else if (t.tokenTypeId == BinaryRelation.TYPE_ID) {
-                    if ((i+1 < tokens.length) && (i-1 >= 0)) {
+                    if ((i+1<tokens.length) && (i-1 >= 0)) {
                         if (t.tokenStr.equals(BinaryRelation.EQ1_STR)
                                 || t.tokenStr.equals(BinaryRelation.GEQ_STR)
                                 || t.tokenStr.equals(BinaryRelation.LEQ_STR)) {
@@ -119,7 +119,7 @@ public class ConditionParserTest {
     private static String parseLeveledExperssion(String expression, Token token) {
         int i = 0;
 
-        if (expression.length() > 0) {
+        if (expression.length()>0) {
             Expression ep = new Expression(expression);
             Token[] tokens = ep.getCopyOfInitialTokens().toArray(new Token[ep.getCopyOfInitialTokens().size()]);
             for (Token t : ep.getCopyOfInitialTokens()) {
@@ -130,7 +130,7 @@ public class ConditionParserTest {
                         } else if (tokens[i+1].tokenTypeId != BinaryRelation.TYPE_ID) {
                             System.out.println(t.tokenStr+" must be defined");
                         }
-                    } else if ((i-1 >= 0) && (i+1 < tokens.length)) {
+                    } else if ((i-1 >= 0) && (i+1<tokens.length)) {
                         if (tokens[i-1].tokenTypeId != BinaryRelation.TYPE_ID
                                 && tokens[i+1].tokenTypeId != BinaryRelation.TYPE_ID) {
                             System.out.println(t.tokenStr+" must be defined");
@@ -145,10 +145,10 @@ public class ConditionParserTest {
                         }
                     }
                 } else if (t.tokenTypeId == BinaryRelation.TYPE_ID) {
-                    if ((i+1 < tokens.length) && (i-1 >= 0)) {
+                    if ((i+1<tokens.length) && (i-1 >= 0)) {
                         if ((tokens[i-1].tokenTypeId == 0) || tokens[i+1].tokenTypeId == 0) {
                             if (tokens[i-1].looksLike.equals("argument") || tokens[i+1].looksLike.equals("argument")) {
-                                System.out.println(tokens[i-1].tokenStr + t.tokenStr + tokens[i+1].tokenStr + " must be defined");
+                                System.out.println(tokens[i-1].tokenStr+t.tokenStr+tokens[i+1].tokenStr+" must be defined");
                             }
                         }
                     }

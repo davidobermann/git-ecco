@@ -18,13 +18,14 @@ import java.util.List;
 public class Feature implements Comparable<Feature> {
     private final FeatureType featureType;
     private final int startingLineNumber;
-    private int endingLineNumber;
     private final List<Change> changes;
     private final ParsedCondition[] conditions;
+    private int endingLineNumber;
 
 
     /**
      * Creates a new Feature with the given parameters
+     *
      * @param startingLineNumber
      * @param ft
      * @param conds
@@ -38,6 +39,7 @@ public class Feature implements Comparable<Feature> {
 
     /**
      * Creates a new Feature with the given parameters
+     *
      * @param startingLineNumber
      * @param endingLineNumber
      * @param ft
@@ -55,10 +57,6 @@ public class Feature implements Comparable<Feature> {
         return conditions;
     }
 
-    public void setEndingLineNumber(int lnr) {
-        this.endingLineNumber = lnr;
-    }
-
     /**
      * gets the name of the feature
      *
@@ -66,11 +64,11 @@ public class Feature implements Comparable<Feature> {
      */
     public String getNames() {
         String ret = "";
-        if(conditions.length == 1) return conditions[0].getName();
-        for (int i = 0; i < conditions.length-1; i++) {
-            ret += conditions[i].getName() + ", ";
+        if (conditions.length == 1) return conditions[0].getName();
+        for (int i = 0; i<conditions.length-1; i++) {
+            ret += conditions[i].getName()+", ";
         }
-        if(conditions.length == 0) {
+        if (conditions.length == 0) {
             //later on take care of !A and ifdef-->1 and ifndef-->0.
             ret += "1";
         } else {
@@ -81,6 +79,7 @@ public class Feature implements Comparable<Feature> {
 
     /**
      * Gets the Type of the Feature
+     *
      * @return the Type of the Feature
      */
     public FeatureType getFeatureType() {
@@ -94,14 +93,15 @@ public class Feature implements Comparable<Feature> {
      * @return <code>true</code> if it contains the feature, otherwise <code>false</code>.
      */
     private boolean contains(Change change) {
-        return (this.startingLineNumber <= change.getFrom() && this.endingLineNumber >= change.getTo());
+        return (this.startingLineNumber<=change.getFrom() && this.endingLineNumber >= change.getTo());
     }
 
     /**
      * Checks if this Feature is BASE
+     *
      * @return true if this feature is BASE
      */
-    public boolean isBase(){
+    public boolean isBase() {
         return this.startingLineNumber == 0;
     }
 
@@ -123,6 +123,9 @@ public class Feature implements Comparable<Feature> {
         return endingLineNumber;
     }
 
+    public void setEndingLineNumber(int lnr) {
+        this.endingLineNumber = lnr;
+    }
 
     /**
      * Checks if this feature contains a certain change
@@ -143,10 +146,11 @@ public class Feature implements Comparable<Feature> {
     /**
      * Adds a Change, but does not check if the Feature
      * Actually contains the Change.
+     *
      * @param c The change to be added.
      */
     public void addUnchecked(Change c) {
-        if(!changes.contains(c)) changes.add(c);
+        if (!changes.contains(c)) changes.add(c);
     }
 
     /**
@@ -165,12 +169,12 @@ public class Feature implements Comparable<Feature> {
      * @return <code>true</codeY> if it does have changes. <code>fasle</code> if not.
      */
     public boolean hasChanges() {
-        return changes.size() > 0;
+        return changes.size()>0;
     }
 
     @Override
     public String toString() {
-        return this.getNames() +": "+this.getStartingLineNumber()+" - "+this.getEndingLineNumber() + "  --> Typ: " + this.getFeatureType();
+        return this.getNames()+": "+this.getStartingLineNumber()+" - "+this.getEndingLineNumber()+"  --> Typ: "+this.getFeatureType();
     }
 
     @Override

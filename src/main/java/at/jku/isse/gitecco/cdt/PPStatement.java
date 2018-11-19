@@ -12,6 +12,7 @@ public class PPStatement {
 
     /**
      * Creates a new PPStatement
+     *
      * @param pps IASTPreprocessorStatement which should be checked.
      * @throws Exception - If the IASTPreprocessorStatement is not of the right type.
      */
@@ -33,6 +34,7 @@ public class PPStatement {
 
     /**
      * Gets the ending line number of the PPStatement
+     *
      * @return the ending line number
      */
     public int getLineEnd() {
@@ -41,6 +43,7 @@ public class PPStatement {
 
     /**
      * Gets the starting line number of the PPStatement
+     *
      * @return The starting line number of the PPStatement
      */
     public int getLineStart() {
@@ -49,6 +52,7 @@ public class PPStatement {
 
     /**
      * Gets the IASTPreprocessorStatement of which this PPStatement was created
+     *
      * @return The IASTPreprocessorStatement of which this PPStatement was created
      */
     public IASTPreprocessorStatement getStatement() {

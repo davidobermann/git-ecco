@@ -35,7 +35,7 @@ public class EccoCommit implements EccoCommand {
      */
     public EccoCommit(boolean baseChanged) {
         features = new ArrayList<TreeFeature>();
-        features.add(new TreeFeature(new Feature(0, FeatureType.IF,new ParsedCondition("BASE",1))));
+        features.add(new TreeFeature(new Feature(0, FeatureType.IF, new ParsedCondition("BASE", 1))));
     }
 
     /**
@@ -54,16 +54,16 @@ public class EccoCommit implements EccoCommand {
         String buf = "";
         for (TreeFeature feature : features) {
             buf = "";
-            for(ParsedCondition pc : feature.getConditions()) {
-                buf += pc.getName() + "' ";
+            for (ParsedCondition pc : feature.getConditions()) {
+                buf += pc.getName()+"' ";
             }
             if (!retFeatures.contains(buf)) {
                 retFeatures += buf;
             }
             TreeFeature t = feature.getParent();
-            while(t != null) {
-                for(ParsedCondition pc : t.getConditions()) {
-                    if (!retFeatures.contains(pc.getName())) retFeatures += pc.getName() + " ";
+            while (t != null) {
+                for (ParsedCondition pc : t.getConditions()) {
+                    if (!retFeatures.contains(pc.getName())) retFeatures += pc.getName()+" ";
                 }
                 t = t.getParent();
             }

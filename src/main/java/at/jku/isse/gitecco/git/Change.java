@@ -14,26 +14,29 @@ public class Change {
 
     /**
      * Creates a new change.
+     *
      * @param from int value of the starting line number of the change.
-     * @param cnt int value which indicates how many lines are coverd by this change.
+     * @param cnt  int value which indicates how many lines are coverd by this change.
      */
-    public Change(int from, int cnt){
+    public Change(int from, int cnt) {
         this.from = from;
-        this.to = from + cnt - 1;
+        this.to = from+cnt-1;
     }
 
     /**
      * Checks if a given Feature lays inside of this change.
      * Used to determine if a new Feature was added.
+     *
      * @param feature The feature, which should be checked.
      * @return True if the Feature is in fact in this change, otherwise false.
      */
     public boolean contains(Feature feature) {
-        return (from <= feature.getStartingLineNumber()) && (to >= feature.getEndingLineNumber());
+        return (from<=feature.getStartingLineNumber()) && (to >= feature.getEndingLineNumber());
     }
 
     /**
      * Gets the start of the change.
+     *
      * @return int value of the starting line number of the change.
      */
     public int getFrom() {
@@ -42,6 +45,7 @@ public class Change {
 
     /**
      * Gets the end of the change.
+     *
      * @return int value of the ending line number of the change.
      */
     public int getTo() {
@@ -49,8 +53,8 @@ public class Change {
     }
 
     @Override
-    public String toString(){
-        return "" + from + "," + to;
+    public String toString() {
+        return ""+from+","+to;
     }
 
 }

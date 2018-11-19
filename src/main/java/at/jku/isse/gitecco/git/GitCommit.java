@@ -1,5 +1,7 @@
 package at.jku.isse.gitecco.git;
 
+import at.jku.isse.gitecco.tree.RootNode;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -8,12 +10,14 @@ import java.util.List;
  * distinguish between normal commits, branch points and merges.
  */
 public class GitCommit {
+    private RootNode tree;
     private final String commitName;
     private final List<GitCommitType> types;
     private final String branch;
 
     /**
      * Creates a new GitCommit
+     *
      * @param commitName
      * @param types
      * @param branch
@@ -25,7 +29,24 @@ public class GitCommit {
     }
 
     /**
+     * Gets the tree of a commit
+     * @return
+     */
+    public RootNode getTree(){
+        return tree;
+    }
+
+    /**
+     * sets the tree once, a second call is not effective
+     * @param n
+     */
+    public void setTree(RootNode n) {
+        if(tree == null) tree = n;
+    }
+
+    /**
      * Gets the branch of the commit
+     *
      * @return
      */
     public String getBranch() {
@@ -34,6 +55,7 @@ public class GitCommit {
 
     /**
      * Gets the SHA1 ID aka the name of the commit.
+     *
      * @return the commit name / SHA1 ID
      */
     public String getCommitName() {
@@ -42,6 +64,7 @@ public class GitCommit {
 
     /**
      * Gets the type of the commit: commit/branch/merge
+     *
      * @return
      */
     public List<GitCommitType> getType() {

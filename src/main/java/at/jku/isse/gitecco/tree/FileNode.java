@@ -2,14 +2,14 @@ package at.jku.isse.gitecco.tree;
 
 
 public abstract class FileNode extends Node {
-    final String filePath;
+    private final String name;
 
-    public FileNode(Node parent, String filePath) {
+    public FileNode(Node parent, String name) {
         super(parent);
-        this.filePath = filePath;
+        this.name= name;
     }
 
     public String getFilePath() {
-        return this.filePath;
+        return this.name;
     }
 }

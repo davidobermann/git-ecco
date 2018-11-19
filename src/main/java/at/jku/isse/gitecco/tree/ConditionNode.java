@@ -1,8 +1,8 @@
 package at.jku.isse.gitecco.tree;
 
 public abstract class ConditionNode extends Node {
-    final int lineFrom;
-    final int lineTo;
+    private final int lineFrom;
+    private final int lineTo;
 
     public ConditionNode(Node parent, int lineFrom, int lineTo) {
         super(parent);
@@ -20,9 +20,9 @@ public abstract class ConditionNode extends Node {
 
     public SourceFileNode getContainingSourceFile() {
         Node temp = this;
-        while(!(temp instanceof SourceFileNode) && temp.parent != null) {
-            temp = temp.parent;
+        while (!(temp instanceof SourceFileNode) && temp.getParent() != null) {
+            temp = temp.getParent();
         }
-        return (SourceFileNode)temp;
+        return (SourceFileNode) temp;
     }
 }

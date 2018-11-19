@@ -35,7 +35,8 @@ public class GitHelper {
     /**
      * Creates a new instance of GitHelper and clones the specified
      * repo form the url String to the path String.
-     * @param url The URL of the git repository to be cloned
+     *
+     * @param url  The URL of the git repository to be cloned
      * @param path The path string, where the repository should be cloned to.
      * @throws Exception
      */
@@ -48,6 +49,7 @@ public class GitHelper {
      * Creates a new instance of GitHelper by opening an existing repository.
      * at the given path.
      * Note that the repository needs to be existing already.
+     *
      * @param path The path String to the existing repository.
      * @throws IOException
      */
@@ -57,12 +59,21 @@ public class GitHelper {
     }
 
     /**
+     * Gets the path in which the repository is stored
+     * @return
+     */
+    public String getPath() {
+        return this.pathUrl;
+    }
+
+    /**
      * Gets the Diff between two Commits specified by their commit names.
      * The Diff is stored as a <code>Change</code>.
      * All the changes will be returned as an Array.
+     *
      * @param newCommit The name of the newer commit
      * @param oldCommit The name of the older commit.
-     * @param filePath The FilePath for which the Diff should be applied.
+     * @param filePath  The FilePath for which the Diff should be applied.
      * @return An Array of Changes which contains all the changes between the commits.
      * @throws Exception
      */
@@ -94,16 +105,16 @@ public class GitHelper {
                 e.printStackTrace();
             }
 
-            if(diffStream.size() > 0) {
-                if(fileDiffParser.parse(diffStream.toString())){
-                    for(Change r:fileDiffParser.getplusRanges()){
+            if (diffStream.size()>0) {
+                if (fileDiffParser.parse(diffStream.toString())) {
+                    for (Change r : fileDiffParser.getplusRanges()) {
                         changes.add(r);
                     }
                 }
             }
             fileDiffParser.reset();
         }
-        if(changes.size() == 0) {
+        if (changes.size() == 0) {
             changes.add(new Change(0, Files.readAllLines(Paths.get(filePath)).size()));
         }
         return changes.toArray(new Change[changes.size()]);
@@ -111,6 +122,7 @@ public class GitHelper {
 
     /**
      * Returns all paths to files that have changed in the repo between 2 commits.
+     *
      * @param oldCommit
      * @param newCommit
      * @return List of Strings of paths.
@@ -124,7 +136,7 @@ public class GitHelper {
                 setNewTree(prepareTreeParser(git.getRepository(), newCommit)).
                 call();
         for (DiffEntry entry : diffs) {
-            paths.add(pathUrl + "\\" + entry.getNewPath().replace('/','\\'));
+            paths.add(pathUrl+"\\"+entry.getNewPath().replace('/', '\\'));
         }
         return Collections.unmodifiableList(paths);
     }
@@ -141,21 +153,22 @@ public class GitHelper {
      * Checks out a commit by the given name.
      * Does this by using the runtime execution since JGit is buggy
      * when it comes to checkouts and cleans, etc.
+     *
      * @param name The name of the commit, which should be checked out.
      */
-    public void checkOutCommit(String name){
-        System.out.println("Checking out commit: " + name
-                + "\n at " + pathUrl);
+    public void checkOutCommit(String name) {
+        System.out.println("Checking out commit: "+name
+                +"\n at "+pathUrl);
 
         Process p;
         try {
-            p = Runtime.getRuntime().exec(String.format("git -C %s clean --force",this.pathUrl));
+            p = Runtime.getRuntime().exec(String.format("git -C %s clean --force", this.pathUrl));
             p.waitFor();
-            p = Runtime.getRuntime().exec(String.format("git -C %s reset --hard",this.pathUrl));
+            p = Runtime.getRuntime().exec(String.format("git -C %s reset --hard", this.pathUrl));
             p.waitFor();
-            p = Runtime.getRuntime().exec(String.format("git -C %s checkout %s",this.pathUrl,name));
+            p = Runtime.getRuntime().exec(String.format("git -C %s checkout %s", this.pathUrl, name));
             p.waitFor();
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException|InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -163,20 +176,21 @@ public class GitHelper {
 
     private Git cloneRepo(String url, String dirPath) throws Exception {
         File dir = new File(dirPath);
-        System.out.println("Cloning from " + url + " to " + dir);
+        System.out.println("Cloning from "+url+" to "+dir);
 
         Git git = Git.cloneRepository()
                 .setURI(url)
                 .setDirectory(dir)
                 .call();
 
-        System.out.println("Having repository: " + git.getRepository().getDirectory() + "\n");
+        System.out.println("Having repository: "+git.getRepository().getDirectory()+"\n");
 
         return git;
     }
 
     /**
      * Lists all the Diffs between two Commits.
+     *
      * @param newCommit The newer commit name.
      * @param oldCommit The older commit name.
      * @throws GitAPIException
@@ -188,16 +202,17 @@ public class GitHelper {
                 .setNewTree(prepareTreeParser(git.getRepository(), newCommit))
                 .call();
 
-        System.out.println("Found: " + diffs.size() + " differences");
+        System.out.println("Found: "+diffs.size()+" differences");
         for (DiffEntry diff : diffs) {
-            System.out.println("Diff: " + diff.getChangeType() + ": " +
-                    (diff.getOldPath().equals(diff.getNewPath()) ? diff.getNewPath() : diff.getOldPath() + " -> " + diff.getNewPath()));
+            System.out.println("Diff: "+diff.getChangeType()+": "+
+                    (diff.getOldPath().equals(diff.getNewPath()) ? diff.getNewPath() : diff.getOldPath()+" -> "+diff.getNewPath()));
         }
     }
 
 
     /**
      * Gets all commit names of all the commits of the opened repository.
+     *
      * @return String[] of alle the commit names.
      * @throws GitAPIException
      */
@@ -215,6 +230,7 @@ public class GitHelper {
 
     /**
      * Method to retrieve all commits form a repository and put it to a GitCommitList.
+     *
      * @param commits the GitCommitList to which the commits a re saved to.
      * @return The GitCommitList which was passed to the method.
      * @throws GitAPIException
@@ -233,14 +249,14 @@ public class GitHelper {
         plotCommitList.fillTo(Integer.MAX_VALUE);
         Collections.reverse(plotCommitList);
 
-        for (int i = 0; i < commitNames.length; i++) {
+        for (int i = 0; i<commitNames.length; i++) {
             types.clear();
             types.add(GitCommitType.COMMIT);
-            if(plotCommitList.get(i).getChildCount() > 1
-                    || plotCommitList.get(i).getChildCount() == 0 &&  plotCommitList.get(i).getChildCount() > 0) {
+            if (plotCommitList.get(i).getChildCount()>1
+                    || plotCommitList.get(i).getChildCount() == 0 && plotCommitList.get(i).getChildCount()>0) {
                 types.add(GitCommitType.BRANCH);
             }
-            if(plotCommitList.get(i).getParentCount() > 1) {
+            if (plotCommitList.get(i).getParentCount()>1) {
                 types.add(GitCommitType.MERGE);
             }
             String branch = getBranchOfCommit(commitNames[i]);
@@ -253,7 +269,7 @@ public class GitHelper {
     private String getBranchOfCommit(String commit) throws MissingObjectException, GitAPIException {
         Map<ObjectId, String> map = git
                 .nameRev()
-                .addPrefix( "refs/heads" )
+                .addPrefix("refs/heads")
                 .add(ObjectId.fromString(commit))
                 .call();
 
@@ -263,6 +279,7 @@ public class GitHelper {
     /**
      * Should determine to which branch a feature belongs.
      * Not working yet!!!
+     *
      * @param commitName
      * @return
      * @throws GitAPIException
@@ -295,7 +312,7 @@ public class GitHelper {
                 System.out.println(commit.getName());
                 System.out.println(branchName);
                 System.out.println(commit.getAuthorIdent().getName());
-                System.out.println(new Date(commit.getCommitTime() * 1000L));
+                System.out.println(new Date(commit.getCommitTime()*1000L));
                 System.out.println(commit.getFullMessage());
             }
         }
@@ -307,7 +324,7 @@ public class GitHelper {
 
     private AbstractTreeIterator prepareTreeParser(Repository repository, GitCommit gitcommit) throws IOException {
 
-        if(gitcommit == null) return new EmptyTreeIterator();
+        if (gitcommit == null) return new EmptyTreeIterator();
 
         String objectId = gitcommit.getCommitName();
 

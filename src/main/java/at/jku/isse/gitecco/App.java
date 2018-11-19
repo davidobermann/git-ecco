@@ -32,7 +32,7 @@ public class App {
         final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo";
         //final String repositoryPath = "C:\\obermanndavid\\git-ecco-test\\test1\\Unity";
         final GitHelper gitHelper = new GitHelper(repositoryPath);
-        final GitCommitList commits = new GitCommitList();
+        final GitCommitList commits = new GitCommitList(repositoryPath);
 
         //just to make sure it works
         gitHelper.checkOutCommit(Constants.HEAD);
@@ -47,7 +47,7 @@ public class App {
                         Change[] changes;
                         GitCommit oldGc = null;
 
-                        if (gcl.size() > 0) oldGc = gcl.get(gcl.size()-1);
+                        if (gcl.size()>0) oldGc = gcl.get(gcl.size()-1);
                         gitHelper.checkOutCommit(gc.getCommitName());
                         try {
                             for (String cf : gitHelper.getChangedFiles(oldGc, gc)) {

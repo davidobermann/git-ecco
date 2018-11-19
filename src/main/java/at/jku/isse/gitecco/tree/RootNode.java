@@ -3,12 +3,18 @@ package at.jku.isse.gitecco.tree;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RootNode extends Node{
-    private final List<Node> children;
+public final class RootNode extends Node {
+    private final String path;
+    private final List<FileNode> children;
 
-    public RootNode(Node parent) {
-        super(parent);
-        this.children = new ArrayList<Node>();
+    public RootNode(String path) {
+        super(null);
+        this.path = path;
+        this.children = new ArrayList<>();
+    }
+
+    public void addChild(FileNode n) {
+        children.add(n);
     }
 
 }

@@ -72,7 +72,7 @@ public class TreeFeature extends Feature {
         }
 
         //detects if there is a newly added feature
-        if(c.contains(tf)) {
+        if (c.contains(tf)) {
             tf.addUnchecked(c);
             System.out.println("Linked "+c.toString()+" to "+tf.getNames());
         }
@@ -134,7 +134,7 @@ public class TreeFeature extends Feature {
     }
 
     private void printPreOrder(TreeFeature tf, int lvl) {
-        for (int i = 0; i < lvl; i++) {
+        for (int i = 0; i<lvl; i++) {
             System.out.print("-");
         }
         System.out.print(tf.toString()+"\n");
