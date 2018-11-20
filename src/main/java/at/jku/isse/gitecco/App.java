@@ -35,10 +35,10 @@ public class App {
         final GitCommitList commits = new GitCommitList(repositoryPath);
 
         //just to make sure it works
-        gitHelper.checkOutCommit(Constants.HEAD);
+        gitHelper.checkOutCommit(Constants.MASTER); //Constants.MASTER or Constants.HEAD?
 
         //Test for Listeners
-        commits.addGitCommitListener(
+        /*commits.addGitCommitListener(
                 new GitCommitListener() {
                     @Override
                     public void onCommit(GitCommit gc, GitCommitList gcl) {
@@ -100,10 +100,10 @@ public class App {
                         }
                     }
                 }
-        );
+        );*/
 
         gitHelper.getAllCommits(commits);
-        gitHelper.checkOutCommit(Constants.HEAD);
+        gitHelper.checkOutCommit(Constants.MASTER);
 
     }
 

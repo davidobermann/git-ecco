@@ -2,6 +2,8 @@ package at.jku.isse.gitecco.cdt;
 
 import at.jku.isse.gitecco.conditionparser.ConditionParser;
 import at.jku.isse.gitecco.conditionparser.ParsedCondition;
+import at.jku.isse.gitecco.tree.Node;
+import at.jku.isse.gitecco.tree.SourceFileNode;
 import org.eclipse.cdt.core.dom.ast.*;
 
 /**
@@ -17,10 +19,24 @@ public class FeatureParser {
      * @return The root of the tree.
      * @throws Exception
      */
-    public TreeFeature parseToTreeDefNew(IASTPreprocessorStatement[] ppstatements, int linecnt) throws Exception {
-        final TreeFeature root = new TreeFeature(new Feature(0, linecnt, FeatureType.IF, new ParsedCondition("BASE", 1)));
-        TreeFeature currentNode = root;
+    public TreeFeature parseToTreeDefNew(IASTPreprocessorStatement[] ppstatements, int linecnt, SourceFileNode root) throws Exception {
+        //final TreeFeature root = new TreeFeature(new Feature(0, linecnt, FeatureType.IF, new ParsedCondition("BASE", 1)));
+        Node currentNode = root;
         PPStatement pp;
+
+        /*
+        Idee:
+        1.) Neue Block node.
+        2.) If condition füllen mit neuer conditional node je nach PPStatement
+        3.) ElseIf und Else einfügen.
+        4.) zurück nach oben --> line cnts eintragen.
+
+        Alternative (vmtl unsauber und speicher overhead von Tree):
+        1.) wie gewohnt den tree als TreeFeature Tree erzeugen.
+        2.) diesen traversieren und daraus den neuen erzeugen
+        wäre leichter --> linecnt schon da, aber es wäre der speicheroverhead da.
+        Lukas fragen?
+         */
 
         for (IASTPreprocessorStatement pps : ppstatements) {
             if (pps instanceof IASTPreprocessorIfStatement
@@ -28,8 +44,7 @@ public class FeatureParser {
                     || pps instanceof IASTPreprocessorIfndefStatement) {
                 pp = new PPStatement(pps);
                 String condName = CDTHelper.getCondName(pp.getStatement());
-                ParsedCondition[] pc = ConditionParser.parseConditionWithDefition(condName);
-                currentNode = currentNode.addChild(new Feature(pp.getLineStart(), FeatureType.IF, pc));
+
             } else if (pps instanceof IASTPreprocessorElifStatement) {
                 pp = new PPStatement(pps);
                 String condName = CDTHelper.getCondName(pp.getStatement());

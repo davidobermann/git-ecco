@@ -15,6 +15,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
+import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 
 import java.io.ByteArrayOutputStream;
@@ -60,6 +61,7 @@ public class GitHelper {
 
     /**
      * Gets the path in which the repository is stored
+     *
      * @return
      */
     public String getPath() {
@@ -136,7 +138,10 @@ public class GitHelper {
                 setNewTree(prepareTreeParser(git.getRepository(), newCommit)).
                 call();
         for (DiffEntry entry : diffs) {
-            paths.add(pathUrl+"\\"+entry.getNewPath().replace('/', '\\'));
+            if(entry.getChangeType() != DiffEntry.ChangeType.DELETE) {
+                //if needed prepend pathURL + "\\" to get the absolute path
+                paths.add(entry.getNewPath().replace('/', '\\'));
+            }
         }
         return Collections.unmodifiableList(paths);
     }
@@ -236,7 +241,7 @@ public class GitHelper {
      * @throws GitAPIException
      * @throws IOException
      */
-    public GitCommitList getAllCommits(GitCommitList commits) throws GitAPIException, IOException {
+    public GitCommitList getAllCommits(GitCommitList commits) throws Exception {
         final List<GitCommitType> types = new ArrayList<>();
         final String[] commitNames = getAllCommitNames();
         final Repository repo = git.getRepository();
@@ -264,6 +269,32 @@ public class GitHelper {
         }
 
         return commits;
+    }
+
+    /**
+     * Retrieves the file paths of the files in the repository for a given commit
+     * @param commit
+     * @return List of paths as Strings
+     * @throws IOException
+     */
+    public List<String> getRepositoryContents(GitCommit commit) throws IOException {
+        final List<String> files = new ArrayList<>();
+
+        RevWalk walk = new RevWalk(git.getRepository());
+
+        RevCommit revCommit = walk.parseCommit(git.getRepository().resolve(commit.getCommitName()));
+        RevTree tree = revCommit.getTree();
+
+        TreeWalk treeWalk = new TreeWalk(git.getRepository());
+        treeWalk.addTree(tree);
+        treeWalk.setRecursive(true);
+
+        while (treeWalk.next()) {
+            files.add(treeWalk.getPathString());
+        }
+
+        return Collections.unmodifiableList(files);
+
     }
 
     private String getBranchOfCommit(String commit) throws MissingObjectException, GitAPIException {
