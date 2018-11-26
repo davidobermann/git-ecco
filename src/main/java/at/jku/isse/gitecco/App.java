@@ -38,7 +38,7 @@ public class App {
         gitHelper.checkOutCommit(Constants.MASTER); //Constants.MASTER or Constants.HEAD?
 
         //Test for Listeners
-        /*commits.addGitCommitListener(
+        commits.addGitCommitListener(
                 new GitCommitListener() {
                     @Override
                     public void onCommit(GitCommit gc, GitCommitList gcl) {
@@ -100,7 +100,7 @@ public class App {
                         }
                     }
                 }
-        );*/
+        );
 
         gitHelper.getAllCommits(commits);
         gitHelper.checkOutCommit(Constants.MASTER);

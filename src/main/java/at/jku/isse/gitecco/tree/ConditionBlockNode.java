@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class ConditionBlockNode extends ConditionNode {
-    private final List<ConditionalNode> elseIfBlocks;
+    private final List<IFCondition> elseIfBlocks;
     private ConditionalNode ifBlock;
     private ELSECondition elseBlock;
 
-    public ConditionBlockNode(Node parent, int lineFrom, int lineTo) {
-        super(parent, lineFrom, lineTo);
+    public ConditionBlockNode(Node parent) {
+        super(parent);
         this.elseIfBlocks = new ArrayList<>();
     }
 
@@ -18,16 +18,30 @@ public final class ConditionBlockNode extends ConditionNode {
         return null;
     }
 
-    public void setIfBlock(ConditionalNode n) {
+    public ConditionalNode setIfBlock(ConditionalNode n) {
         this.ifBlock = n;
+        return n;
     }
 
-    public void addElseIfBlock(ConditionalNode n) {
+    public IFCondition addElseIfBlock(IFCondition n) {
         this.elseIfBlocks.add(n);
+        return n;
     }
 
-    public void setElseBlock(ELSECondition n) {
+    public ELSECondition setElseBlock(ELSECondition n) {
         this.elseBlock = n;
+        return n;
     }
 
+    public ConditionalNode getIfBlock() {
+        return this.ifBlock;
+    }
+
+    public ELSECondition getElseBlock() {
+        return this.elseBlock;
+    }
+
+    public List<IFCondition> getElseIfBlocks() {
+        return elseIfBlocks;
+    }
 }

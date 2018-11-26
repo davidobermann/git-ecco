@@ -2,8 +2,7 @@ package at.jku.isse.gitecco.cdt;
 
 import at.jku.isse.gitecco.conditionparser.ConditionParser;
 import at.jku.isse.gitecco.conditionparser.ParsedCondition;
-import at.jku.isse.gitecco.tree.Node;
-import at.jku.isse.gitecco.tree.SourceFileNode;
+import at.jku.isse.gitecco.tree.*;
 import org.eclipse.cdt.core.dom.ast.*;
 
 /**
@@ -19,53 +18,58 @@ public class FeatureParser {
      * @return The root of the tree.
      * @throws Exception
      */
-    public TreeFeature parseToTreeDefNew(IASTPreprocessorStatement[] ppstatements, int linecnt, SourceFileNode root) throws Exception {
-        //final TreeFeature root = new TreeFeature(new Feature(0, linecnt, FeatureType.IF, new ParsedCondition("BASE", 1)));
-        Node currentNode = root;
+    public SourceFileNode parseToTreeDefNew(IASTPreprocessorStatement[] ppstatements, int linecnt, SourceFileNode srcfilenode) throws Exception {
+        //create artificial BASE Node
+        ConditionBlockNode baseNode = new ConditionBlockNode(srcfilenode);
+        baseNode.setIfBlock(new IFCondition(baseNode,"BASE"));
+        baseNode.getIfBlock().setLineFrom(0);
+        baseNode.getIfBlock().setLineTo(linecnt);
+
+        srcfilenode.addChild(baseNode);
+
         PPStatement pp;
 
-        /*
-        Idee:
-        1.) Neue Block node.
-        2.) If condition füllen mit neuer conditional node je nach PPStatement
-        3.) ElseIf und Else einfügen.
-        4.) zurück nach oben --> line cnts eintragen.
+        ConditionBlockNode currentBlock = baseNode;
+        ConditionalNode currentConditional = baseNode.getIfBlock();
 
-        Alternative (vmtl unsauber und speicher overhead von Tree):
-        1.) wie gewohnt den tree als TreeFeature Tree erzeugen.
-        2.) diesen traversieren und daraus den neuen erzeugen
-        wäre leichter --> linecnt schon da, aber es wäre der speicheroverhead da.
-        Lukas fragen?
-         */
-
-        for (IASTPreprocessorStatement pps : ppstatements) {
-            if (pps instanceof IASTPreprocessorIfStatement
-                    || pps instanceof IASTPreprocessorIfdefStatement
-                    || pps instanceof IASTPreprocessorIfndefStatement) {
-                pp = new PPStatement(pps);
+        for(IASTPreprocessorStatement pps : ppstatements) {
+            pp = new PPStatement(pps);
+            if (pps instanceof IASTPreprocessorIfStatement) {
                 String condName = CDTHelper.getCondName(pp.getStatement());
+                currentBlock = new ConditionBlockNode(currentConditional);
+                currentBlock.setIfBlock(new IFCondition(currentBlock, condName)).setLineTo(pp.getLineStart());
+                currentConditional.addChild(currentBlock);
+            } else if (pps instanceof IASTPreprocessorIfdefStatement) {
+                String condName = CDTHelper.getCondName(pp.getStatement());
+                currentBlock = new ConditionBlockNode(currentConditional);
+                currentBlock.setIfBlock(new IFNDEFCondition(currentBlock, condName)).setLineTo(pp.getLineStart());
+                currentConditional.addChild(currentBlock);
+            } else if (pps instanceof IASTPreprocessorIfndefStatement) {
+                String condName = CDTHelper.getCondName(pp.getStatement());
+                currentBlock = new ConditionBlockNode(currentConditional);
+                currentBlock.setIfBlock(new IFCondition(currentBlock, condName)).setLineTo(pp.getLineStart());
+                currentConditional.addChild(currentBlock);
+
+                //TODO: Down from here: clean up the mess, find a strategy!
+                //TODO: Validate the below code.
 
             } else if (pps instanceof IASTPreprocessorElifStatement) {
-                pp = new PPStatement(pps);
                 String condName = CDTHelper.getCondName(pp.getStatement());
-                ParsedCondition[] pc = ConditionParser.parseConditionWithDefition(condName);
-                currentNode.setEndingLineNumber(pp.getLineEnd());
-                currentNode = currentNode.getParent();
-                currentNode = currentNode.addChild(new Feature(pp.getLineStart(), FeatureType.ELIF, pc));
+                currentConditional.setLineTo(pp.getLineEnd());
+                currentBlock = (ConditionBlockNode) currentBlock.getParent().getParent();
+                currentConditional = currentBlock.addElseIfBlock(new IFCondition(currentBlock,condName));
+                currentConditional.setLineFrom(pp.getLineStart());
             } else if (pps instanceof IASTPreprocessorElseStatement) {
-                pp = new PPStatement(pps);
-                ParsedCondition[] pc = currentNode.getParent().getConditions();
-                currentNode.setEndingLineNumber(pp.getLineEnd());
-                currentNode = currentNode.getParent();
-                currentNode = currentNode.addChild(new Feature(pp.getLineStart(), FeatureType.ELSE, pc));
+                currentConditional.setLineTo(pp.getLineEnd());
+                currentBlock = (ConditionBlockNode) currentBlock.getParent().getParent();
+                currentConditional = currentBlock.setElseBlock(new ELSECondition(currentBlock));
+                currentConditional.setLineFrom(pp.getLineStart());
             } else if (pps instanceof IASTPreprocessorEndifStatement) {
-                pp = new PPStatement(pps);
-                currentNode.setEndingLineNumber(pp.getLineEnd());
-                currentNode = currentNode.getParent();
+                currentConditional.setLineTo(pp.getLineEnd());
+                currentBlock = (ConditionBlockNode) currentBlock.getParent().getParent();
             }
         }
-
-        return root;
+        return srcfilenode;
     }
 
     /**

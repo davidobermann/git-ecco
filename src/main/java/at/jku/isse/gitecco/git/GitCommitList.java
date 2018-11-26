@@ -92,6 +92,8 @@ public class GitCommitList extends ArrayList<GitCommit> {
     public boolean add(GitCommit gitCommit, GitCommitList self) throws Exception {
         final RootNode tree = new RootNode(gitHelper.getPath());
 
+        gitHelper.checkOutCommit(gitCommit.getCommitName());
+
         if(self.size() > 1) {
             final List<String> changedFiles = gitHelper.getChangedFiles(self.get(self.size()-1), gitCommit);
 
@@ -102,39 +104,31 @@ public class GitCommitList extends ArrayList<GitCommit> {
                         || FilenameUtils.getExtension(file).equals("c")
                         || FilenameUtils.getExtension(file).equals("h"))
                 {
-                    fn = new SourceFileNode(tree,file);
 
+                    fn = new SourceFileNode(tree,file);
                     //check if source file has changed --> create subtree with features, otherwise insert src file as leaf
                     if(changedFiles.contains(file)) {
-
                         final String path = gitHelper.getPath() + "\\" + file;
-                        final String code = Files.readAllLines(Paths.get(path)).stream().collect(Collectors.joining("\n"));
+                        final List<String> codelist = Files.readAllLines(Paths.get(path));
+                        final String code = codelist.stream().collect(Collectors.joining("\n"));
 
                         final IASTTranslationUnit translationUnit = CDTHelper.parse(code.toCharArray());
                         final IASTPreprocessorStatement[] ppstatements = translationUnit.getAllPreprocessorStatements();
                         final FeatureParser featureParser = new FeatureParser();
                         //TODO: create tree parser which creates subtree for the passed node
-                        //featureParser.parseToTreeDefNew(fn);
-
+                        featureParser.parseToTreeDefNew(ppstatements,codelist.size(),(SourceFileNode)fn);
                     }
 
                 } else {
                     fn = new BinaryFileNode(tree,file);
                 }
+
+                tree.addChild(fn);
+
             }
         }
 
-        System.out.println();
-
-        //TODO: generate file structure
-        //gitHelper.checkOutCommit(gitCommit.getCommitName());
-
-        //https://github.com/centic9/jgit-cookbook/blob/master/src/main/java/org/dstadler/jgit/api/GetFileAttributes.java
-        //https://stackoverflow.com/questions/19941597/use-jgit-treewalk-to-list-files-and-folders
-
-        //gitCommit.setTree(tree);
-
-
+        gitCommit.setTree(tree);
         notifyObservers(gitCommit, self);
         return super.add(gitCommit);
     }
