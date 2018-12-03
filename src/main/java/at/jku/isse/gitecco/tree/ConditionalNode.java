@@ -17,18 +17,19 @@ public abstract class ConditionalNode extends ConditionNode {
     }
 
 
-    public void addChild(ConditionBlockNode n) {
+    public ConditionBlockNode addChild(ConditionBlockNode n) {
         this.children.add(n);
+        return n;
     }
 
     public void setLineFrom(int lineFrom) throws IllegalAccessException {
         if(this.lineFrom == -1) this.lineFrom = lineFrom;
-        throw new IllegalAccessException("Cannot set the line more than once");
+        else throw new IllegalAccessException("Cannot set the line more than once");
     }
 
     public void setLineTo(int lineTo) throws IllegalAccessException {
         if(this.lineTo == -1) this.lineTo = lineTo;
-        throw new IllegalAccessException("Cannot set the line more than once");
+        else throw new IllegalAccessException("Cannot set the line more than once");
     }
 
     public int getLineFrom() {

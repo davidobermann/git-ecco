@@ -9,21 +9,12 @@ import at.jku.isse.gitecco.tree.SourceFileNode;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevTree;
-import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.treewalk.TreeWalk;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,7 +32,6 @@ public class GitCommitList extends ArrayList<GitCommit> {
     public GitCommitList(String repoPath) throws IOException {
         super();
         this.gitHelper = new GitHelper(repoPath);
-        gitHelper.checkOutCommit(Constants.HEAD);
     }
 
     /**
@@ -94,7 +84,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
 
         gitHelper.checkOutCommit(gitCommit.getCommitName());
 
-        if(self.size() > 1) {
+        if(self.size() >= 1) {
             final List<String> changedFiles = gitHelper.getChangedFiles(self.get(self.size()-1), gitCommit);
 
             for (String file : gitHelper.getRepositoryContents(gitCommit)) {

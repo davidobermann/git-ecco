@@ -25,7 +25,7 @@ public class FeatureParser {
         baseNode.getIfBlock().setLineFrom(0);
         baseNode.getIfBlock().setLineTo(linecnt);
 
-        srcfilenode.addChild(baseNode);
+        srcfilenode.setBase(baseNode);
 
         PPStatement pp;
 
@@ -33,40 +33,55 @@ public class FeatureParser {
         ConditionalNode currentConditional = baseNode.getIfBlock();
 
         for(IASTPreprocessorStatement pps : ppstatements) {
-            pp = new PPStatement(pps);
+            /* starting statements*/
             if (pps instanceof IASTPreprocessorIfStatement) {
+                pp = new PPStatement(pps);
                 String condName = CDTHelper.getCondName(pp.getStatement());
                 currentBlock = new ConditionBlockNode(currentConditional);
-                currentBlock.setIfBlock(new IFCondition(currentBlock, condName)).setLineTo(pp.getLineStart());
                 currentConditional.addChild(currentBlock);
+                currentConditional = currentBlock.setIfBlock(new IFCondition(currentBlock, condName));
+                currentConditional.setLineFrom(pp.getLineStart());
+                currentBlock = currentConditional.addChild(currentBlock);
+
             } else if (pps instanceof IASTPreprocessorIfdefStatement) {
+                //TODO: FIX DOUBLE INSERTION HERE!!! example: test_msg in test_msg and so on and so forth
+                pp = new PPStatement(pps);
                 String condName = CDTHelper.getCondName(pp.getStatement());
                 currentBlock = new ConditionBlockNode(currentConditional);
-                currentBlock.setIfBlock(new IFNDEFCondition(currentBlock, condName)).setLineTo(pp.getLineStart());
                 currentConditional.addChild(currentBlock);
+                currentConditional = currentBlock.setIfBlock(new IFDEFCondition(currentBlock, condName));
+                currentConditional.setLineFrom(pp.getLineStart());
+                currentBlock = currentConditional.addChild(currentBlock);
+
             } else if (pps instanceof IASTPreprocessorIfndefStatement) {
+                pp = new PPStatement(pps);
                 String condName = CDTHelper.getCondName(pp.getStatement());
                 currentBlock = new ConditionBlockNode(currentConditional);
-                currentBlock.setIfBlock(new IFCondition(currentBlock, condName)).setLineTo(pp.getLineStart());
                 currentConditional.addChild(currentBlock);
+                currentConditional = currentBlock.setIfBlock(new IFCondition(currentBlock, condName));
+                currentConditional.setLineFrom(pp.getLineStart());
+                currentBlock = currentConditional.addChild(currentBlock);
 
-                //TODO: Down from here: clean up the mess, find a strategy!
-                //TODO: Validate the below code.
-
+            /* ending statements */
             } else if (pps instanceof IASTPreprocessorElifStatement) {
+                pp = new PPStatement(pps);
                 String condName = CDTHelper.getCondName(pp.getStatement());
                 currentConditional.setLineTo(pp.getLineEnd());
-                currentBlock = (ConditionBlockNode) currentBlock.getParent().getParent();
+                currentBlock = (ConditionBlockNode) currentConditional.getParent();
                 currentConditional = currentBlock.addElseIfBlock(new IFCondition(currentBlock,condName));
                 currentConditional.setLineFrom(pp.getLineStart());
+
             } else if (pps instanceof IASTPreprocessorElseStatement) {
+                pp = new PPStatement(pps);
                 currentConditional.setLineTo(pp.getLineEnd());
-                currentBlock = (ConditionBlockNode) currentBlock.getParent().getParent();
+                currentBlock = (ConditionBlockNode) currentConditional.getParent();
                 currentConditional = currentBlock.setElseBlock(new ELSECondition(currentBlock));
                 currentConditional.setLineFrom(pp.getLineStart());
+
             } else if (pps instanceof IASTPreprocessorEndifStatement) {
+                pp = new PPStatement(pps);
                 currentConditional.setLineTo(pp.getLineEnd());
-                currentBlock = (ConditionBlockNode) currentBlock.getParent().getParent();
+                currentConditional = (ConditionalNode) currentBlock.getParent();
             }
         }
         return srcfilenode;
