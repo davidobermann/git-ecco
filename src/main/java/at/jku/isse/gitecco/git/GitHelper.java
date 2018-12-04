@@ -82,12 +82,11 @@ public class GitHelper {
     public Change[] getFileDiffs(GitCommit oldCommit, GitCommit newCommit, String filePath) throws Exception {
 
         //prepare for file path filter.
-        String filterPath = filePath.substring(pathUrl.length()+1).replace("\\", "/");
-
+        //String filterPath = filePath.substring(pathUrl.length()+1).replace("\\", "/");
         List<DiffEntry> diff = git.diff().
                 setOldTree(prepareTreeParser(git.getRepository(), oldCommit)).
                 setNewTree(prepareTreeParser(git.getRepository(), newCommit)).
-                setPathFilter(PathFilter.create(filterPath)).
+                setPathFilter(PathFilter.create(filePath)).
                 call();
 
         //to filter on Suffix use the following instead
@@ -116,6 +115,7 @@ public class GitHelper {
             }
             fileDiffParser.reset();
         }
+        filePath = pathUrl + "\\" + filePath;
         if (changes.size() == 0) {
             changes.add(new Change(0, Files.readAllLines(Paths.get(filePath)).size()));
         }

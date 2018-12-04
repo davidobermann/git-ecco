@@ -1,4 +1,6 @@
-package at.jku.isse.gitecco.tree;
+package at.jku.isse.gitecco.tree.nodes;
+
+import at.jku.isse.gitecco.tree.visitor.TreeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,4 +19,11 @@ public final class RootNode extends Node {
         children.add(n);
     }
 
+    @Override
+    public void accept(TreeVisitor v) {
+        for (FileNode child : children) {
+            v.visit(this);
+            child.accept(v);
+        }
+    }
 }

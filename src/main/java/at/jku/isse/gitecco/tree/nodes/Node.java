@@ -1,6 +1,8 @@
-package at.jku.isse.gitecco.tree;
+package at.jku.isse.gitecco.tree.nodes;
 
-public abstract class Node {
+import at.jku.isse.gitecco.tree.visitor.Visitable;
+
+public abstract class Node implements Visitable {
     private final Node parent;
     private boolean changed;
 
@@ -20,7 +22,5 @@ public abstract class Node {
     public Node getParent() {
         return this.parent;
     }
-
-    //TODO: implement a visitor pattern for tree traversal
 
 }

@@ -2,14 +2,15 @@ package at.jku.isse.gitecco.git;
 
 import at.jku.isse.gitecco.cdt.CDTHelper;
 import at.jku.isse.gitecco.cdt.FeatureParser;
-import at.jku.isse.gitecco.tree.BinaryFileNode;
-import at.jku.isse.gitecco.tree.FileNode;
-import at.jku.isse.gitecco.tree.RootNode;
-import at.jku.isse.gitecco.tree.SourceFileNode;
+import at.jku.isse.gitecco.tree.nodes.BinaryFileNode;
+import at.jku.isse.gitecco.tree.nodes.FileNode;
+import at.jku.isse.gitecco.tree.nodes.RootNode;
+import at.jku.isse.gitecco.tree.nodes.SourceFileNode;
+import at.jku.isse.gitecco.tree.visitor.LinkChangeVisitor;
+import at.jku.isse.gitecco.tree.visitor.ValidateChangeVisitor;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
-import org.eclipse.jgit.lib.Constants;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -81,44 +82,54 @@ public class GitCommitList extends ArrayList<GitCommit> {
      */
     public boolean add(GitCommit gitCommit, GitCommitList self) throws Exception {
         final RootNode tree = new RootNode(gitHelper.getPath());
-
+        List<String> changedFiles;
+        Change[] changes;
+        GitCommit oldCommit;
         gitHelper.checkOutCommit(gitCommit.getCommitName());
 
-        if(self.size() >= 1) {
-            final List<String> changedFiles = gitHelper.getChangedFiles(self.get(self.size()-1), gitCommit);
+        //if there is already an old commit, diff to the old one
+        //if there is no old commit (size < 1) --> pass null to the diff --> diffs to the 0-commit.
+        oldCommit = self.size() > 0 ? self.get(self.size()-1) : null;
 
-            for (String file : gitHelper.getRepositoryContents(gitCommit)) {
-                final FileNode fn;
+        changedFiles = gitHelper.getChangedFiles(oldCommit, gitCommit);
+        //for all files
+        for (String file : gitHelper.getRepositoryContents(gitCommit)) {
+            final FileNode fn;
 
-                if (FilenameUtils.getExtension(file).equals("cpp")
-                        || FilenameUtils.getExtension(file).equals("c")
-                        || FilenameUtils.getExtension(file).equals("h"))
-                {
+            //source file or binary file --> with parsing, without.
+            if (FilenameUtils.getExtension(file).equals("cpp")
+                    || FilenameUtils.getExtension(file).equals("c")
+                    || FilenameUtils.getExtension(file).equals("h")) {
 
-                    fn = new SourceFileNode(tree,file);
-                    //check if source file has changed --> create subtree with features, otherwise insert src file as leaf
-                    if(changedFiles.contains(file)) {
-                        final String path = gitHelper.getPath() + "\\" + file;
-                        final List<String> codelist = Files.readAllLines(Paths.get(path));
-                        final String code = codelist.stream().collect(Collectors.joining("\n"));
+                fn = new SourceFileNode(tree, file);
+                //check if source file has changed --> create subtree with features, otherwise insert src file as leaf
+                if (changedFiles.contains(file)) {
+                    final String path = gitHelper.getPath()+"\\"+file;
+                    final List<String> codelist = Files.readAllLines(Paths.get(path));
+                    final String code = codelist.stream().collect(Collectors.joining("\n"));
 
-                        final IASTTranslationUnit translationUnit = CDTHelper.parse(code.toCharArray());
-                        final IASTPreprocessorStatement[] ppstatements = translationUnit.getAllPreprocessorStatements();
-                        final FeatureParser featureParser = new FeatureParser();
-                        //TODO: create tree parser which creates subtree for the passed node
-                        featureParser.parseToTreeDefNew(ppstatements,codelist.size(),(SourceFileNode)fn);
+                    final IASTTranslationUnit translationUnit = CDTHelper.parse(code.toCharArray());
+                    final IASTPreprocessorStatement[] ppstatements = translationUnit.getAllPreprocessorStatements();
+                    final FeatureParser featureParser = new FeatureParser();
+                    featureParser.parseToTree(ppstatements, codelist.size(), (SourceFileNode) fn);
+
+                    fn.setChanged();
+                    //link changes
+                    changes = gitHelper.getFileDiffs(oldCommit,gitCommit,file);
+                    LinkChangeVisitor lcv = new LinkChangeVisitor();
+                    for(Change change:changes) {
+                        lcv.setChange(change);
+                        fn.accept(lcv);
                     }
-
-                } else {
-                    fn = new BinaryFileNode(tree,file);
+                    fn.accept(new ValidateChangeVisitor());
                 }
-
-                tree.addChild(fn);
-
+            } else {
+                fn = new BinaryFileNode(tree, file);
             }
+            tree.addChild(fn);
         }
-
         gitCommit.setTree(tree);
+        //trigger listeners, etc.
         notifyObservers(gitCommit, self);
         return super.add(gitCommit);
     }

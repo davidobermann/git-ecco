@@ -1,4 +1,4 @@
-package at.jku.isse.gitecco.tree;
+package at.jku.isse.gitecco.tree.nodes;
 
 public abstract class ConditionNode extends Node {
 

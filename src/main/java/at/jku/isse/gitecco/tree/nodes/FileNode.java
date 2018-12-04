@@ -1,7 +1,6 @@
-package at.jku.isse.gitecco.tree;
+package at.jku.isse.gitecco.tree.nodes;
 
-
-public abstract class FileNode extends Node {
+public abstract class FileNode extends Node{
     private final String pathName;
 
     public FileNode(Node parent, String name) {

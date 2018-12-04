@@ -1,4 +1,6 @@
-package at.jku.isse.gitecco.tree;
+package at.jku.isse.gitecco.tree.nodes;
+
+import at.jku.isse.gitecco.tree.visitor.TreeVisitor;
 
 public final class SourceFileNode extends FileNode {
     private ConditionBlockNode base;
@@ -11,5 +13,11 @@ public final class SourceFileNode extends FileNode {
     public void setBase(ConditionBlockNode n) throws IllegalAccessException {
         if(base == null) this.base = n;
         else throw new IllegalAccessException("Cannot set base twice.");
+    }
+
+    @Override
+    public void accept(TreeVisitor v) {
+        base.accept(v);
+        v.visit(this);
     }
 }

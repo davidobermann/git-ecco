@@ -1,4 +1,6 @@
-package at.jku.isse.gitecco.tree;
+package at.jku.isse.gitecco.tree.nodes;
+
+import at.jku.isse.gitecco.tree.visitor.TreeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,11 +13,6 @@ public final class ConditionBlockNode extends ConditionNode {
     public ConditionBlockNode(Node parent) {
         super(parent);
         this.elseIfBlocks = new ArrayList<>();
-    }
-
-    public String[] getContainedFeatures() {
-        //TODO: traverse subtree under this node and collect all feature names.
-        return null;
     }
 
     public ConditionalNode setIfBlock(ConditionalNode n) {
@@ -43,5 +40,15 @@ public final class ConditionBlockNode extends ConditionNode {
 
     public List<IFCondition> getElseIfBlocks() {
         return elseIfBlocks;
+    }
+
+    @Override
+    public void accept(TreeVisitor v) {
+        if(elseBlock != null) elseBlock.accept(v);
+        for (IFCondition elseIfBlock : elseIfBlocks) {
+            elseIfBlock.accept(v);
+        }
+        if(ifBlock != null) ifBlock.accept(v);
+        v.visit(this);
     }
 }

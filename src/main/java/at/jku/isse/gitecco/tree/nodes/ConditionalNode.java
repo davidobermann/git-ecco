@@ -1,7 +1,5 @@
 package at.jku.isse.gitecco.tree;
 
-import at.jku.isse.gitecco.conditionparser.ConditionParser;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

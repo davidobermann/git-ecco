@@ -1,6 +1,6 @@
 package at.jku.isse.gitecco.git;
 
-import at.jku.isse.gitecco.tree.RootNode;
+import at.jku.isse.gitecco.tree.nodes.RootNode;
 
 import java.util.Collections;
 import java.util.List;

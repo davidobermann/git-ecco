@@ -1,6 +1,7 @@
 package at.jku.isse.gitecco.git;
 
 import at.jku.isse.gitecco.cdt.Feature;
+import at.jku.isse.gitecco.tree.nodes.ConditionalNode;
 
 /**
  * Class to store a change.
@@ -16,7 +17,7 @@ public class Change {
      * Creates a new change.
      *
      * @param from int value of the starting line number of the change.
-     * @param cnt  int value which indicates how many lines are coverd by this change.
+     * @param cnt  int value which indicates how many lines are covered by this change.
      */
     public Change(int from, int cnt) {
         this.from = from;
@@ -31,7 +32,18 @@ public class Change {
      * @return True if the Feature is in fact in this change, otherwise false.
      */
     public boolean contains(Feature feature) {
-        return (from<=feature.getStartingLineNumber()) && (to >= feature.getEndingLineNumber());
+        return from<=feature.getStartingLineNumber() && to >= feature.getEndingLineNumber();
+    }
+
+    /**
+     * Checks if a given ConditionalNode n lays inside of this change..
+     * Used to determine if a new Feature was added.
+     *
+     * @param n The ConditionalNode to be checked.
+     * @return True if the Feature is in fact in this change, otherwise false.
+     */
+    public boolean contains(ConditionalNode n) {
+        return from <= n.getLineFrom() && to >= n.getLineTo();
     }
 
     /**
