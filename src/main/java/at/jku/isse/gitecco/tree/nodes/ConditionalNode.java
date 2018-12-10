@@ -1,4 +1,6 @@
-package at.jku.isse.gitecco.tree;
+package at.jku.isse.gitecco.tree.nodes;
+
+import at.jku.isse.gitecco.git.Change;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,6 +16,10 @@ public abstract class ConditionalNode extends ConditionNode {
         children = new ArrayList<ConditionBlockNode>();
     }
 
+    public boolean containsChange(Change c) {
+        if(lineFrom == -1 || lineTo == -1) throw new IllegalStateException("line values have not been set correctly");
+        return lineFrom <= c.getFrom() && lineTo >= c.getTo();
+    }
 
     public ConditionBlockNode addChild(ConditionBlockNode n) {
         this.children.add(n);

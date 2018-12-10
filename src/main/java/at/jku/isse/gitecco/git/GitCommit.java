@@ -12,6 +12,7 @@ import java.util.List;
 public class GitCommit {
     private RootNode tree;
     private final String commitName;
+    private final String diffCommit;
     private final List<GitCommitType> types;
     private final String branch;
 
@@ -22,10 +23,11 @@ public class GitCommit {
      * @param types
      * @param branch
      */
-    public GitCommit(String commitName, List<GitCommitType> types, String branch) {
+    public GitCommit(String commitName, String diffCommit, List<GitCommitType> types, String branch) {
         this.commitName = commitName;
         this.types = types;
         this.branch = branch;
+        this.diffCommit = diffCommit;
     }
 
     /**
@@ -51,6 +53,15 @@ public class GitCommit {
      */
     public String getBranch() {
         return branch;
+    }
+
+    /**
+     * Gets the SHA1 ID aka the name of the commit to diff with
+     *
+     * @return the commit name / SHA1 ID
+     */
+    public String getDiffCommitName() {
+        return diffCommit;
     }
 
     /**

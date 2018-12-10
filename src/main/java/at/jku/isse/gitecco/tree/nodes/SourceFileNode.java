@@ -1,8 +1,9 @@
 package at.jku.isse.gitecco.tree.nodes;
 
 import at.jku.isse.gitecco.tree.visitor.TreeVisitor;
+import at.jku.isse.gitecco.tree.visitor.Visitable;
 
-public final class SourceFileNode extends FileNode {
+public final class SourceFileNode extends FileNode implements Visitable {
     private ConditionBlockNode base;
 
     public SourceFileNode(Node parent, String filePath) {

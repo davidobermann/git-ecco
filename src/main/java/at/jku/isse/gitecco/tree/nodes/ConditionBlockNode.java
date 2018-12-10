@@ -1,11 +1,12 @@
 package at.jku.isse.gitecco.tree.nodes;
 
 import at.jku.isse.gitecco.tree.visitor.TreeVisitor;
+import at.jku.isse.gitecco.tree.visitor.Visitable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ConditionBlockNode extends ConditionNode {
+public final class ConditionBlockNode extends ConditionNode implements Visitable {
     private final List<IFCondition> elseIfBlocks;
     private ConditionalNode ifBlock;
     private ELSECondition elseBlock;

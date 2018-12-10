@@ -2,8 +2,9 @@ package at.jku.isse.gitecco.tree.nodes;
 
 
 import at.jku.isse.gitecco.tree.visitor.TreeVisitor;
+import at.jku.isse.gitecco.tree.visitor.Visitable;
 
-public final class ELSECondition extends ConditionalNode {
+public final class ELSECondition extends ConditionalNode implements Visitable {
     public ELSECondition(Node parent) {
         super(parent);
     }
@@ -11,9 +12,9 @@ public final class ELSECondition extends ConditionalNode {
     @Override
     public void accept(TreeVisitor v) {
         for (ConditionBlockNode child : getChildren()) {
-            v.visit(this);
             child.accept(v);
         }
+        v.visit(this);
     }
 
 }

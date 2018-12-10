@@ -102,25 +102,30 @@ public class GitCommitList extends ArrayList<GitCommit> {
                     || FilenameUtils.getExtension(file).equals("h")) {
 
                 fn = new SourceFileNode(tree, file);
+
                 //check if source file has changed --> create subtree with features, otherwise insert src file as leaf
-                if (changedFiles.contains(file)) {
+                if (changedFiles.contains(file.replace("/","\\"))) {
                     final String path = gitHelper.getPath()+"\\"+file;
                     final List<String> codelist = Files.readAllLines(Paths.get(path));
                     final String code = codelist.stream().collect(Collectors.joining("\n"));
 
+                    //file parsing
                     final IASTTranslationUnit translationUnit = CDTHelper.parse(code.toCharArray());
                     final IASTPreprocessorStatement[] ppstatements = translationUnit.getAllPreprocessorStatements();
                     final FeatureParser featureParser = new FeatureParser();
+                    //actual tree building
                     featureParser.parseToTree(ppstatements, codelist.size(), (SourceFileNode) fn);
 
                     fn.setChanged();
                     //link changes
                     changes = gitHelper.getFileDiffs(oldCommit,gitCommit,file);
                     LinkChangeVisitor lcv = new LinkChangeVisitor();
+                    //traverse tree for each change and mark changed features
                     for(Change change:changes) {
                         lcv.setChange(change);
                         fn.accept(lcv);
                     }
+                    //corrects the ConditionBlockNodes if there children have changed.
                     fn.accept(new ValidateChangeVisitor());
                 }
             } else {

@@ -34,7 +34,6 @@ public class LinkChangeVisitor implements TreeVisitor{
 
     @Override
     public void visit(ConditionBlockNode n) {
-
     }
 
     @Override

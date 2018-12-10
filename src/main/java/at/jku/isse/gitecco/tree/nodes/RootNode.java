@@ -1,11 +1,12 @@
 package at.jku.isse.gitecco.tree.nodes;
 
 import at.jku.isse.gitecco.tree.visitor.TreeVisitor;
+import at.jku.isse.gitecco.tree.visitor.Visitable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public final class RootNode extends Node {
+public final class RootNode extends Node implements Visitable {
     private final String path;
     private final List<FileNode> children;
 
