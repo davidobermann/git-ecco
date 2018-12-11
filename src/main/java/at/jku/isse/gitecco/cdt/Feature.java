@@ -22,7 +22,6 @@ public class Feature implements Comparable<Feature> {
     private final ParsedCondition[] conditions;
     private int endingLineNumber;
 
-
     /**
      * Creates a new Feature with the given parameters
      *

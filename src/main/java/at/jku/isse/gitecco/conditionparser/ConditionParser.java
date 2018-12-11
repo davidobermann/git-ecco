@@ -6,6 +6,7 @@ import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
 import org.mariuszgromada.math.mxparser.parsertokens.Token;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -59,7 +60,7 @@ public class ConditionParser {
      * @param condition The condition to be parsed.
      * @return
      */
-    public static String[] parseCondition(String condition) {
+    public static Collection<String> parseCondition(String condition) {
         Expression exp = new Expression(condition);
         Token[] tokens = exp.getCopyOfInitialTokens().toArray(new Token[exp.getCopyOfInitialTokens().size()]);
         List<String> featureNames = new ArrayList<>();
@@ -83,7 +84,7 @@ public class ConditionParser {
             i++;
         }
 
-        return featureNames.toArray(new String[featureNames.size()]);
+        return featureNames;
     }
 
     /**

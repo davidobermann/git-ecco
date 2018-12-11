@@ -74,19 +74,18 @@ public class GitHelper {
      * The Diff is stored as a <code>Change</code>.
      * All the changes will be returned as an Array.
      *
-     * @param newCommit The name of the newer commit
-     * @param oldCommit The name of the older commit.
+     * @param newCommit The commit which should be diffed --> also contains the parent to diff with
      * @param filePath  The FilePath for which the Diff should be applied.
      * @return An Array of Changes which contains all the changes between the commits.
      * @throws Exception
      */
-    public Change[] getFileDiffs(GitCommit oldCommit, GitCommit newCommit, String filePath) throws Exception {
+    public Change[] getFileDiffs(GitCommit newCommit, String filePath) throws Exception {
 
         //prepare for file path filter.
         //String filterPath = filePath.substring(pathUrl.length()+1).replace("\\", "/");
         List<DiffEntry> diff = git.diff().
-                setOldTree(prepareTreeParser(git.getRepository(), oldCommit)).
-                setNewTree(prepareTreeParser(git.getRepository(), newCommit)).
+                setOldTree(prepareTreeParser(git.getRepository(), newCommit.getDiffCommitName())).
+                setNewTree(prepareTreeParser(git.getRepository(), newCommit.getCommitName())).
                 setPathFilter(PathFilter.create(filePath)).
                 call();
 
@@ -116,27 +115,27 @@ public class GitHelper {
             }
             fileDiffParser.reset();
         }
+
         filePath = pathUrl + "\\" + filePath;
-        if (changes.size() == 0) {
-            changes.add(new Change(0, Files.readAllLines(Paths.get(filePath)).size()));
-        }
+
+        if (changes.size() == 0) changes.add(new Change(0, Files.readAllLines(Paths.get(filePath)).size()));
+
         return changes.toArray(new Change[changes.size()]);
     }
 
     /**
      * Returns all paths to files that have changed in the repo between 2 commits.
      *
-     * @param oldCommit
-     * @param newCommit
+     * @param newCommit commit to diff with --> also contains the parent for diffing
      * @return List of Strings of paths.
      * @throws IOException
      * @throws GitAPIException
      */
-    public List<String> getChangedFiles(GitCommit oldCommit, GitCommit newCommit) throws IOException, GitAPIException {
+    public List<String> getChangedFiles(GitCommit newCommit) throws IOException, GitAPIException {
         final List<String> paths = new ArrayList<>();
         List<DiffEntry> diffs = git.diff().
-                setOldTree(prepareTreeParser(git.getRepository(), oldCommit)).
-                setNewTree(prepareTreeParser(git.getRepository(), newCommit)).
+                setOldTree(prepareTreeParser(git.getRepository(), newCommit.getDiffCommitName())).
+                setNewTree(prepareTreeParser(git.getRepository(), newCommit.getCommitName())).
                 call();
         for (DiffEntry entry : diffs) {
             if(entry.getChangeType() != DiffEntry.ChangeType.DELETE) {
@@ -197,15 +196,14 @@ public class GitHelper {
     /**
      * Lists all the Diffs between two Commits.
      *
-     * @param newCommit The newer commit name.
-     * @param oldCommit The older commit name.
+     * @param newCommit The new commit which should be diffed --> also contains the parent to diff with.
      * @throws GitAPIException
      * @throws IOException
      */
-    public void listDiff(GitCommit oldCommit, GitCommit newCommit) throws GitAPIException, IOException {
+    public void listDiff(GitCommit newCommit) throws GitAPIException, IOException {
         final List<DiffEntry> diffs = git.diff()
-                .setOldTree(prepareTreeParser(git.getRepository(), oldCommit))
-                .setNewTree(prepareTreeParser(git.getRepository(), newCommit))
+                .setOldTree(prepareTreeParser(git.getRepository(), newCommit.getDiffCommitName()))
+                .setNewTree(prepareTreeParser(git.getRepository(), newCommit.getCommitName()))
                 .call();
 
         System.out.println("Found: "+diffs.size()+" differences");
@@ -276,27 +274,41 @@ public class GitHelper {
         // a RevWalk allows to walk over commits based on some filtering that is defined
         try (RevWalk revWalk = new RevWalk( repository )) {
 
+            PlotCommitList<PlotLane> plotCommitList = new PlotCommitList<>();
+            plotCommitList.source(revWalk);
+            plotCommitList.fillTo(Integer.MAX_VALUE);
+            Collections.reverse(plotCommitList);
+
             for(Ref ref : allRefs) {
                 revWalk.markStart(revWalk.parseCommit(ref.getObjectId()));
             }
+
+            int i = 0;
+
             for(RevCommit rc : revWalk) {
                 System.out.println(rc.getName());
                 try {
+
                     types.clear();
                     types.add(GitCommitType.COMMIT);
+
                     if (rc.getParentCount()>1
                             || plotCommitList.get(i).getChildCount() == 0 && plotCommitList.get(i).getChildCount()>0) {
                         types.add(GitCommitType.BRANCH);
                     }
+
                     if (plotCommitList.get(i).getParentCount()>1) {
                         types.add(GitCommitType.MERGE);
                     }
-                    String branch = getBranchOfCommit(commitNames[i]);
-                    commits.add(new GitCommit(commitNames[i], new ArrayList<GitCommitType>(types), branch), commits);
+
+                    String branch = getBranchOfCommit(plotCommitList.get(i).getName());
+                    //commits.add(new GitCommit(commitNames[i], new ArrayList<GitCommitType>(types), branch), commits);
+                    System.out.println("added commit as expected to the list.");
+
                 }catch (ArrayIndexOutOfBoundsException e) {
                     System.out.println("Diff to: zero commit --> no parrent available");
                 }
-                //commitNames.add(rc.getName());
+                i++;
             }
         }
 
@@ -318,23 +330,26 @@ public class GitHelper {
         final PlotWalk revWalk = new PlotWalk(repo);
         final RevCommit root = revWalk.parseCommit(repo.resolve("refs/heads/master"));
         revWalk.markStart(root);
-        revWalk.sort(RevSort.TOPO);
+        revWalk.sort(RevSort.TOPO, true);
+        revWalk.sort(RevSort.REVERSE, true);
 
         PlotCommitList<PlotLane> plotCommitList = new PlotCommitList<>();
         plotCommitList.source(revWalk);
         plotCommitList.fillTo(Integer.MAX_VALUE);
-        Collections.reverse(plotCommitList);
 
         for (int i = 0; i<commitNames.length; i++) {
             types.clear();
             types.add(GitCommitType.COMMIT);
+
             if (plotCommitList.get(i).getChildCount()>1
                     || plotCommitList.get(i).getChildCount() == 0 && plotCommitList.get(i).getChildCount()>0) {
                 types.add(GitCommitType.BRANCH);
             }
+
             if (plotCommitList.get(i).getParentCount()>1) {
                 types.add(GitCommitType.MERGE);
             }
+
             String branch = getBranchOfCommit(commitNames[i]);
             String parent;
 
@@ -346,7 +361,7 @@ public class GitHelper {
 
             commits.add(new GitCommit(plotCommitList.get(i).getName(), parent,
                     new ArrayList<GitCommitType>(types),
-                    branch),
+                    branch, plotCommitList.get(i)),
                     commits);
         }
 
@@ -389,62 +404,12 @@ public class GitHelper {
         return map.isEmpty() ? "" : map.get(ObjectId.fromString(commit)).split("~")[0];
     }
 
-    /**
-     * Should determine to which branch a feature belongs.
-     * Not working yet!!!
-     *
-     * @param commitName
-     * @return
-     * @throws GitAPIException
-     * @throws IOException
-     */
-    public String belongsToBranch(String commitName) throws GitAPIException, IOException {
-        List<Ref> branches = git.branchList().call();
-        Repository repo = git.getRepository();
-        RevWalk walk = new RevWalk(repo);
-        RevCommit commit = walk.parseCommit(repo.resolve(commitName));
-        String retval = "";
-        for (Ref branch : branches) {
-            String branchName = branch.getName();
-            boolean foundInThisBranch = false;
-            for (Map.Entry<String, Ref> e : repo.getAllRefs().entrySet()) {
-                if (e.getKey().startsWith(Constants.R_HEADS)) {
-                    if (walk.isMergedInto(commit, walk.parseCommit(
-                            e.getValue().getObjectId()))) {
-                        String foundInBranch = e.getValue().getName();
-                        if (branchName.equals(foundInBranch)) {
-                            foundInThisBranch = true;
-                            retval = branchName;
-                            break;
-                        }
-                    }
-                }
-            }
 
-            if (foundInThisBranch) {
-                System.out.println(commit.getName());
-                System.out.println(branchName);
-                System.out.println(commit.getAuthorIdent().getName());
-                System.out.println(new Date(commit.getCommitTime()*1000L));
-                System.out.println(commit.getFullMessage());
-            }
-        }
-
-
-        return retval;
-    }
-
-
-    private AbstractTreeIterator prepareTreeParser(Repository repository, GitCommit gitcommit) throws IOException {
-
-        //TODO: find a way to diff to the diffCommit in the gitCOmmit class.
-
-        if (gitcommit == null) return new EmptyTreeIterator();
-
-        String objectId = gitcommit.getCommitName();
+    private AbstractTreeIterator prepareTreeParser(Repository repository, String commitName) throws IOException {
+        if (commitName == null || commitName.equals("NULLCOMMIT")) return new EmptyTreeIterator();
 
         try (RevWalk walk = new RevWalk(repository)) {
-            RevCommit commit = walk.parseCommit(repository.resolve(objectId));
+            RevCommit commit = walk.parseCommit(repository.resolve(commitName));
             RevTree tree = walk.parseTree(commit.getTree().getId());
 
             CanonicalTreeParser treeParser = new CanonicalTreeParser();

@@ -23,21 +23,9 @@ public class App {
         final GitHelper gitHelper = new GitHelper(repositoryPath);
         final GitCommitList commits = new GitCommitList(repositoryPath);
 
-        int i = 0;
+        gitHelper.checkOutCommit(Constants.MASTER);
 
-        /*for (String s : gitHelper.getAllCommitNamesNew()) {
-            System.out.println(s);
-            i++;
-        }*/
-
-        gitHelper.getAllCommitNamesNew();
-
-        //System.out.println("Had " + i + " commits.");
-
-        //gitHelper.checkOutCommit(Constants.MASTER);
-
-        //gitHelper.getAllCommits(commits);
-        //gitHelper.checkOutCommit(Constants.MASTER);
+        gitHelper.getAllCommits(commits);
 
     }
 

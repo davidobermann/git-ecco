@@ -87,11 +87,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
         GitCommit oldCommit;
         gitHelper.checkOutCommit(gitCommit.getCommitName());
 
-        //if there is already an old commit, diff to the old one
-        //if there is no old commit (size < 1) --> pass null to the diff --> diffs to the 0-commit.
-        oldCommit = self.size() > 0 ? self.get(self.size()-1) : null;
-
-        changedFiles = gitHelper.getChangedFiles(oldCommit, gitCommit);
+        changedFiles = gitHelper.getChangedFiles(gitCommit);
         //for all files
         for (String file : gitHelper.getRepositoryContents(gitCommit)) {
             final FileNode fn;
@@ -118,7 +114,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
 
                     fn.setChanged();
                     //link changes
-                    changes = gitHelper.getFileDiffs(oldCommit,gitCommit,file);
+                    changes = gitHelper.getFileDiffs(gitCommit,file);
                     LinkChangeVisitor lcv = new LinkChangeVisitor();
                     //traverse tree for each change and mark changed features
                     for(Change change:changes) {
@@ -130,6 +126,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
                 }
             } else {
                 fn = new BinaryFileNode(tree, file);
+                if(changedFiles.contains(file.replace("/","\\"))) fn.setChanged();
             }
             tree.addChild(fn);
         }

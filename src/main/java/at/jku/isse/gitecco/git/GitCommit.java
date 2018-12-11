@@ -1,6 +1,7 @@
 package at.jku.isse.gitecco.git;
 
 import at.jku.isse.gitecco.tree.nodes.RootNode;
+import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,6 +16,7 @@ public class GitCommit {
     private final String diffCommit;
     private final List<GitCommitType> types;
     private final String branch;
+    private final RevCommit revCommit;
 
     /**
      * Creates a new GitCommit
@@ -23,11 +25,12 @@ public class GitCommit {
      * @param types
      * @param branch
      */
-    public GitCommit(String commitName, String diffCommit, List<GitCommitType> types, String branch) {
+    public GitCommit(String commitName, String diffCommit, List<GitCommitType> types, String branch, RevCommit rc) {
         this.commitName = commitName;
         this.types = types;
         this.branch = branch;
         this.diffCommit = diffCommit;
+        this.revCommit = rc;
     }
 
     /**
