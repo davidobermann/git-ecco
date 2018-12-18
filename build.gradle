@@ -33,6 +33,9 @@ dependencies {
     compile group: 'org.eclipse.core', name: 'org.eclipse.core.resources', version: '3.6.0.v20100526-0737'
     compile group: 'org.eclipse.equinox', name: 'org.eclipse.equinox.common', version: '3.6.0.v20100503'
 
+    //Logic NG: Logic Lib for Java --> used for sat solving.
+    compile group: 'org.logicng', name: 'logicng', version: '1.3.1'
+
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
 

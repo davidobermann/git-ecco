@@ -11,6 +11,7 @@ public final class IFNDEFCondition extends ConditionalNode implements Visitable 
         this.condition = condition;
     }
 
+    @Override
     public String getCondition() {
         return this.condition;
     }

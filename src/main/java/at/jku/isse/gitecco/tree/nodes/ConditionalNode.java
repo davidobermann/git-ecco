@@ -17,6 +17,7 @@ public abstract class ConditionalNode extends ConditionNode {
     }
 
     public boolean containsChange(Change c) {
+        if(c == null) return false;
         if(lineFrom == -1 || lineTo == -1) throw new IllegalStateException("line values have not been set correctly");
         return lineFrom <= c.getFrom() && lineTo >= c.getTo();
     }
@@ -47,4 +48,6 @@ public abstract class ConditionalNode extends ConditionNode {
     public List<ConditionBlockNode> getChildren() {
         return Collections.unmodifiableList(children);
     }
+
+    public abstract String getCondition();
 }

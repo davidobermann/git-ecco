@@ -38,22 +38,34 @@ public class LinkChangeVisitor implements TreeVisitor{
 
     @Override
     public void visit(IFCondition c) {
-        if(c.containsChange(change) || change.contains(c)) c.setChanged();
+        if(change != null && (c.containsChange(change) || change.contains(c))) {
+            c.setChanged();
+            change = null;
+        }
     }
 
     @Override
     public void visit(IFDEFCondition c) {
-        if(c.containsChange(change) || change.contains(c)) c.setChanged();
+        if(change != null && (c.containsChange(change) || change.contains(c))) {
+            c.setChanged();
+            change = null;
+        }
     }
 
     @Override
     public void visit(IFNDEFCondition c) {
-        if(c.containsChange(change) || change.contains(c)) c.setChanged();
+        if(change != null && (c.containsChange(change) || change.contains(c))) {
+            c.setChanged();
+            change = null;
+        }
     }
 
     @Override
     public void visit(ELSECondition c) {
-        if(c.containsChange(change) || change.contains(c)) c.setChanged();
+        if(change != null && (c.containsChange(change) || change.contains(c))) {
+            c.setChanged();
+            change = null;
+        }
     }
 
 }

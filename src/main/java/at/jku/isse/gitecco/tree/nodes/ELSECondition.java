@@ -10,6 +10,11 @@ public final class ELSECondition extends ConditionalNode implements Visitable {
     }
 
     @Override
+    public String getCondition() {
+        return "";
+    }
+
+    @Override
     public void accept(TreeVisitor v) {
         for (ConditionBlockNode child : getChildren()) {
             child.accept(v);

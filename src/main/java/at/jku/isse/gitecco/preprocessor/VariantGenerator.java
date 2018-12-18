@@ -1,16 +1,20 @@
 package at.jku.isse.gitecco.preprocessor;
 
-import at.jku.isse.gitecco.cdt.TreeFeature;
 import at.jku.isse.gitecco.conditionparser.ParsedCondition;
-import at.jku.isse.gitecco.git.GitHelper;
 
+import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
 public class VariantGenerator {
 
-    public void generateVariants(Collection<ParsedCondition> features, String inPath, String outPath) {
-        String command = "coan spin "; //spin: replicates the old folder structure into a new folder structure
+    /**
+     * generates a variant of the passed directory using the given features as defined values.
+     * @param features the features which should be contained inside the variant.
+     * @param inPath the ABSOLUTE path to the folder which should be processed to a variant.
+     */
+    public void generateVariants(Collection<ParsedCondition> features, String inPath) {
+        //set environment variable needs to be set for this to work!!
+        String command = "coan source ";
 
         for (ParsedCondition feature : features) {
             int value = (int) feature.getDefinition();
@@ -18,23 +22,15 @@ public class VariantGenerator {
                 command += "-D" + feature.getName() + "=" + value + " ";
         }
 
-        //command += "-m -ge -P -r " + file;
+        command += "-m -ge -P --filter c,h,cpp,cc,hpp,hh --keepgoing --recurse " + inPath;
 
-    }
-
-    public void preprocess(TreeFeature tree, String file) {
-        List<TreeFeature> changed = tree.getChangedAsList();
-        String command = "coan source ";
-        for (TreeFeature tf : changed) {
-            for (ParsedCondition pc : tf.getConditions()) {
-                int value = (int) pc.getDefinition();
-                if (!command.contains("-D"+pc.getName()+"="+value)) {
-                    command += "-D"+pc.getName()+"="+value+" ";
-                }
-            }
+        try {
+            Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+            System.out.println("Error in variant generation runtime command");
+            e.printStackTrace();
         }
-        command += "-m -ge -P -r "+file;
-        System.out.println(command);
+
     }
 
 }

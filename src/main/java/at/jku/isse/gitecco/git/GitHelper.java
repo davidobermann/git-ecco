@@ -162,8 +162,8 @@ public class GitHelper {
      * @param name The name of the commit, which should be checked out.
      */
     public void checkOutCommit(String name) {
-        System.out.println("Checking out commit: "+name
-                +"\n at "+pathUrl);
+        /*System.out.println("Checking out commit: "+name
+                +"\n at "+pathUrl);*/
 
         Process p;
         try {

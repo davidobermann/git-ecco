@@ -17,13 +17,16 @@ public class App {
      */
     public static void main(String... args) throws Exception {
 
-        final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo";
+        final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo2";
+        //"C:\\obermanndavid\\git-to-ecco\\test_repo";
         //final String repositoryPath = "C:\\obermanndavid\\git-ecco-test\\test1\\Unity";
 
         final GitHelper gitHelper = new GitHelper(repositoryPath);
         final GitCommitList commits = new GitCommitList(repositoryPath);
 
         gitHelper.checkOutCommit(Constants.MASTER);
+
+        commits.enableAutoCommitConfiguration();
 
         gitHelper.getAllCommits(commits);
 

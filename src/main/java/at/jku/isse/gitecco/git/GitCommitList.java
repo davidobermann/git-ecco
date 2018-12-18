@@ -6,11 +6,21 @@ import at.jku.isse.gitecco.tree.nodes.BinaryFileNode;
 import at.jku.isse.gitecco.tree.nodes.FileNode;
 import at.jku.isse.gitecco.tree.nodes.RootNode;
 import at.jku.isse.gitecco.tree.nodes.SourceFileNode;
+import at.jku.isse.gitecco.tree.visitor.GetAllChangedConditionsVisitor;
 import at.jku.isse.gitecco.tree.visitor.LinkChangeVisitor;
 import at.jku.isse.gitecco.tree.visitor.ValidateChangeVisitor;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
+import org.logicng.datastructures.Assignment;
+import org.logicng.datastructures.Tristate;
+import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.Variable;
+import org.logicng.io.parsers.ParserException;
+import org.logicng.io.parsers.PropositionalParser;
+import org.logicng.solvers.MiniSat;
+import org.logicng.solvers.SATSolver;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -95,7 +105,9 @@ public class GitCommitList extends ArrayList<GitCommit> {
             //source file or binary file --> with parsing, without.
             if (FilenameUtils.getExtension(file).equals("cpp")
                     || FilenameUtils.getExtension(file).equals("c")
-                    || FilenameUtils.getExtension(file).equals("h")) {
+                    || FilenameUtils.getExtension(file).equals("h")
+                    || FilenameUtils.getExtension(file).equals("hpp")
+                    || FilenameUtils.getExtension(file).equals("hh")) {
 
                 fn = new SourceFileNode(tree, file);
 
@@ -136,6 +148,68 @@ public class GitCommitList extends ArrayList<GitCommit> {
         return super.add(gitCommit);
     }
 
+    public void enableAutoCommitConfiguration() {
+        this.addGitCommitListener(
+                new GitCommitListener() {
+
+                    private void checkAndCommit(GetAllChangedConditionsVisitor v) throws ParserException {
+                        final FormulaFactory f = new FormulaFactory();
+                        final PropositionalParser p = new PropositionalParser(f);
+                        final Formula formula = p.parse(v.getAllConditionsConjuctive());
+                        final SATSolver miniSat = MiniSat.miniSat(f);
+                        miniSat.add(formula);
+                        final Tristate result = miniSat.sat();
+
+                        String commit = "ecco commit ";
+
+                        if(result.equals(Tristate.TRUE)) {
+                            Assignment model = miniSat.model();
+                            for (Variable literal : model.positiveLiterals()) {
+                                commit += literal + "' ";
+                            }
+                            System.out.println(commit);
+                        } else {
+                            for (String condition : v.getAllConditions()) {
+                                checkAndCommitSingle(condition);
+                            }
+                        }
+                    }
+
+                    private void checkAndCommitSingle(String cond) throws ParserException {
+                        final FormulaFactory f = new FormulaFactory();
+                        final PropositionalParser p = new PropositionalParser(f);
+                        final Formula formula = p.parse(cond);
+                        final SATSolver miniSat = MiniSat.miniSat(f);
+                        miniSat.add(formula);
+                        final Tristate result = miniSat.sat();
+                        String commit = "ecco commit ";
+                        if(result.equals(Tristate.TRUE)) {
+                            Assignment model = miniSat.model();
+                            for (Variable literal : model.positiveLiterals()) {
+                                commit += literal + "' ";
+                            }
+                            System.out.println(commit);
+                        } else System.err.println("WARNING SINGLE CLAUSE IS NOT SATISFIABLE!");
+                    }
+
+                    @Override
+                    public void onCommit(GitCommit gc, GitCommitList gcl) {
+
+                        System.out.println("---------------------------------");
+
+                        GetAllChangedConditionsVisitor v = new GetAllChangedConditionsVisitor();
+                        gc.getTree().accept(v);
+
+                        try {
+                            checkAndCommit(v);
+                        } catch (ParserException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        );
+    }
+
 
     private void notifyObservers(GitCommit gc, GitCommitList self) {
         for (GitCommitListener oc : observersC) {
@@ -154,5 +228,4 @@ public class GitCommitList extends ArrayList<GitCommit> {
             }
         }
     }
-
 }

@@ -11,6 +11,7 @@ public final class IFCondition extends ConditionalNode implements Visitable {
         this.condition = condition;
     }
 
+    @Override
     public String getCondition() {
         return this.condition;
     }
