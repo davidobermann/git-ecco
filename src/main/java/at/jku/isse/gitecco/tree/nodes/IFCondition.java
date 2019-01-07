@@ -3,6 +3,10 @@ package at.jku.isse.gitecco.tree.nodes;
 import at.jku.isse.gitecco.tree.visitor.TreeVisitor;
 import at.jku.isse.gitecco.tree.visitor.Visitable;
 
+/**
+ * Class for representing an IFCondition.
+ * Name speaks for itself.
+ */
 public final class IFCondition extends ConditionalNode implements Visitable {
     private final String condition;
 

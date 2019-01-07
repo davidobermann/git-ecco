@@ -3,6 +3,10 @@ package at.jku.isse.gitecco.tree.visitor;
 import at.jku.isse.gitecco.git.Change;
 import at.jku.isse.gitecco.tree.nodes.*;
 
+/**
+ * Visitor for linking a change passed by constructor or set by the setter
+ * to the nodes affected by it.
+ */
 public class LinkChangeVisitor implements TreeVisitor{
     private Change change;
 

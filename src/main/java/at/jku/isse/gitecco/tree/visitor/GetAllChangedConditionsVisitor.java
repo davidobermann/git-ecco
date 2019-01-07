@@ -2,20 +2,27 @@ package at.jku.isse.gitecco.tree.visitor;
 
 import at.jku.isse.gitecco.tree.nodes.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
+/**
+ * Visitor for retrieving all changed BLocks/Conditions/Features.
+ */
 public class GetAllChangedConditionsVisitor implements TreeVisitor {
 
-    private final List<String> conditions;
+    private final Set<String> conditions;
+    private final Set<String> affected;
 
     public GetAllChangedConditionsVisitor() {
-        this.conditions = new ArrayList<>();
+        this.conditions = new HashSet<>();
+        this.affected = new HashSet<>();
     }
 
-    public Collection<String> getAllConditions() {
+    public Collection<String> getAllChangedConditions() {
         return conditions;
+    }
+
+    public Collection<String> getAllAffectedConditions() {
+        return affected;
     }
 
     public String getAllConditionsConjuctive() {
@@ -26,6 +33,10 @@ public class GetAllChangedConditionsVisitor implements TreeVisitor {
         }
 
         return ret.substring(2);
+    }
+
+    private void addAffected(Set<String> set, Node n) {
+        //TODO: create algorithm to collect all affected (all parent nodes above this changed node)
     }
 
     @Override
@@ -54,6 +65,7 @@ public class GetAllChangedConditionsVisitor implements TreeVisitor {
             String cond = c.getCondition();
             cond = cond.replace('!','~').replace("&&","&").replace("||","|");
             conditions.add(cond);
+            //TODO: call add Affected on parent
         }
     }
 
@@ -63,6 +75,7 @@ public class GetAllChangedConditionsVisitor implements TreeVisitor {
             String cond = c.getCondition();
             cond = cond.replace('!','~').replace("&&","&").replace("||","|");
             conditions.add(cond);
+            //TODO: call add Affected on parent
         }
     }
 
@@ -72,6 +85,7 @@ public class GetAllChangedConditionsVisitor implements TreeVisitor {
             String cond = c.getCondition();
             cond = cond.replace('!','~').replace("&&","&").replace("||","|");
             conditions.add(cond);
+            //TODO: call add Affected on parent
         }
     }
 
@@ -89,6 +103,7 @@ public class GetAllChangedConditionsVisitor implements TreeVisitor {
             cond = cond.replace('!','~').replace("&&","&").replace("||","|");
 
             conditions.add(cond);
+            //TODO: call add Affected on parent
         }
     }
 }

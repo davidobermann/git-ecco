@@ -3,7 +3,12 @@ package at.jku.isse.gitecco.tree.nodes;
 import at.jku.isse.gitecco.tree.visitor.TreeVisitor;
 import at.jku.isse.gitecco.tree.visitor.Visitable;
 
+/**
+ * Class for representing a source file of a repository in a commit tree.
+ * A Source File has a BASE which will be the BASE feature.
+ */
 public final class SourceFileNode extends FileNode implements Visitable {
+    /**The Base feature of this file.*/
     private ConditionBlockNode base;
 
     public SourceFileNode(Node parent, String filePath) {
@@ -11,6 +16,13 @@ public final class SourceFileNode extends FileNode implements Visitable {
         base = null;
     }
 
+    /**
+     * Sets the given ConditionBlockNode as the BASE feature of the source file.
+     * This can only be performed once. If this is called a second time an IllegalAccessException
+     * will be raised.
+     * @param n
+     * @throws IllegalAccessException
+     */
     public void setBase(ConditionBlockNode n) throws IllegalAccessException {
         if(base == null) this.base = n;
         else throw new IllegalAccessException("Cannot set base twice.");

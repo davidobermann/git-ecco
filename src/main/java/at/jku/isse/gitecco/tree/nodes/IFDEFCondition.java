@@ -3,6 +3,10 @@ package at.jku.isse.gitecco.tree.nodes;
 import at.jku.isse.gitecco.tree.visitor.TreeVisitor;
 import at.jku.isse.gitecco.tree.visitor.Visitable;
 
+/**
+ * Class for representing an IFDEF Condition, which means the condition of this must
+ * be defined for this to be evaluated as true.
+ */
 public final class IFDEFCondition extends ConditionalNode implements Visitable {
     private final String condition;
 
@@ -10,6 +14,7 @@ public final class IFDEFCondition extends ConditionalNode implements Visitable {
         super(parent);
         this.condition = condition;
     }
+
 
     @Override
     public String getCondition() {

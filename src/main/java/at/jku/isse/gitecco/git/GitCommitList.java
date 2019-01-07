@@ -148,6 +148,11 @@ public class GitCommitList extends ArrayList<GitCommit> {
         return super.add(gitCommit);
     }
 
+    /**
+     * Enables the auto commit mode:
+     * creates a variant of the repository according to the changed conditions
+     * and commits it to the ecco repository, the git repository and tracks the time for each process.
+     */
     public void enableAutoCommitConfiguration() {
         this.addGitCommitListener(
                 new GitCommitListener() {
@@ -165,11 +170,14 @@ public class GitCommitList extends ArrayList<GitCommit> {
                         if(result.equals(Tristate.TRUE)) {
                             Assignment model = miniSat.model();
                             for (Variable literal : model.positiveLiterals()) {
-                                commit += literal + "' ";
+                                commit += literal;
+                                if(v.getAllChangedConditions().contains(literal.toString())) {
+                                    commit += "' ";
+                                } else commit += " ";
                             }
                             System.out.println(commit);
                         } else {
-                            for (String condition : v.getAllConditions()) {
+                            for (String condition : v.getAllChangedConditions()) {
                                 checkAndCommitSingle(condition);
                             }
                         }

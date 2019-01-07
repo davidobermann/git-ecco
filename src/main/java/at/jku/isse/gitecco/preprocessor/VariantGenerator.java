@@ -5,6 +5,9 @@ import at.jku.isse.gitecco.conditionparser.ParsedCondition;
 import java.io.IOException;
 import java.util.Collection;
 
+/**
+ * Class for generating a variant of the repository.
+ */
 public class VariantGenerator {
 
     /**
