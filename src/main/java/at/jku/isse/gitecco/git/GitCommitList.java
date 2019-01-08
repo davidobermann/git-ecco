@@ -177,6 +177,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
                             }
                             System.out.println(commit);
                         } else {
+                            //TODO: Not only changed, but also affected must be commited.
                             for (String condition : v.getAllChangedConditions()) {
                                 checkAndCommitSingle(condition);
                             }

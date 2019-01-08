@@ -8,8 +8,9 @@ import java.util.*;
  * Visitor for retrieving all changed BLocks/Conditions/Features.
  */
 public class GetAllChangedConditionsVisitor implements TreeVisitor {
-
+    /**Set of all the changed conditions*/
     private final Set<String> conditions;
+    /**Set of all conditions affected by changes*/
     private final Set<String> affected;
 
     public GetAllChangedConditionsVisitor() {
@@ -21,22 +22,24 @@ public class GetAllChangedConditionsVisitor implements TreeVisitor {
         return conditions;
     }
 
-    public Collection<String> getAllAffectedConditions() {
-        return affected;
-    }
-
     public String getAllConditionsConjuctive() {
         String ret = "";
 
-        for (String c : conditions) {
-            ret += " & " + c;
-        }
+        //all changed conditions
+        for (String c : conditions) ret += " & " + c;
+        //all affected conditions
+        for (String s : affected) ret += " & " + s;
 
         return ret.substring(2);
     }
 
-    private void addAffected(Set<String> set, Node n) {
-        //TODO: create algorithm to collect all affected (all parent nodes above this changed node)
+    private void addAffected(ConditionalNode n) {
+        affected.add(n.getCondition());
+        if(n.getParent() instanceof ConditionBlockNode) addAffected((ConditionBlockNode)n.getParent());
+    }
+
+    private void addAffected(ConditionBlockNode n) {
+        if(n.getParent() instanceof ConditionalNode) addAffected((ConditionalNode)n.getParent());
     }
 
     @Override
@@ -65,7 +68,7 @@ public class GetAllChangedConditionsVisitor implements TreeVisitor {
             String cond = c.getCondition();
             cond = cond.replace('!','~').replace("&&","&").replace("||","|");
             conditions.add(cond);
-            //TODO: call add Affected on parent
+            addAffected((ConditionBlockNode) c.getParent());
         }
     }
 
@@ -75,7 +78,7 @@ public class GetAllChangedConditionsVisitor implements TreeVisitor {
             String cond = c.getCondition();
             cond = cond.replace('!','~').replace("&&","&").replace("||","|");
             conditions.add(cond);
-            //TODO: call add Affected on parent
+            addAffected((ConditionBlockNode) c.getParent());
         }
     }
 
@@ -85,7 +88,7 @@ public class GetAllChangedConditionsVisitor implements TreeVisitor {
             String cond = c.getCondition();
             cond = cond.replace('!','~').replace("&&","&").replace("||","|");
             conditions.add(cond);
-            //TODO: call add Affected on parent
+            addAffected((ConditionBlockNode) c.getParent());
         }
     }
 
@@ -103,7 +106,7 @@ public class GetAllChangedConditionsVisitor implements TreeVisitor {
             cond = cond.replace('!','~').replace("&&","&").replace("||","|");
 
             conditions.add(cond);
-            //TODO: call add Affected on parent
+            addAffected((ConditionBlockNode) c.getParent());
         }
     }
 }
