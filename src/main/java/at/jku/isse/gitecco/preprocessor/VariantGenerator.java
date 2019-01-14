@@ -9,7 +9,6 @@ import java.util.Collection;
  * Class for generating a variant of the repository.
  */
 public class VariantGenerator {
-
     /**
      * generates a variant of the passed directory using the given features as defined values.
      * @param features the features which should be contained inside the variant.

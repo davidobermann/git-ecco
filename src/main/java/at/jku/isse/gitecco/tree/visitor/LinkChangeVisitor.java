@@ -44,7 +44,8 @@ public class LinkChangeVisitor implements TreeVisitor{
     public void visit(IFCondition c) {
         if(change != null && (c.containsChange(change) || change.contains(c))) {
             c.setChanged();
-            change = null;
+            //this is necessary to mark newly added features as changed.
+            if(!change.contains(c)) change = null;
         }
     }
 
@@ -52,7 +53,7 @@ public class LinkChangeVisitor implements TreeVisitor{
     public void visit(IFDEFCondition c) {
         if(change != null && (c.containsChange(change) || change.contains(c))) {
             c.setChanged();
-            change = null;
+            if(!change.contains(c)) change = null;
         }
     }
 
@@ -60,7 +61,7 @@ public class LinkChangeVisitor implements TreeVisitor{
     public void visit(IFNDEFCondition c) {
         if(change != null && (c.containsChange(change) || change.contains(c))) {
             c.setChanged();
-            change = null;
+            if(!change.contains(c)) change = null;
         }
     }
 
@@ -68,7 +69,7 @@ public class LinkChangeVisitor implements TreeVisitor{
     public void visit(ELSECondition c) {
         if(change != null && (c.containsChange(change) || change.contains(c))) {
             c.setChanged();
-            change = null;
+            if(!change.contains(c)) change = null;
         }
     }
 

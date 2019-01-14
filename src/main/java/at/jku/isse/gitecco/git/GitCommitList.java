@@ -148,12 +148,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
         return super.add(gitCommit);
     }
 
-    /**
-     * Enables the auto commit mode:
-     * creates a variant of the repository according to the changed conditions
-     * and commits it to the ecco repository, the git repository and tracks the time for each process.
-     */
-    public void enableAutoCommitConfiguration() {
+    public void enableAutoCommitConfig() {
         this.addGitCommitListener(
                 new GitCommitListener() {
 
@@ -165,7 +160,55 @@ public class GitCommitList extends ArrayList<GitCommit> {
                         miniSat.add(formula);
                         final Tristate result = miniSat.sat();
 
+                        //TODO: Instead of printing --> generate variant of the repository
+                        //TODO: Also perform git commit and the ecco commit and measure the time each time!!
+                        //Git commit and ecco commit via API --> no string needed.
                         String commit = "ecco commit ";
+
+                        if(result.equals(Tristate.TRUE)) {
+
+                            Assignment model = miniSat.model();
+
+                            for (Variable literal : model.positiveLiterals()) {
+                                commit += literal;
+                                if(v.getAllChangedConditions().contains(literal.toString())) {
+                                    commit += "' ";
+                                } else commit += " ";
+                            }
+
+                            System.out.println(commit);
+
+                        } else System.err.println("WARNING SINGLE CLAUSE IS NOT SATISFIABLE!");
+                    }
+
+                    @Override
+                    public void onCommit(GitCommit gc, GitCommitList gcl) {
+
+                    }
+                }
+        );
+    }
+
+    /**
+     * Enables the auto commit mode:
+     * THIS IS WITH A CERTAIN COMMIT CONFIG: If the entire commit is not doable, every commit is done on its own.
+     * creates a variant of the repository according to the changed conditions
+     * and commits it to the ecco repository, the git repository and tracks the time for each process.
+     */
+    public void enableAutoCommitConfiguration() {
+        this.addGitCommitListener(
+                new GitCommitListener() {
+                    private void checkAndCommit(GetAllChangedConditionsVisitor v) throws ParserException {
+                        final FormulaFactory f = new FormulaFactory();
+                        final PropositionalParser p = new PropositionalParser(f);
+                        final Formula formula = p.parse(v.getAllConditionsConjuctive());
+                        final SATSolver miniSat = MiniSat.miniSat(f);
+                        miniSat.add(formula);
+                        final Tristate result = miniSat.sat();
+
+                        //TODO: Instead of printing --> generate variant of the repository
+                        //TODO: Also perform git commit and the ecco commit and measure the time each time.
+                        String commit = "";
 
                         if(result.equals(Tristate.TRUE)) {
                             Assignment model = miniSat.model();
@@ -175,7 +218,8 @@ public class GitCommitList extends ArrayList<GitCommit> {
                                     commit += "' ";
                                 } else commit += " ";
                             }
-                            System.out.println(commit);
+                            if(commit.length() < 1) commit = "BASE'";
+                            System.out.println("ecco commit " + commit);
                         } else {
                             //TODO: Not only changed, but also affected must be commited.
                             for (String condition : v.getAllChangedConditions()) {
@@ -191,13 +235,16 @@ public class GitCommitList extends ArrayList<GitCommit> {
                         final SATSolver miniSat = MiniSat.miniSat(f);
                         miniSat.add(formula);
                         final Tristate result = miniSat.sat();
-                        String commit = "ecco commit ";
+                        String commit = "";
                         if(result.equals(Tristate.TRUE)) {
                             Assignment model = miniSat.model();
-                            for (Variable literal : model.positiveLiterals()) {
+
+                            for (Variable literal : model.positiveLiterals())
                                 commit += literal + "' ";
-                            }
-                            System.out.println(commit);
+
+                            if(commit.length() < 1) commit = "BASE'";
+                            System.out.println("ecco commit " + commit);
+
                         } else System.err.println("WARNING SINGLE CLAUSE IS NOT SATISFIABLE!");
                     }
 
@@ -214,6 +261,8 @@ public class GitCommitList extends ArrayList<GitCommit> {
                         } catch (ParserException e) {
                             e.printStackTrace();
                         }
+
+                        //TODO: on branch: idea: just use gc.getType() and act accordingly.
                     }
                 }
         );

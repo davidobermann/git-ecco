@@ -56,6 +56,8 @@ public class ValidateChangeVisitor implements TreeVisitor {
 
     @Override
     public void visit(ELSECondition c) {
-
+        if(c.isChanged()) {
+            c.getParent().getParent().setChanged();
+        }
     }
 }

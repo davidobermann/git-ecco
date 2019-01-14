@@ -19,7 +19,11 @@ public class GetAllChangedConditionsVisitor implements TreeVisitor {
     }
 
     public Collection<String> getAllChangedConditions() {
-        return conditions;
+        return Collections.unmodifiableSet(conditions);
+    }
+
+    public Collection<String> getAllAffectedConditions() {
+        return Collections.unmodifiableSet(affected);
     }
 
     public String getAllConditionsConjuctive() {
