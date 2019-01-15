@@ -34,7 +34,7 @@ public class GetAllChangedConditionsVisitor implements TreeVisitor {
         //all affected conditions
         for (String s : affected) ret += " & " + s;
 
-        return ret.substring(2);
+        return ret.length() > 2 ? ret.substring(2) : ret;
     }
 
     private void addAffected(ConditionalNode n) {

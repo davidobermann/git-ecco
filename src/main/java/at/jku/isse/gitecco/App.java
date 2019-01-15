@@ -1,7 +1,10 @@
 package at.jku.isse.gitecco;
 
+import at.jku.isse.gitecco.git.GitCommit;
 import at.jku.isse.gitecco.git.GitCommitList;
+import at.jku.isse.gitecco.git.GitCommitListener;
 import at.jku.isse.gitecco.git.GitHelper;
+import at.jku.isse.gitecco.tree.visitor.GetAllFeaturesVisitor;
 import org.eclipse.jgit.lib.Constants;
 
 /**
@@ -28,6 +31,18 @@ public class App {
         gitHelper.checkOutCommit(Constants.MASTER);
 
         commits.enableAutoCommitConfiguration();
+
+        /*commits.addGitCommitListener(new GitCommitListener() {
+            @Override
+            public void onCommit(GitCommit gc, GitCommitList gcl) {
+                final GetAllFeaturesVisitor v = new GetAllFeaturesVisitor();
+                gc.getTree().accept(v);
+                for (String feature : v.getAllFeatures()) {
+                    System.out.println(feature);
+                }
+                System.out.println("-------------");
+            }
+        });*/
 
         gitHelper.getAllCommits(commits);
 

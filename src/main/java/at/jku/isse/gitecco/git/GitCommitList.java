@@ -133,7 +133,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
                         lcv.setChange(change);
                         fn.accept(lcv);
                     }
-                    //corrects the ConditionBlockNodes if there children have changed.
+                    //corrects the ConditionBlockNodes if there children have changed. + the ELSE blocks
                     fn.accept(new ValidateChangeVisitor());
                 }
             } else {

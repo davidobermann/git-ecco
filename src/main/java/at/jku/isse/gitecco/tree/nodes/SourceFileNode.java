@@ -30,7 +30,7 @@ public final class SourceFileNode extends FileNode implements Visitable {
 
     @Override
     public void accept(TreeVisitor v) {
-        base.accept(v);
+        if(base != null) base.accept(v);
         v.visit(this);
     }
 }

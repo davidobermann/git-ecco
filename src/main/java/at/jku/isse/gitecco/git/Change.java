@@ -21,7 +21,7 @@ public class Change {
      */
     public Change(int from, int cnt) {
         this.from = from;
-        this.to = from+cnt-1;
+        this.to = from+cnt;
     }
 
     /**

@@ -40,24 +40,17 @@ public class GetAllFeaturesVisitor implements TreeVisitor {
 
     @Override
     public void visit(IFCondition c) {
-        featureNames.addAll(
-                ConditionParser.parseCondition(c.getCondition())
-        );
+        featureNames.add(c.getCondition());
     }
 
     @Override
     public void visit(IFDEFCondition c) {
-        featureNames.addAll(
-                ConditionParser.parseCondition(c.getCondition())
-        );
+        featureNames.add(c.getCondition());
     }
 
     @Override
     public void visit(IFNDEFCondition c) {
-        featureNames.addAll(
-                ConditionParser.parseCondition(c.getCondition())
-        );
-
+        featureNames.add(c.getCondition());
     }
 
     @Override
