@@ -18,7 +18,7 @@ public class FeatureParser {
      */
     public SourceFileNode parseToTree(IASTPreprocessorStatement[] ppstatements, int linecnt, SourceFileNode srcfilenode) throws Exception {
         //create artificial BASE Node
-        ConditionBlockNode baseNode = new ConditionBlockNode(srcfilenode);
+        ConditionBlockNode baseNode = new ConditionBlockNode();
         baseNode.setIfBlock(new IFCondition(baseNode,"BASE"));
         baseNode.getIfBlock().setLineFrom(0);
         baseNode.getIfBlock().setLineTo(linecnt);
@@ -65,21 +65,21 @@ public class FeatureParser {
                 String condName = CDTHelper.getCondName(pp.getStatement());
                 currentConditional.setLineTo(pp.getLineEnd());
                 //cast --> bad design choice, probably interface would have been better.
-                currentBlock = (ConditionBlockNode) currentConditional.getParent();
+                currentBlock = currentConditional.getParent();
                 currentConditional = currentBlock.addElseIfBlock(new IFCondition(currentBlock,condName));
                 currentConditional.setLineFrom(pp.getLineStart());
 
             } else if (pps instanceof IASTPreprocessorElseStatement) {
                 pp = new PPStatement(pps);
                 currentConditional.setLineTo(pp.getLineEnd());
-                currentBlock = (ConditionBlockNode) currentConditional.getParent();
+                currentBlock = currentConditional.getParent();
                 currentConditional = currentBlock.setElseBlock(new ELSECondition(currentBlock));
                 currentConditional.setLineFrom(pp.getLineStart());
 
             } else if (pps instanceof IASTPreprocessorEndifStatement) {
                 pp = new PPStatement(pps);
                 currentConditional.setLineTo(pp.getLineEnd());
-                currentConditional = (ConditionalNode) currentBlock.getParent();
+                currentConditional = currentBlock.getParent();
             }
         }
         return srcfilenode;

@@ -8,11 +8,9 @@ import at.jku.isse.gitecco.tree.visitor.Visitable;
  * Each Feature can be marked as changed.
  */
 public abstract class Node implements Visitable {
-    private final Node parent;
     private boolean changed;
 
-    public Node(Node parent) {
-        this.parent = parent;
+    public Node() {
         changed = false;
     }
 
@@ -37,8 +35,6 @@ public abstract class Node implements Visitable {
      * Retrieves the parent of the node.
      * @return
      */
-    public Node getParent() {
-        return this.parent;
-    }
+    public abstract Node getParent();
 
 }

@@ -14,10 +14,11 @@ public abstract class ConditionalNode extends ConditionNode {
     private int lineFrom = -1;
     private int lineTo = -1;
     private final List<ConditionBlockNode> children;
+    private final ConditionBlockNode parent;
 
-    public ConditionalNode(Node parent) {
-        super(parent);
+    public ConditionalNode(ConditionBlockNode parent) {
         children = new ArrayList<ConditionBlockNode>();
+        this.parent = parent;
     }
 
     /**
@@ -73,6 +74,11 @@ public abstract class ConditionalNode extends ConditionNode {
         return lineFrom;
     }
 
+    @Override
+    public ConditionBlockNode getParent() {
+        return this.parent;
+    }
+
     /**
      * Retrieves the LineTo info.
      * --> end of this condition.
@@ -89,6 +95,8 @@ public abstract class ConditionalNode extends ConditionNode {
     public List<ConditionBlockNode> getChildren() {
         return Collections.unmodifiableList(children);
     }
+
+
 
     /**
      * Returns the condition of this node.

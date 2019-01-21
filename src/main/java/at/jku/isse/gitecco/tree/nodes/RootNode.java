@@ -18,7 +18,6 @@ public final class RootNode extends Node implements Visitable {
      * @param path
      */
     public RootNode(String path) {
-        super(null);
         this.path = path;
         this.children = new ArrayList<>();
     }
@@ -38,5 +37,14 @@ public final class RootNode extends Node implements Visitable {
             v.visit(this);
             child.accept(v);
         }
+    }
+
+    /**
+     * Return null --> no parent.
+     * @return
+     */
+    @Override
+    public Node getParent() {
+        return null;
     }
 }

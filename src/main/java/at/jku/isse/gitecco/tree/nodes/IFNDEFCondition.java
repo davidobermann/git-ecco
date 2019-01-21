@@ -10,7 +10,7 @@ import at.jku.isse.gitecco.tree.visitor.Visitable;
 public final class IFNDEFCondition extends ConditionalNode implements Visitable {
     private final String condition;
 
-    public IFNDEFCondition(Node parent, String condition) {
+    public IFNDEFCondition(ConditionBlockNode parent, String condition) {
         super(parent);
         this.condition = condition;
     }

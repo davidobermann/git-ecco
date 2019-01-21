@@ -11,7 +11,7 @@ public final class SourceFileNode extends FileNode implements Visitable {
     /**The Base feature of this file.*/
     private ConditionBlockNode base;
 
-    public SourceFileNode(Node parent, String filePath) {
+    public SourceFileNode(RootNode parent, String filePath) {
         super(parent, filePath);
         base = null;
     }

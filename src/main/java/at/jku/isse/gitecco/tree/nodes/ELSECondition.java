@@ -11,7 +11,8 @@ import at.jku.isse.gitecco.tree.visitor.Visitable;
  * It should represent an ELSE clause of an IF ELSE PPStatement.
  */
 public final class ELSECondition extends ConditionalNode implements Visitable {
-    public ELSECondition(Node parent) {
+
+    public ELSECondition(ConditionBlockNode parent) {
         super(parent);
     }
 
@@ -27,5 +28,4 @@ public final class ELSECondition extends ConditionalNode implements Visitable {
         }
         v.visit(this);
     }
-
 }

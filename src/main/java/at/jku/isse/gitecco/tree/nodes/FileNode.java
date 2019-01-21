@@ -5,9 +5,10 @@ package at.jku.isse.gitecco.tree.nodes;
  */
 public abstract class FileNode extends Node{
     private final String pathName;
+    private final RootNode parent;
 
-    public FileNode(Node parent, String name) {
-        super(parent);
+    public FileNode(RootNode parent, String name) {
+        this.parent = parent;
         this.pathName= name;
     }
 
@@ -17,5 +18,10 @@ public abstract class FileNode extends Node{
      */
     public String getFilePath() {
         return this.pathName;
+    }
+
+    @Override
+    public RootNode getParent() {
+        return this.parent;
     }
 }

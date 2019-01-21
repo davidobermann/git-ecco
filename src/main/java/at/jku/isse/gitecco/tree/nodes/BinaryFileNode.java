@@ -8,7 +8,7 @@ import at.jku.isse.gitecco.tree.visitor.TreeVisitor;
  */
 public final class BinaryFileNode extends FileNode {
 
-    public BinaryFileNode(Node parent, String filePath) {
+    public BinaryFileNode(RootNode parent, String filePath) {
         super(parent, filePath);
     }
 
