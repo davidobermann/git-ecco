@@ -23,6 +23,9 @@ public class ValidateChangeVisitor implements TreeVisitor {
 
     @Override
     /**
+     *
+     * Probably not very useful but worth keeping it for now.
+     *
      * The important part:
      * If any of the block's children changed --> the block changed.
      */
@@ -55,9 +58,16 @@ public class ValidateChangeVisitor implements TreeVisitor {
     }
 
     @Override
+    /**
+     * If an ELSE block is marked as changed for the config the first positive condition is needed.
+     * This marks the nearest condition as changed. If it is an ELSE block again the bottom up traverse
+     * will change it next, so this is kind of recursive bottom up.
+     */
     public void visit(ELSECondition c) {
+        //TODO: Positive conditions wanted --> if nearest IF Block is ~A for example the next one is wanted.
         if(c.isChanged()) {
             c.getParent().getParent().setChanged();
+            //c.getParent().getParent().getCondition() --> checken ob negativ.
         }
     }
 }

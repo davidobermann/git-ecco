@@ -31,8 +31,6 @@ public class GetAllChangedConditionsVisitor implements TreeVisitor {
 
         //all changed conditions
         for (String c : conditions) ret += " & " + c;
-        //all affected conditions
-        for (String s : affected) ret += " & " + s;
 
         return ret.length() > 2 ? ret.substring(2) : ret;
     }

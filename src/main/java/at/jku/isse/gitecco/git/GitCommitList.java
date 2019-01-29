@@ -6,6 +6,7 @@ import at.jku.isse.gitecco.tree.nodes.BinaryFileNode;
 import at.jku.isse.gitecco.tree.nodes.FileNode;
 import at.jku.isse.gitecco.tree.nodes.RootNode;
 import at.jku.isse.gitecco.tree.nodes.SourceFileNode;
+import at.jku.isse.gitecco.tree.util.ChangeComputation;
 import at.jku.isse.gitecco.tree.visitor.GetAllChangedConditionsVisitor;
 import at.jku.isse.gitecco.tree.visitor.LinkChangeVisitor;
 import at.jku.isse.gitecco.tree.visitor.ValidateChangeVisitor;
@@ -125,16 +126,18 @@ public class GitCommitList extends ArrayList<GitCommit> {
                     featureParser.parseToTree(ppstatements, codelist.size(), (SourceFileNode) fn);
 
                     fn.setChanged();
-                    //link changes
+                    //link changes //TODO: commit of monday 21st of jan. --> linkChanges still in.
                     changes = gitHelper.getFileDiffs(gitCommit,file);
-                    LinkChangeVisitor lcv = new LinkChangeVisitor();
-                    //traverse tree for each change and mark changed features
-                    for(Change change:changes) {
-                        lcv.setChange(change);
-                        fn.accept(lcv);
+                    ChangeComputation cp = new ChangeComputation();
+                    System.out.println("----------------------------------");
+                    //TODO: IN the future: for every change one config + one commit. Attention: time only for commit.
+                    //TODO: so accumulate time measurement commit by commit without the variant generation.
+                    for (Change c : changes) {
+                        cp.computeForChange(c, (SourceFileNode) fn);
+                        cp.getChanged().forEach(System.out::println);
+                        System.out.println();
+                        cp.getAffected().forEach(System.out::println);
                     }
-                    //corrects the ConditionBlockNodes if there children have changed. + the ELSE blocks
-                    fn.accept(new ValidateChangeVisitor());
                 }
             } else {
                 fn = new BinaryFileNode(tree, file);
@@ -171,6 +174,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
 
                             for (Variable literal : model.positiveLiterals()) {
                                 commit += literal;
+
                                 if(v.getAllChangedConditions().contains(literal.toString())) {
                                     commit += "' ";
                                 } else commit += " ";
