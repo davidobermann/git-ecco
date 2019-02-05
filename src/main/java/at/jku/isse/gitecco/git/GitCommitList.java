@@ -2,17 +2,23 @@ package at.jku.isse.gitecco.git;
 
 import at.jku.isse.gitecco.cdt.CDTHelper;
 import at.jku.isse.gitecco.cdt.FeatureParser;
+import at.jku.isse.gitecco.preprocessor.VariantGenerator;
 import at.jku.isse.gitecco.tree.nodes.BinaryFileNode;
 import at.jku.isse.gitecco.tree.nodes.FileNode;
 import at.jku.isse.gitecco.tree.nodes.RootNode;
 import at.jku.isse.gitecco.tree.nodes.SourceFileNode;
 import at.jku.isse.gitecco.tree.util.ChangeComputation;
+import at.jku.isse.gitecco.tree.util.ComittableChange;
 import at.jku.isse.gitecco.tree.visitor.GetAllChangedConditionsVisitor;
 import at.jku.isse.gitecco.tree.visitor.LinkChangeVisitor;
 import at.jku.isse.gitecco.tree.visitor.ValidateChangeVisitor;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.GitCommand;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Formula;
@@ -23,11 +29,11 @@ import org.logicng.io.parsers.PropositionalParser;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -95,6 +101,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
         final RootNode tree = new RootNode(gitHelper.getPath());
         List<String> changedFiles;
         Change[] changes;
+        final List<ComittableChange> committableChanges = new ArrayList<>();
         GitCommit oldCommit;
         gitHelper.checkOutCommit(gitCommit.getCommitName());
 
@@ -126,18 +133,19 @@ public class GitCommitList extends ArrayList<GitCommit> {
                     featureParser.parseToTree(ppstatements, codelist.size(), (SourceFileNode) fn);
 
                     fn.setChanged();
-                    //link changes //TODO: commit of monday 21st of jan. --> linkChanges still in.
+                    //link changes: commit of monday 21st of jan. --> linkChanges still in.
                     changes = gitHelper.getFileDiffs(gitCommit,file);
+
+                    //get the nodes, etc, for the commit
                     ChangeComputation cp = new ChangeComputation();
-                    System.out.println("----------------------------------");
-                    //TODO: IN the future: for every change one config + one commit. Attention: time only for commit.
-                    //TODO: so accumulate time measurement commit by commit without the variant generation.
+                    committableChanges.addAll(cp.getChanged());
+
+                    //add each of them to the list --> list is later linked to the commit.
                     for (Change c : changes) {
                         cp.computeForChange(c, (SourceFileNode) fn);
-                        cp.getChanged().forEach(System.out::println);
-                        System.out.println();
-                        cp.getAffected().forEach(System.out::println);
+                        committableChanges.addAll(cp.getChanged());
                     }
+
                 }
             } else {
                 fn = new BinaryFileNode(tree, file);
@@ -146,6 +154,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
             tree.addChild(fn);
         }
         gitCommit.setTree(tree);
+        gitCommit.setChanges(committableChanges);
         //trigger listeners, etc.
         notifyObservers(gitCommit, self);
         return super.add(gitCommit);
@@ -155,38 +164,88 @@ public class GitCommitList extends ArrayList<GitCommit> {
         this.addGitCommitListener(
                 new GitCommitListener() {
 
-                    private void checkAndCommit(GetAllChangedConditionsVisitor v) throws ParserException {
-                        final FormulaFactory f = new FormulaFactory();
-                        final PropositionalParser p = new PropositionalParser(f);
-                        final Formula formula = p.parse(v.getAllConditionsConjuctive());
-                        final SATSolver miniSat = MiniSat.miniSat(f);
-                        miniSat.add(formula);
-                        final Tristate result = miniSat.sat();
-
-                        //TODO: Instead of printing --> generate variant of the repository
-                        //TODO: Also perform git commit and the ecco commit and measure the time each time!!
-                        //Git commit and ecco commit via API --> no string needed.
-                        String commit = "ecco commit ";
-
-                        if(result.equals(Tristate.TRUE)) {
-
-                            Assignment model = miniSat.model();
-
-                            for (Variable literal : model.positiveLiterals()) {
-                                commit += literal;
-
-                                if(v.getAllChangedConditions().contains(literal.toString())) {
-                                    commit += "' ";
-                                } else commit += " ";
-                            }
-
-                            System.out.println(commit);
-
-                        } else System.err.println("WARNING SINGLE CLAUSE IS NOT SATISFIABLE!");
-                    }
-
                     @Override
                     public void onCommit(GitCommit gc, GitCommitList gcl) {
+                        final Set<String> config = new HashSet<>();
+                        String commitConfig = "";
+                        String gitrepo = gitHelper.getPath().substring(0,gitHelper.getPath().lastIndexOf('\\'))+ "\\gitrepo";
+                        String eccorepo = gitHelper.getPath().substring(0,gitHelper.getPath().lastIndexOf('\\'))
+                                + "\\eccorepo";
+
+                        //++++
+                        //GIT
+                        //++++
+
+                        File srcDir = new File(gitHelper.getPath());
+                        File destDir = new File(gitrepo);
+                        File gitDir = new File(gitrepo + "\\.git");
+
+                        try {
+                            FileUtils.deleteDirectory(destDir);
+                            FileUtils.copyDirectory(srcDir, destDir);
+                            FileUtils.deleteDirectory(gitDir);
+                        } catch (IOException e) {
+                            System.out.println("Failed to generate variants, copy of the og. dir failed.");
+                        }
+
+                        Git git = null;
+                        if(gcl.size() == 1) {
+                            try {
+                                git = Git.init().setDirectory(gitDir).call();
+                            } catch (GitAPIException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            try {
+                                git = Git.open(new File(gcl.gitHelper.getPath()));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        GitCommand c = git.commit().setMessage("");
+                        try {
+                            git.add().addFilepattern(".").call();
+                        } catch (GitAPIException e) {
+                            e.printStackTrace();
+                        }
+                        long gitTime = System.currentTimeMillis();
+                        /*try {
+                            c.call();
+                        } catch (GitAPIException e) {
+                            e.printStackTrace();
+                        }*/
+                        System.out.println("this is a git commit" + (gcl.size() + 1));
+                        gitTime = System.currentTimeMillis() - gitTime;
+
+
+                        //++++
+                        //ECCO
+                        //++++
+
+                        long eccoTime = 0;
+
+                        //for every changed cond. :
+                        for (ComittableChange change : gc.getChanges()) {
+                            //Create commit config:
+                            commitConfig += change.getChanged() + "' ";
+                            for (String s : change.getAffected()) {
+                                commitConfig += s + " ";
+                            }
+
+                            //create variant config
+                            config.add(change.getChanged());
+                            config.addAll(change.getAffected());
+
+                            //generate variant: (also moves to the expected directory)
+                            VariantGenerator vg = new VariantGenerator();
+                            vg.generateVariants(config,gitHelper.getPath(),eccorepo);
+
+                            //TODO: commit and measure time ecceo edition
+                            //TODO: for every changed condition do 1 commit
+                        }
+
+                        //TODO: write into csv file.
 
                     }
                 }

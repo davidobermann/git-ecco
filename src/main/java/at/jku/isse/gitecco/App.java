@@ -45,6 +45,7 @@ public class App {
                 System.out.println("-------------");
             }
         });*/
+
         gitHelper.getAllCommits(commits);
 
         /*final ArrayList<String> config = new ArrayList<String>();
@@ -57,8 +58,6 @@ public class App {
         vg.generateVariants(config, "C:\\obermanndavid\\git-ecco-test\\coantest",
                 "C:\\obermanndavid\\git-ecco-test\\spin");
         */
-
-
     }
 
 }

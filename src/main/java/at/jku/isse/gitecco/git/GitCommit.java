@@ -1,10 +1,10 @@
 package at.jku.isse.gitecco.git;
 
 import at.jku.isse.gitecco.tree.nodes.RootNode;
+import at.jku.isse.gitecco.tree.util.ComittableChange;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Class for handling commits and be able to
@@ -17,6 +17,7 @@ public class GitCommit {
     private final List<GitCommitType> types;
     private final String branch;
     private final RevCommit revCommit;
+    private List<ComittableChange> changes = new ArrayList<>();
 
     /**
      * Creates a new GitCommit
@@ -31,6 +32,21 @@ public class GitCommit {
         this.branch = branch;
         this.diffCommit = diffCommit;
         this.revCommit = rc;
+    }
+
+    /**
+     * Retrieves all changes as a list.
+     * @return
+     */
+    public List<ComittableChange> getChanges() {
+        return Collections.unmodifiableList(changes);
+    }
+
+    /**
+     * Sets the changes List for committing it later.
+     */
+    public void setChanges(Collection<ComittableChange> changes) {
+        this.changes.addAll(changes);
     }
 
     /**

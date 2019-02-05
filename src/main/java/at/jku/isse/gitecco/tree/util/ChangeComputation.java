@@ -17,45 +17,48 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ChangeComputation {
-    private final Set<String> changed;
-    private final Set<String> affected;
+    private final Set<ComittableChange> changed;
 
     public ChangeComputation() {
-        this.affected = new HashSet<>();
         this.changed = new HashSet<>();
     }
 
-    public Set<String> getAffected() {
-        return Collections.unmodifiableSet(affected);
-    }
-
-    public Set<String> getChanged() {
+    public Set<ComittableChange> getChanged() {
         return Collections.unmodifiableSet(changed);
     }
 
+    /**
+     * Computes the configuration + the commit configuration for a given change and a given SourceFileNode
+     * @param c
+     * @param sfn
+     * @throws ParserException
+     */
     public void computeForChange(Change c, SourceFileNode sfn) throws ParserException {
-        affected.clear();
         changed.clear();
 
+        final Set<String> affected = new HashSet<>();
         final GetNodesForChangeVisitor v = new GetNodesForChangeVisitor(c);
         sfn.accept(v);
 
-        if(v.getchangedNodes().size() == 0) changed.add("BASE");
+        if(v.getchangedNodes().size() == 0) changed.add(new ComittableChange("BASE", Collections.EMPTY_SET));
         else {
             for(ConditionalNode node : v.getchangedNodes()) {
                 //Changed: get first positive condition
                 while(!checkPositive(node.getCondition()) && node.getParent().getParent()!=null) {
                     node = node.getParent().getParent();
                 }
-                changed.add(node.getCondition());
 
-                //TODO: IF + ELSE Added --> 2 commits, find out which of them should be seperated.
+                //Condition of the first positive node.
+                String cond = node.getCondition();
 
                 //Affected
+                affected.clear();
                 while(node.getParent().getParent()!=null) {
                     node = node.getParent().getParent();
-                    if(!changed.contains(node.getCondition()))affected.add(node.getCondition());
+                    affected.add(node.getCondition());
                 }
+
+                changed.add(new ComittableChange(cond, affected));
             }
         }
     }
