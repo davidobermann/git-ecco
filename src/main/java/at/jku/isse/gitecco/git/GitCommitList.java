@@ -10,8 +10,7 @@ import at.jku.isse.gitecco.tree.nodes.SourceFileNode;
 import at.jku.isse.gitecco.tree.util.ChangeComputation;
 import at.jku.isse.gitecco.tree.util.ComittableChange;
 import at.jku.isse.gitecco.tree.visitor.GetAllChangedConditionsVisitor;
-import at.jku.isse.gitecco.tree.visitor.LinkChangeVisitor;
-import at.jku.isse.gitecco.tree.visitor.ValidateChangeVisitor;
+import com.opencsv.CSVWriter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorStatement;
@@ -30,10 +29,14 @@ import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -178,57 +181,70 @@ public class GitCommitList extends ArrayList<GitCommit> {
 
                         File srcDir = new File(gitHelper.getPath());
                         File destDir = new File(gitrepo);
-                        File gitDir = new File(gitrepo + "\\.git");
+                        Git git = null;
+                        GitCommand c = null;
+                        boolean append = true;
 
                         try {
                             FileUtils.deleteDirectory(destDir);
                             FileUtils.copyDirectory(srcDir, destDir);
-                            FileUtils.deleteDirectory(gitDir);
-                        } catch (IOException e) {
+
+                            if(gcl.size() < 1) {
+                                File gitDir = new File(gitrepo + "\\.git");
+                                FileUtils.deleteDirectory(gitDir);
+                                git = Git.init().setDirectory(destDir).call();
+                                append = false;
+                            } else {
+                                git = Git.open(destDir);
+                            }
+
+                            c = git.commit().setMessage("");
+                            git.add().addFilepattern(".").call();
+
+
+                        } catch (IOException|GitAPIException e) {
                             System.out.println("Failed to generate variants, copy of the og. dir failed.");
                         }
 
-                        Git git = null;
-                        if(gcl.size() == 1) {
-                            try {
-                                git = Git.init().setDirectory(gitDir).call();
-                            } catch (GitAPIException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            try {
-                                git = Git.open(new File(gcl.gitHelper.getPath()));
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        GitCommand c = git.commit().setMessage("");
-                        try {
-                            git.add().addFilepattern(".").call();
-                        } catch (GitAPIException e) {
-                            e.printStackTrace();
-                        }
                         long gitTime = System.currentTimeMillis();
-                        /*try {
+
+                        try {
                             c.call();
                         } catch (GitAPIException e) {
+                            System.out.println("Commit failed!");
                             e.printStackTrace();
-                        }*/
-                        System.out.println("this is a git commit" + (gcl.size() + 1));
+                        }
+
+                        System.out.println("------\nthis is a git commit " + (gcl.size() + 1));
                         gitTime = System.currentTimeMillis() - gitTime;
 
+                        git.close();
 
                         //++++
-                        //ECCO
+                        //ECCO + CSV Output
                         //++++
 
                         long eccoTime = 0;
+                        final File csvFile = new File(gitHelper.getPath()+"result.csv");
+                        FileWriter outputfile = null;
+                        try { outputfile = new FileWriter(csvFile, append); } catch(IOException ioe){
+                            System.out.println("Error while handling the csv file output!");
+                        }
+
+                        // create CSVWriter object filewriter object as parameter
+                        @SuppressWarnings("deprecation")
+                        CSVWriter writer = new CSVWriter(outputfile, ';', CSVWriter.NO_QUOTE_CHARACTER);
+
+                        if(gcl.size() < 1) {
+                            // adding header to csv
+                            String[] header = {"CommitNr", "Commit-Hash", "GitTime[ms]", "EccoTime[ms]"};
+                            writer.writeNext(header);
+                        }
 
                         //for every changed cond. :
                         for (ComittableChange change : gc.getChanges()) {
                             //Create commit config:
-                            commitConfig += change.getChanged() + "' ";
+                            commitConfig = change.getChanged() + "' ";
                             for (String s : change.getAffected()) {
                                 commitConfig += s + " ";
                             }
@@ -241,12 +257,26 @@ public class GitCommitList extends ArrayList<GitCommit> {
                             VariantGenerator vg = new VariantGenerator();
                             vg.generateVariants(config,gitHelper.getPath(),eccorepo);
 
-                            //TODO: commit and measure time ecceo edition
-                            //TODO: for every changed condition do 1 commit
+                            eccoTime = System.currentTimeMillis();
+
+                            //TODO: Actual ecco commit
+                            System.out.println("ecco commit " + commitConfig);
+
+                            eccoTime = System.currentTimeMillis() - eccoTime;
+
+                            // add data to csv
+                            String[] data = {String.valueOf(gcl.size()), gc.getCommitName(),
+                                    String.valueOf(gitTime), String.valueOf(eccoTime)};
+
+                            writer.writeNext(data);
                         }
 
-                        //TODO: write into csv file.
-
+                        // closing writer connection
+                        try {
+                            writer.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
         );

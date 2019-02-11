@@ -1,10 +1,17 @@
 package at.jku.isse.gitecco.preprocessor;
 
-import at.jku.isse.gitecco.conditionparser.ParsedCondition;
 import org.apache.commons.io.FileUtils;
+import org.logicng.datastructures.Tristate;
+import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
+import org.logicng.io.parsers.ParserException;
+import org.logicng.io.parsers.PropositionalParser;
+import org.logicng.solvers.MiniSat;
+import org.logicng.solvers.SATSolver;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.util.Collection;
 
 /**
@@ -17,6 +24,26 @@ public class VariantGenerator {
      * @param inPath the ABSOLUTE path to the folder which should be processed to a variant.
      */
     public void generateVariants(Collection<String> conditions, String inPath, String outPath) {
+
+        //Test for dead code:
+        String test = "";
+        for (String condition : conditions) {
+            test += condition.replace('!','~').replace("&&","&").replace("||","|");
+        }
+
+        try {
+            final FormulaFactory f = new FormulaFactory();
+            final PropositionalParser p = new PropositionalParser(f);
+            final Formula formula = p.parse(test);
+            final SATSolver miniSat = MiniSat.miniSat(f);
+            miniSat.add(formula);
+            final Tristate result = miniSat.sat();
+
+            if(!result.equals(Tristate.TRUE)) throw new InvalidParameterException("Dead Code!");
+
+        } catch (ParserException e) {
+            e.printStackTrace();
+        }
 
         File srcDir = new File(inPath);
         File destDir = new File(outPath);
@@ -34,8 +61,7 @@ public class VariantGenerator {
         String command = "coan source ";
 
         for (String s : conditions) {
-            if (!command.contains("-D" + s + "=1"))
-                command += "-D" + s + "=1 ";
+            if (!command.contains("-D" + s + "=1")) command += "-D" + s + "=1 ";
         }
 
         command += "-m -ge -P --keepgoing --recurse --replace --filter c,h,cpp,cc,hpp,hh " + outPath;

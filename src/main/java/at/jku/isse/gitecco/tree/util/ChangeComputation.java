@@ -83,17 +83,4 @@ public class ChangeComputation {
 
         return model.positiveLiterals().size() > 0;
     }
-
-    /*
-        for (ConditionalNode node : v.getchangedNodes()) {
-            if (node instanceof ELSECondition) {
-                String cond = "~";
-                cond += node.getParent().getIfBlock().getCondition();
-                for (IFCondition elseCond : node.getParent().getElseIfBlocks()) {
-                    cond += "~"+elseCond.getCondition();
-                }
-                System.out.println(cond);
-            } else System.out.println(node.getCondition());
-       }
-     */
 }

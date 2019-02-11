@@ -46,6 +46,8 @@ public class App {
             }
         });*/
 
+        commits.enableAutoCommitConfig();
+
         gitHelper.getAllCommits(commits);
 
         /*final ArrayList<String> config = new ArrayList<String>();

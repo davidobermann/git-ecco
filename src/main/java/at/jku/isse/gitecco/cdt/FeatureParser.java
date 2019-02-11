@@ -64,7 +64,6 @@ public class FeatureParser {
                 pp = new PPStatement(pps);
                 String condName = CDTHelper.getCondName(pp.getStatement());
                 currentConditional.setLineTo(pp.getLineEnd());
-                //cast --> bad design choice, probably interface would have been better.
                 currentBlock = currentConditional.getParent();
                 currentConditional = currentBlock.addElseIfBlock(new IFCondition(currentBlock,condName));
                 currentConditional.setLineFrom(pp.getLineStart());
@@ -79,6 +78,7 @@ public class FeatureParser {
             } else if (pps instanceof IASTPreprocessorEndifStatement) {
                 pp = new PPStatement(pps);
                 currentConditional.setLineTo(pp.getLineEnd());
+                currentBlock = currentConditional.getParent();
                 currentConditional = currentBlock.getParent();
             }
         }
