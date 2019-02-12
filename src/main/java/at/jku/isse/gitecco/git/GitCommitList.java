@@ -9,7 +9,6 @@ import at.jku.isse.gitecco.tree.nodes.RootNode;
 import at.jku.isse.gitecco.tree.nodes.SourceFileNode;
 import at.jku.isse.gitecco.tree.util.ChangeComputation;
 import at.jku.isse.gitecco.tree.util.ComittableChange;
-import at.jku.isse.gitecco.tree.visitor.GetAllChangedConditionsVisitor;
 import com.opencsv.CSVWriter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -18,15 +17,6 @@ import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.GitCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.logicng.datastructures.Assignment;
-import org.logicng.datastructures.Tristate;
-import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFactory;
-import org.logicng.formulas.Variable;
-import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PropositionalParser;
-import org.logicng.solvers.MiniSat;
-import org.logicng.solvers.SATSolver;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -82,6 +72,11 @@ public class GitCommitList extends ArrayList<GitCommit> {
         observersB.add(gbl);
     }
 
+    /**
+     * Dummy method which blocks unobserved adding.
+     * @param gitCommit
+     * @return
+     */
     @Override
     public boolean add(GitCommit gitCommit) {
         try {

@@ -72,6 +72,7 @@ public class ChangeComputation {
     private boolean checkPositive(String condition) throws ParserException {
         final FormulaFactory f = new FormulaFactory();
         final PropositionalParser p = new PropositionalParser(f);
+        condition = condition.replace('!','~').replace("&&","&").replace("||","|");
         final Formula formula = p.parse(condition);
         final SATSolver miniSat = MiniSat.miniSat(f);
         miniSat.add(formula);
