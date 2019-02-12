@@ -27,7 +27,7 @@ dependencies {
     compile 'org.slf4j:slf4j-simple:1.7.25'
     compile 'org.tukaani:xz:1.8'
     //mXparser
-    compile group: 'org.mariuszgromada.math', name: 'MathParser.org-mXparser', version: '4.2.0'
+    //compile group: 'org.mariuszgromada.math', name: 'MathParser.org-mXparser', version: '4.2.0'
     //Eclipse CDT
     compile group: 'org.eclipse.osgi', name: 'org.eclipse.osgi', version: '3.7.1'
     compile group: 'org.eclipse.core', name: 'org.eclipse.core.resources', version: '3.6.0.v20100526-0737'

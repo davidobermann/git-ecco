@@ -17,6 +17,15 @@ import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.GitCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.logicng.datastructures.Assignment;
+import org.logicng.datastructures.Tristate;
+import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.Variable;
+import org.logicng.io.parsers.ParserException;
+import org.logicng.io.parsers.PropositionalParser;
+import org.logicng.solvers.MiniSat;
+import org.logicng.solvers.SATSolver;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -248,7 +257,8 @@ public class GitCommitList extends ArrayList<GitCommit> {
                         //for every changed cond. :
                         for (ComittableChange change : gc.getChanges()) {
                             //Create commit config:
-                            commitConfig = change.getChanged() + "' ";
+
+                            commitConfig = extractChangedLiterals(change.getChanged());
                             for (String s : change.getAffected()) {
                                 commitConfig += s + " ";
                             }
@@ -280,6 +290,37 @@ public class GitCommitList extends ArrayList<GitCommit> {
                     }
                 }
         );
+    }
+
+    /**
+     * Extracts all the changed literals form a condition.
+     * Also every disjunction is translated into a conjunction so every positive literal can be obtained.
+     * @param s
+     * @return
+     */
+    private String extractChangedLiterals(String s) {
+        String ret = "";
+        try {
+            final FormulaFactory f = new FormulaFactory();
+            final PropositionalParser p = new PropositionalParser(f);
+            //also turn disjunctive clauses into conjunctive clauses to get every positive literal
+            s = s.replace('!','~').replace("&&","&").replace("||","&");
+            final Formula formula = p.parse(s);
+            final SATSolver miniSat = MiniSat.miniSat(f);
+            miniSat.add(formula);
+            final Tristate result = miniSat.sat();
+
+            Assignment model = miniSat.model();
+            for (Variable positiveLiteral : model.positiveLiterals()) {
+                ret += positiveLiteral + "' ";
+            }
+
+        } catch (ParserException e) {
+            System.out.println("Error while extracting literals of condition");
+            e.printStackTrace();
+        }
+
+        return ret;
     }
 
 
