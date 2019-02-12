@@ -65,6 +65,7 @@ public class ValidateChangeVisitor implements TreeVisitor {
      */
     public void visit(ELSECondition c) {
         //TODO: Positive conditions wanted --> if nearest IF Block is ~A for example the next one is wanted.
+        //solved with other technique of performing the ecco commits.
         if(c.isChanged()) {
             c.getParent().getParent().setChanged();
             //c.getParent().getParent().getCondition() --> checken ob negativ.

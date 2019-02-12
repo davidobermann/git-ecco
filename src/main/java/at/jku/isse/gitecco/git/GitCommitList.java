@@ -163,6 +163,14 @@ public class GitCommitList extends ArrayList<GitCommit> {
         return super.add(gitCommit);
     }
 
+    /**
+     * Enables the autoCommitMode.
+     * This will trigger for each added commit.
+     * For each commit the repository will be copied to another place (gitrepo folder) and committed.
+     * Also for each chane of the commit an ecco commit for a generated variant will be performed.
+     * For those 2 processes time will be measured and printed to a csv file.
+     * TODO: on branch points perform ecco pull.
+     */
     public void enableAutoCommitConfig() {
         this.addGitCommitListener(
                 new GitCommitListener() {
@@ -235,6 +243,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
                         @SuppressWarnings("deprecation")
                         CSVWriter writer = new CSVWriter(outputfile, ';', CSVWriter.NO_QUOTE_CHARACTER);
 
+                        //if this is the first commit also add the header.
                         if(gcl.size() < 1) {
                             // adding header to csv
                             String[] header = {"CommitNr", "Commit-Hash", "GitTime[ms]", "EccoTime[ms]"};
@@ -272,90 +281,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
                         }
 
                         // closing writer connection
-                        try {
-                            writer.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-        );
-    }
-
-    /**
-     * Enables the auto commit mode:
-     * THIS IS WITH A CERTAIN COMMIT CONFIG: If the entire commit is not doable, every commit is done on its own.
-     * creates a variant of the repository according to the changed conditions
-     * and commits it to the ecco repository, the git repository and tracks the time for each process.
-     */
-    public void enableAutoCommitConfiguration() {
-        this.addGitCommitListener(
-                new GitCommitListener() {
-                    private void checkAndCommit(GetAllChangedConditionsVisitor v) throws ParserException {
-                        final FormulaFactory f = new FormulaFactory();
-                        final PropositionalParser p = new PropositionalParser(f);
-                        final Formula formula = p.parse(v.getAllConditionsConjuctive());
-                        final SATSolver miniSat = MiniSat.miniSat(f);
-                        miniSat.add(formula);
-                        final Tristate result = miniSat.sat();
-
-                        //TODO: Instead of printing --> generate variant of the repository
-                        //TODO: Also perform git commit and the ecco commit and measure the time each time.
-                        String commit = "";
-
-                        if(result.equals(Tristate.TRUE)) {
-                            Assignment model = miniSat.model();
-                            for (Variable literal : model.positiveLiterals()) {
-                                commit += literal;
-                                if(v.getAllChangedConditions().contains(literal.toString())) {
-                                    commit += "' ";
-                                } else commit += " ";
-                            }
-                            if(commit.length() < 1) commit = "BASE'";
-                            System.out.println("ecco commit " + commit);
-                        } else {
-                            //TODO: Not only changed, but also affected must be commited.
-                            for (String condition : v.getAllChangedConditions()) {
-                                checkAndCommitSingle(condition);
-                            }
-                        }
-                    }
-
-                    private void checkAndCommitSingle(String cond) throws ParserException {
-                        final FormulaFactory f = new FormulaFactory();
-                        final PropositionalParser p = new PropositionalParser(f);
-                        final Formula formula = p.parse(cond);
-                        final SATSolver miniSat = MiniSat.miniSat(f);
-                        miniSat.add(formula);
-                        final Tristate result = miniSat.sat();
-                        String commit = "";
-                        if(result.equals(Tristate.TRUE)) {
-                            Assignment model = miniSat.model();
-
-                            for (Variable literal : model.positiveLiterals())
-                                commit += literal + "' ";
-
-                            if(commit.length() < 1) commit = "BASE'";
-                            System.out.println("ecco commit " + commit);
-
-                        } else System.err.println("WARNING SINGLE CLAUSE IS NOT SATISFIABLE!");
-                    }
-
-                    @Override
-                    public void onCommit(GitCommit gc, GitCommitList gcl) {
-
-                        System.out.println("---------------------------------");
-
-                        GetAllChangedConditionsVisitor v = new GetAllChangedConditionsVisitor();
-                        gc.getTree().accept(v);
-
-                        try {
-                            checkAndCommit(v);
-                        } catch (ParserException e) {
-                            e.printStackTrace();
-                        }
-
-                        //TODO: on branch: idea: just use gc.getType() and act accordingly.
+                        try { writer.close(); } catch (IOException e) { e.printStackTrace(); }
                     }
                 }
         );

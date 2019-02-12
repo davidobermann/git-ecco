@@ -1,6 +1,5 @@
 package at.jku.isse.gitecco.git;
 
-import at.jku.isse.gitecco.cdt.Feature;
 import at.jku.isse.gitecco.tree.nodes.ConditionalNode;
 
 /**
@@ -22,17 +21,6 @@ public class Change {
     public Change(int from, int cnt) {
         this.from = from;
         this.to = from+cnt;
-    }
-
-    /**
-     * Checks if a given Feature lays inside of this change.
-     * Used to determine if a new Feature was added.
-     *
-     * @param feature The feature, which should be checked.
-     * @return True if the Feature is in fact in this change, otherwise false.
-     */
-    public boolean contains(Feature feature) {
-        return from<=feature.getStartingLineNumber() && to >= feature.getEndingLineNumber();
     }
 
     /**
