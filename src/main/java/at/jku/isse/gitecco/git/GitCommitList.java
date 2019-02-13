@@ -237,6 +237,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
                         //++++
 
                         long eccoTime = 0;
+                        String doubleCheck = "";
                         final File csvFile = new File(gitHelper.getPath()+"result.csv");
                         FileWriter outputfile = null;
                         try { outputfile = new FileWriter(csvFile, append); } catch(IOException ioe){
@@ -244,8 +245,8 @@ public class GitCommitList extends ArrayList<GitCommit> {
                         }
 
                         // create CSVWriter object filewriter object as parameter
-                        @SuppressWarnings("deprecation")
-                        CSVWriter writer = new CSVWriter(outputfile, ';', CSVWriter.NO_QUOTE_CHARACTER);
+                        //deprcated but no other way available --> it still works anyways
+                        @SuppressWarnings("deprecation") CSVWriter writer = new CSVWriter(outputfile, ';', CSVWriter.NO_QUOTE_CHARACTER);
 
                         //if this is the first commit also add the header.
                         if(gcl.size() < 1) {
@@ -254,14 +255,17 @@ public class GitCommitList extends ArrayList<GitCommit> {
                             writer.writeNext(header);
                         }
 
-                        //for every changed cond. :
+                        //for every changed cond. --> one partial ecco commit:
                         for (ComittableChange change : gc.getChanges()) {
                             //Create commit config:
-
                             commitConfig = extractChangedLiterals(change.getChanged());
                             for (String s : change.getAffected()) {
                                 commitConfig += s + " ";
                             }
+
+                            //if this partial ecco commit was already performed for this git commit --> skip the rest.
+                            if(doubleCheck.contains(commitConfig)) continue;
+                            doubleCheck += commitConfig;
 
                             //create variant config
                             config.add(change.getChanged());

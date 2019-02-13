@@ -245,13 +245,13 @@ public class GitHelper {
                 revWalk.markStart(revWalk.parseCommit(ref.getObjectId()));
             }
             for(RevCommit rc : revWalk) {
-                System.out.println(rc.getName());
+                //System.out.println(rc.getName());
                 try {
-                    System.out.println("Diff to: " + rc.getParent(0).getName());
+                    //System.out.println("Diff to: " + rc.getParent(0).getName());
                 }catch (ArrayIndexOutOfBoundsException e) {
-                    System.out.println("Diff to: zero commit --> no parrent available");
+                    //System.out.println("Diff to: zero commit --> no parrent available");
                 }
-                //commitNames.add(rc.getName());
+                commitNames.add(rc.getName());
             }
         }
         Collections.reverse(commitNames);
@@ -391,7 +391,6 @@ public class GitHelper {
         }
 
         return Collections.unmodifiableList(files);
-
     }
 
     private String getBranchOfCommit(String commit) throws MissingObjectException, GitAPIException {
@@ -401,6 +400,7 @@ public class GitHelper {
                 .add(ObjectId.fromString(commit))
                 .call();
 
+        //TODO: probably better solution: one commit may have multiple branches
         return map.isEmpty() ? "" : map.get(ObjectId.fromString(commit)).split("~")[0];
     }
 

@@ -1,22 +1,16 @@
 package at.jku.isse.gitecco;
 
-import at.jku.isse.gitecco.git.GitCommit;
 import at.jku.isse.gitecco.git.GitCommitList;
-import at.jku.isse.gitecco.git.GitCommitListener;
 import at.jku.isse.gitecco.git.GitHelper;
-import at.jku.isse.gitecco.preprocessor.VariantGenerator;
-import at.jku.isse.gitecco.tree.visitor.GetAllFeaturesVisitor;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Constants;
-import org.logicng.datastructures.Assignment;
-import org.logicng.datastructures.Tristate;
-import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFactory;
-import org.logicng.formulas.Variable;
-import org.logicng.io.parsers.PropositionalParser;
-import org.logicng.solvers.MiniSat;
-import org.logicng.solvers.SATSolver;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.util.Collection;
 
 /**
  * Main app for the git to ecco tool.
@@ -30,43 +24,41 @@ public class App {
      * @throws Exception
      */
     public static void main(String... args) throws Exception {
-        final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo2";
+        //final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo2";
         //old repo: not suitable anymore since we assume there will be only true/false expressions.
-        //final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo";
+        final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo3";
         //final String repositoryPath = "C:\\obermanndavid\\git-ecco-test\\test1\\Unity";
 
-        //Stuff for testing out implemented git, parse and tree methods, etc.
-        //final GitHelper gitHelper = new GitHelper(repositoryPath);
-        //final GitCommitList commits = new GitCommitList(repositoryPath);
 
-        //gitHelper.checkOutCommit(Constants.MASTER);
-        //commits.enableAutoCommitConfiguration();
-        /*commits.addGitCommitListener(new GitCommitListener() {
-            @Override
-            public void onCommit(GitCommit gc, GitCommitList gcl) {
-                final GetAllFeaturesVisitor v = new GetAllFeaturesVisitor();
-                gc.getTree().accept(v);
-                for (String feature : v.getAllFeatures()) {
-                    System.out.println(feature);
+        /*try (Repository repository = Git.open(new File(repositoryPath)).getRepository()) {
+            // get a list of all known heads, tags, remotes, ...
+            Collection<Ref> allRefs = repository.getAllRefs().values();
+
+            // a RevWalk allows to walk over commits based on some filtering that is defined
+            try (RevWalk revWalk = new RevWalk( repository )) {
+                for( Ref ref : allRefs ) {
+                    revWalk.markStart( revWalk.parseCommit( ref.getObjectId() ));
                 }
-                System.out.println("-------------");
+                System.out.println("Walking all commits starting with " + allRefs.size() + " refs: " + allRefs);
+                int count = 0;
+                for( RevCommit commit : revWalk ) {
+                    System.out.println("Commit: " + commit);
+                    count++;
+                }
+                System.out.println("Had " + count + " commits");
             }
-        });*/
+        }*/
 
+
+        //Stuff for testing out implemented git, parse and tree methods, etc.
+        final GitHelper gitHelper = new GitHelper(repositoryPath);
+        final GitCommitList commits = new GitCommitList(repositoryPath);
+        //gitHelper.checkOutCommit(Constants.MASTER);
+        System.out.println(gitHelper.getAllCommitNames().length);
+        System.out.println(gitHelper.getAllCommitNamesNew().length);
         //commits.enableAutoCommitConfig();
-
         //gitHelper.getAllCommits(commits);
 
-        /*final ArrayList<String> config = new ArrayList<String>();
-        config.add("AA");
-        config.add("A");
-        config.add("C");
-
-        final VariantGenerator vg = new VariantGenerator();
-
-        vg.generateVariants(config, "C:\\obermanndavid\\git-ecco-test\\coantest",
-                "C:\\obermanndavid\\git-ecco-test\\spin");
-        */
     }
 
 }
