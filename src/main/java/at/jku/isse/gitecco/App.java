@@ -1,5 +1,6 @@
 package at.jku.isse.gitecco;
 
+import at.jku.isse.gitecco.git.GitCommit;
 import at.jku.isse.gitecco.git.GitCommitList;
 import at.jku.isse.gitecco.git.GitHelper;
 import org.eclipse.jgit.api.Git;
@@ -54,8 +55,8 @@ public class App {
         final GitHelper gitHelper = new GitHelper(repositoryPath);
         final GitCommitList commits = new GitCommitList(repositoryPath);
         //gitHelper.checkOutCommit(Constants.MASTER);
-        System.out.println(gitHelper.getAllCommitNames().length);
-        System.out.println(gitHelper.getAllCommitNamesNew().length);
+        gitHelper.getAllCommits(commits);
+        System.out.println(commits.size());
         //commits.enableAutoCommitConfig();
         //gitHelper.getAllCommits(commits);
 

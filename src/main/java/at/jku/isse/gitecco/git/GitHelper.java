@@ -5,7 +5,10 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.MissingObjectException;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revplot.PlotCommitList;
 import org.eclipse.jgit.revplot.PlotLane;
 import org.eclipse.jgit.revplot.PlotWalk;
@@ -220,9 +223,9 @@ public class GitHelper {
      * @return String[] of alle the commit names.
      * @throws GitAPIException
      */
-    public String[] getAllCommitNames() throws GitAPIException {
+    public String[] getAllCommitNames() throws GitAPIException, IOException {
         ArrayList<String> commitNames = new ArrayList();
-        Iterable<RevCommit> log = git.log().call();
+        Iterable<RevCommit> log = git.log().call(); //extend with .all() before .call() to get ALL commits
 
         for (RevCommit rc : log) {
             commitNames.add(rc.getName());
@@ -245,9 +248,34 @@ public class GitHelper {
                 revWalk.markStart(revWalk.parseCommit(ref.getObjectId()));
             }
             for(RevCommit rc : revWalk) {
-                //System.out.println(rc.getName());
+                System.out.println(rc.getName());
+                try {
+                    System.out.println("Diff to: " + rc.getParent(0).getName());
+                    System.out.println(rc.getParentCount());
+                }catch (ArrayIndexOutOfBoundsException e) {
+                    System.out.println("Diff to: zero commit --> no parrent available");
+                }
+                commitNames.add(rc.getName());
+            }
+        }
+        Collections.reverse(commitNames);
+        return commitNames.toArray(new String[commitNames.size()]);
+    }
+
+    public String[] getAllCommitNamesNewTest() throws GitAPIException, IOException {
+        List<String> commitNames = new ArrayList();
+        Repository repository = git.getRepository();
+        Collection<Ref> allRefs = repository.getAllRefs().values();
+
+        // a RevWalk allows to walk over commits based on some filtering that is defined
+        try (RevWalk revWalk = new RevWalk( repository )) {
+
+            for(Ref ref : allRefs) revWalk.markStart(revWalk.parseCommit(ref.getObjectId()));
+
+            for(RevCommit rc : revWalk) {
                 try {
                     //System.out.println("Diff to: " + rc.getParent(0).getName());
+                    //System.out.println(rc.getParentCount());
                 }catch (ArrayIndexOutOfBoundsException e) {
                     //System.out.println("Diff to: zero commit --> no parrent available");
                 }
@@ -266,64 +294,40 @@ public class GitHelper {
      * @throws GitAPIException
      * @throws IOException
      */
-    public GitCommitList getAllCommitsNew(GitCommitList commits) throws Exception {
-        Repository repository = git.getRepository();
+    public GitCommitList getAllCommits(GitCommitList commits) throws Exception {
         final List<GitCommitType> types = new ArrayList<>();
-        Collection<Ref> allRefs = repository.getAllRefs().values();
+        final Repository repository = git.getRepository();
+        final Collection<Ref> allRefs = repository.getAllRefs().values();
+        RevWalk revWalk = new RevWalk(repository);
+        revWalk.sort(RevSort.TOPO, true);
+        revWalk.sort(RevSort.REVERSE, true);
 
-        // a RevWalk allows to walk over commits based on some filtering that is defined
-        try (RevWalk revWalk = new RevWalk( repository )) {
+        for(Ref ref : allRefs) revWalk.markStart(revWalk.parseCommit(ref.getObjectId()));
 
-            PlotCommitList<PlotLane> plotCommitList = new PlotCommitList<>();
-            plotCommitList.source(revWalk);
-            plotCommitList.fillTo(Integer.MAX_VALUE);
-            Collections.reverse(plotCommitList);
+        for(RevCommit rc : revWalk) {
+            String branch = getBranchOfCommit(rc.getName());
+            String parent;
 
-            for(Ref ref : allRefs) {
-                revWalk.markStart(revWalk.parseCommit(ref.getObjectId()));
+            try {
+                parent = rc.getParent(0).getName();
+            }catch (ArrayIndexOutOfBoundsException e) {
+                parent = "NULLCOMMIT";
             }
-
-            int i = 0;
-
-            for(RevCommit rc : revWalk) {
-                System.out.println(rc.getName());
-                try {
-
-                    types.clear();
-                    types.add(GitCommitType.COMMIT);
-
-                    if (rc.getParentCount()>1
-                            || plotCommitList.get(i).getChildCount() == 0 && plotCommitList.get(i).getChildCount()>0) {
-                        types.add(GitCommitType.BRANCH);
-                    }
-
-                    if (plotCommitList.get(i).getParentCount()>1) {
-                        types.add(GitCommitType.MERGE);
-                    }
-
-                    String branch = getBranchOfCommit(plotCommitList.get(i).getName());
-                    //commits.add(new GitCommit(commitNames[i], new ArrayList<GitCommitType>(types), branch), commits);
-                    System.out.println("added commit as expected to the list.");
-
-                }catch (ArrayIndexOutOfBoundsException e) {
-                    System.out.println("Diff to: zero commit --> no parrent available");
-                }
-                i++;
-            }
+            commits.add(new GitCommit(rc.getName(), parent, new ArrayList<GitCommitType>(types), branch, rc), commits);
         }
-
         return commits;
     }
 
     /**
      * Method to retrieve all commits form a repository and put it to a GitCommitList.
-     *
+     *  PRODUCES WRONG RESULTS
      * @param commits the GitCommitList to which the commits a re saved to.
      * @return The GitCommitList which was passed to the method.
      * @throws GitAPIException
      * @throws IOException
      */
-    public GitCommitList getAllCommits(GitCommitList commits) throws Exception {
+    @Deprecated
+    public GitCommitList getAllCommitsOld(GitCommitList commits) throws Exception {
         final List<GitCommitType> types = new ArrayList<>();
         final String[] commitNames = getAllCommitNames();
         final Repository repo = git.getRepository();

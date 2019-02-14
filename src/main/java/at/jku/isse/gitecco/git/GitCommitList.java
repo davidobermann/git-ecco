@@ -1,5 +1,7 @@
 package at.jku.isse.gitecco.git;
 
+import at.jku.isse.ecco.EccoService;
+import at.jku.isse.ecco.core.Association;
 import at.jku.isse.gitecco.cdt.CDTHelper;
 import at.jku.isse.gitecco.cdt.FeatureParser;
 import at.jku.isse.gitecco.preprocessor.VariantGenerator;
@@ -279,6 +281,9 @@ public class GitCommitList extends ArrayList<GitCommit> {
 
                             //TODO: Actual ecco commit
                             System.out.println("ecco commit " + commitConfig);
+                            //EccoService eccoService = new EccoService();
+                            //eccoService.commit(commitConfig);
+                            //eccoService.getRepository().getAssociations()
 
                             eccoTime = System.currentTimeMillis() - eccoTime;
 

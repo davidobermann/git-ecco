@@ -1,7 +1,8 @@
 package at.jku.isse.gitecco.tree.util;
 
 import at.jku.isse.gitecco.git.Change;
-import at.jku.isse.gitecco.tree.nodes.*;
+import at.jku.isse.gitecco.tree.nodes.ConditionalNode;
+import at.jku.isse.gitecco.tree.nodes.SourceFileNode;
 import at.jku.isse.gitecco.tree.visitor.GetNodesForChangeVisitor;
 import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Tristate;
@@ -29,6 +30,7 @@ public class ChangeComputation {
 
     /**
      * Computes the configuration + the commit configuration for a given change and a given SourceFileNode
+     *
      * @param c
      * @param sfn
      * @throws ParserException
@@ -40,11 +42,11 @@ public class ChangeComputation {
         final GetNodesForChangeVisitor v = new GetNodesForChangeVisitor(c);
         sfn.accept(v);
 
-        if(v.getchangedNodes().size() == 0) changed.add(new ComittableChange("BASE", Collections.EMPTY_SET));
+        if (v.getchangedNodes().size() == 0) changed.add(new ComittableChange("BASE", Collections.EMPTY_SET));
         else {
-            for(ConditionalNode node : v.getchangedNodes()) {
+            for (ConditionalNode node : v.getchangedNodes()) {
                 //Changed: get first positive condition
-                while(!checkPositive(node.getCondition()) && node.getParent().getParent()!=null) {
+                while (!checkPositive(node.getCondition()) && node.getParent().getParent() != null) {
                     node = node.getParent().getParent();
                 }
 
@@ -53,7 +55,7 @@ public class ChangeComputation {
 
                 //Affected
                 affected.clear();
-                while(node.getParent().getParent()!=null) {
+                while (node.getParent().getParent() != null) {
                     node = node.getParent().getParent();
                     affected.add(node.getCondition());
                 }
@@ -65,6 +67,7 @@ public class ChangeComputation {
 
     /**
      * Determines if a condition is positive --> if its model has positive literals
+     *
      * @param condition
      * @return
      * @throws ParserException
@@ -72,16 +75,16 @@ public class ChangeComputation {
     private boolean checkPositive(String condition) throws ParserException {
         final FormulaFactory f = new FormulaFactory();
         final PropositionalParser p = new PropositionalParser(f);
-        condition = condition.replace('!','~').replace("&&","&").replace("||","|");
+        condition = condition.replace('!', '~').replace("&&", "&").replace("||", "|");
         final Formula formula = p.parse(condition);
         final SATSolver miniSat = MiniSat.miniSat(f);
         miniSat.add(formula);
         final Tristate result = miniSat.sat();
 
-        if(result.equals(Tristate.FALSE)) return false;
+        if (result.equals(Tristate.FALSE)) return false;
 
         Assignment model = miniSat.model();
 
-        return model.positiveLiterals().size() > 0;
+        return model.positiveLiterals().size()>0;
     }
 }
