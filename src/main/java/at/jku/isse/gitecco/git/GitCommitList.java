@@ -175,7 +175,6 @@ public class GitCommitList extends ArrayList<GitCommit> {
      * For each commit the repository will be copied to another place (gitrepo folder) and committed.
      * Also for each chane of the commit an ecco commit for a generated variant will be performed.
      * For those 2 processes time will be measured and printed to a csv file.
-     * TODO: on branch points perform ecco pull.
      */
     public void enableAutoCommitConfig() {
         this.addGitCommitListener(
@@ -245,7 +244,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
                             e.printStackTrace();
                         }
 
-                        System.out.println("------\nthis is a git commit " + (gcl.size() + 1));
+                        System.out.println("------\ngit commit: " + (gcl.size() + 1));
                         gitTime = System.currentTimeMillis() - gitTime;
 
                         git.close();
@@ -269,19 +268,30 @@ public class GitCommitList extends ArrayList<GitCommit> {
                             // adding header to csv
                             String[] header = {"CommitNr", "Commit-Hash", "GitTime[ms]", "EccoTime[ms]"};
                             writer.writeNext(header);
+
+                            File ecco = new File(eccorepo + "\\repo");
+                            File eccodata = new File(eccorepo + "\\data");
+                            File eccodel = new File(eccorepo + "\\repo\\.ecco");
+                            try {
+                                if(eccodel.exists()) FileUtils.deleteDirectory(eccodel);
+                                if(!ecco.exists()) FileUtils.forceMkdir(ecco);
+                                if(!eccodata.exists()) FileUtils.forceMkdir(eccodata);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
 
-                        //EccoService eccoService = new EccoService(Paths.get(eccorepo));
-                        //if(gcl.size() < 1) eccoService.init();
-                        //else eccoService.open();
+                        EccoService eccoService =
+                                new EccoService(Paths.get(eccorepo + "\\data"),Paths.get(eccorepo + "\\repo\\.ecco"));
+                        if(gcl.size() < 1) eccoService.init();
+                        else eccoService.open();
 
                         //for every changed cond. --> one partial ecco commit:
                         for (ComittableChange change : gc.getChanges()) {
                             //Create commit config:
-                            commitConfig = extractChangedLiterals(change.getChanged());
-                            for (String s : change.getAffected()) {
-                                commitConfig += s + " ";
-                            }
+                            final List<String> configList = extractChangedLiterals(change.getChanged());
+                            configList.addAll(change.getAffected());
+                            commitConfig = configList.stream().filter(s -> s.length()>=1).collect(Collectors.joining(","));
 
                             //if this partial ecco commit was already performed for this git commit --> skip the rest.
                             if(doubleCheck.contains(commitConfig)) continue;
@@ -295,10 +305,10 @@ public class GitCommitList extends ArrayList<GitCommit> {
                             VariantGenerator vg = new VariantGenerator();
                             vg.generateVariants(config,gitHelper.getPath(),eccorepo);
 
-                            System.out.println("ecco commit " + commitConfig);
+                            System.out.println("ecco commit: " + commitConfig);
 
                             eccoTime = System.currentTimeMillis();
-                            //eccoService.commit(commitConfig);
+                            eccoService.commit(commitConfig);
                             eccoTime = System.currentTimeMillis() - eccoTime;
 
                             // add data to csv
@@ -308,7 +318,162 @@ public class GitCommitList extends ArrayList<GitCommit> {
                             writer.writeNext(data);
                         }
 
-                        //eccoService.close();
+                        eccoService.close();
+
+                        // closing writer connection
+                        try { writer.close(); } catch (IOException e) { e.printStackTrace(); }
+                    }
+                }
+        );
+    }
+
+    /**
+     * Same as enableAutoCommitConfig
+     * Except ecco commits will be performed for every possible model of a changed condition.
+     */
+    public void enableAutoCommitConfigForEveryModel(){
+        this.addGitCommitListener(
+                new GitCommitListener() {
+
+                    private void prepareDirectory(File destDir, File srcDir, File gitDir, File gitSave) throws IOException {
+                        boolean check = false;
+                        //save git folder
+                        for (File file : destDir.listFiles()) {
+                            if(file.getName().equals(".git")) {
+                                FileUtils.moveToDirectory(file.getAbsoluteFile(), gitSave, true);
+                                check = true;
+                                break;
+                            }
+                        }
+                        //delete old repo
+                        FileUtils.deleteDirectory(destDir);
+                        //copy new repo
+                        FileUtils.copyDirectory(srcDir, destDir);
+                        //delete copied git folder
+                        FileUtils.deleteDirectory(gitDir);
+                        //if there was a git folder in the beginning restore it.
+                        if(check) FileUtils.moveToDirectory(new File(gitSave.getPath() + "\\.git"), destDir, true);
+                    }
+
+                    @Override
+                    public void onCommit(GitCommit gc, GitCommitList gcl) {
+                        final Set<String> config = new HashSet<>();
+                        String commitConfig = "";
+                        String baseFolder = gitHelper.getPath().substring(0,gitHelper.getPath().lastIndexOf('\\'));
+                        String gitrepo = baseFolder + "\\gitrepo";
+                        String eccorepo = baseFolder + "\\eccorepo";
+
+                        //GIT
+                        File srcDir = new File(gitHelper.getPath());
+                        File destDir = new File(gitrepo);
+                        File gitDir = new File(gitrepo + "\\.git");
+                        File gitSave = new File(baseFolder);
+                        Git git = null;
+                        GitCommand c = null;
+                        boolean append = true;
+
+                        try {
+                            prepareDirectory(destDir,srcDir, gitDir, gitSave);
+                            if(gcl.size() < 1) {
+                                //safety delete of git folder
+                                FileUtils.deleteDirectory(gitDir);
+                                git = Git.init().setDirectory(destDir).call();
+                                append = false;
+                            } else {
+                                git = Git.open(destDir);
+                            }
+
+                            c = git.commit().setMessage("");
+                            git.add().addFilepattern(".").call();
+
+                        } catch (IOException|GitAPIException e) {
+                            System.out.println("Failed to generate variants, copy of the og. dir failed.");
+                        }
+
+                        long gitTime = System.currentTimeMillis();
+
+                        try {
+                            c.call();
+                        } catch (GitAPIException e) {
+                            System.out.println("Commit failed!");
+                            e.printStackTrace();
+                        }
+
+                        System.out.println("------\ngit commit: " + (gcl.size() + 1));
+                        gitTime = System.currentTimeMillis() - gitTime;
+
+                        git.close();
+
+
+                        //ECCO + CSV Output
+                        long eccoTime = 0;
+                        String doubleCheck = "";
+                        final File csvFile = new File(gitHelper.getPath()+"result.csv");
+                        FileWriter outputfile = null;
+                        try { outputfile = new FileWriter(csvFile, append); } catch(IOException ioe){
+                            System.out.println("Error while handling the csv file output!");
+                        }
+
+                        // create CSVWriter object filewriter object as parameter
+                        //deprcated but no other way available --> it still works anyways
+                        @SuppressWarnings("deprecation") CSVWriter writer = new CSVWriter(outputfile, ';', CSVWriter.NO_QUOTE_CHARACTER);
+
+                        //if this is the first commit also add the header.
+                        if(gcl.size() < 1) {
+                            // adding header to csv
+                            String[] header = {"CommitNr", "Commit-Hash", "GitTime[ms]", "EccoTime[ms]"};
+                            writer.writeNext(header);
+
+                            File ecco = new File(eccorepo + "\\repo");
+                            File eccodata = new File(eccorepo + "\\data");
+                            File eccodel = new File(eccorepo + "\\repo\\.ecco");
+                            try {
+                                if(eccodel.exists()) FileUtils.deleteDirectory(eccodel);
+                                if(!ecco.exists()) FileUtils.forceMkdir(ecco);
+                                if(!eccodata.exists()) FileUtils.forceMkdir(eccodata);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        EccoService eccoService =
+                                new EccoService(Paths.get(eccorepo + "\\data"),Paths.get(eccorepo + "\\repo\\.ecco"));
+                        if(gcl.size() < 1) eccoService.init();
+                        else eccoService.open();
+
+                        //for every changed cond. --> one partial ecco commit:
+                        for (ComittableChange change : gc.getChanges()) {
+                            //Create commit config:
+                            final List<String> configList = extractChangedLiterals(change.getChanged());
+                            configList.addAll(change.getAffected());
+                            commitConfig = configList.stream().filter(s -> s.length()>=1).collect(Collectors.joining(","));
+
+                            //if this partial ecco commit was already performed for this git commit --> skip the rest.
+                            if(doubleCheck.contains(commitConfig)) continue;
+                            doubleCheck += commitConfig;
+
+                            //create variant config
+                            config.add(change.getChanged());
+                            config.addAll(change.getAffected());
+
+                            //generate variant: (also moves to the expected directory)
+                            VariantGenerator vg = new VariantGenerator();
+                            vg.generateVariants(config,gitHelper.getPath(),eccorepo);
+
+                            System.out.println("ecco commit: " + commitConfig);
+
+                            eccoTime = System.currentTimeMillis();
+                            eccoService.commit(commitConfig);
+                            eccoTime = System.currentTimeMillis() - eccoTime;
+
+                            // add data to csv
+                            String[] data = {String.valueOf(gcl.size()), gc.getCommitName(),
+                                    String.valueOf(gitTime), String.valueOf(eccoTime)};
+
+                            writer.writeNext(data);
+                        }
+
+                        eccoService.close();
 
                         // closing writer connection
                         try { writer.close(); } catch (IOException e) { e.printStackTrace(); }
@@ -323,8 +488,8 @@ public class GitCommitList extends ArrayList<GitCommit> {
      * @param s
      * @return
      */
-    private String extractChangedLiterals(String s) {
-        String ret = "";
+    private List<String> extractChangedLiterals(String s) {
+        final List<String> ret = new ArrayList<>();
         try {
             final FormulaFactory f = new FormulaFactory();
             final PropositionalParser p = new PropositionalParser(f);
@@ -337,7 +502,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
 
             Assignment model = miniSat.model();
             for (Variable positiveLiteral : model.positiveLiterals()) {
-                ret += positiveLiteral + "' ";
+                ret.add(positiveLiteral.toString() + "'");
             }
 
         } catch (ParserException e) {

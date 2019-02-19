@@ -46,12 +46,11 @@ public class VariantGenerator {
         }
 
         File srcDir = new File(inPath);
-        File destDir = new File(outPath);
-        File gitDir = new File(outPath + "\\.git");
-        File eccoSave = new File(outPath.substring(0,outPath.lastIndexOf('\\')));
+        File destDir = new File(outPath + "\\data");
+        File gitDir = new File(outPath + "\\data\\.git");
 
         try {
-            prepareDirectory(destDir, srcDir, gitDir, eccoSave);
+            prepareDirectory(destDir, srcDir, gitDir);
         } catch (IOException e) {
             System.out.println("Failed to generate variants, copy of the og. dir failed.");
         }
@@ -74,29 +73,9 @@ public class VariantGenerator {
 
     }
 
-    /**
-     * prepares the directory for the following operations:
-     * if the .ecco folder exists it is moved to a save location.
-     * after that the entire folder is deleted and will be replaced by the git repo.
-     * the saved .ecco folder is then moved back into the eccorepo and the .git will be delted.
-     * @param destDir
-     * @param srcDir
-     * @param gitDir
-     * @param eccoSave
-     * @throws IOException
-     */
-    private void prepareDirectory(File destDir, File srcDir, File gitDir, File eccoSave) throws IOException {
-        boolean check = false;
-        for (File file : destDir.listFiles()) {
-            if (file.getName().equals(".ecco")) {
-                FileUtils.moveToDirectory(file.getAbsoluteFile(), eccoSave, true);
-                check = true;
-                break;
-            }
-        }
+    private void prepareDirectory(File destDir, File srcDir, File gitDir) throws IOException {
         FileUtils.deleteDirectory(destDir);
         FileUtils.copyDirectory(srcDir, destDir);
-        if (check) FileUtils.moveToDirectory(new File(eccoSave.getPath()+"\\.ecco"), destDir, true);
         FileUtils.deleteDirectory(gitDir);
     }
 }
