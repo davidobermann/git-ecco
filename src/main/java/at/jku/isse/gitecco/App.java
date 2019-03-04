@@ -15,15 +15,16 @@ public class App {
      * @throws Exception
      */
     public static void main(String... args) throws Exception {
-        //final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo2";
+        final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo2";
         //old repo: not suitable anymore since we assume there will be only true/false expressions.
-        final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo3";
+        //final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo3";
         //final String repositoryPath = "C:\\obermanndavid\\git-ecco-test\\test1\\Unity";
 
         //Stuff for testing out implemented git, parse and tree methods, etc.
         final GitHelper gitHelper = new GitHelper(repositoryPath);
         final GitCommitList commits = new GitCommitList(repositoryPath);
         //gitHelper.checkOutCommit(Constants.MASTER);
+        //commits.enableAutoCommitConfigForEveryModel();
         commits.enableAutoCommitConfig();
         gitHelper.getAllCommits(commits);
     }
