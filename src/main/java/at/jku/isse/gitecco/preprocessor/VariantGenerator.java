@@ -65,8 +65,9 @@ public class VariantGenerator {
         command += "-m -ge -P --keepgoing --recurse --replace --filter c,h,cpp,cc,hpp,hh " + outPath;
 
         try {
-            Runtime.getRuntime().exec(command);
-        } catch (IOException e) {
+            Process p = Runtime.getRuntime().exec(command);
+            p.waitFor();
+        } catch (IOException|InterruptedException e) {
             System.out.println("Error in variant generation runtime command");
             e.printStackTrace();
         }

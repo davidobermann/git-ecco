@@ -2,6 +2,7 @@ package at.jku.isse.gitecco.git;
 
 import at.jku.isse.ecco.EccoException;
 import at.jku.isse.ecco.EccoService;
+import at.jku.isse.ecco.core.Association;
 import at.jku.isse.gitecco.cdt.CDTHelper;
 import at.jku.isse.gitecco.cdt.FeatureParser;
 import at.jku.isse.gitecco.preprocessor.VariantGenerator;
@@ -416,13 +417,165 @@ public class GitCommitList extends ArrayList<GitCommit> {
 
                             System.out.println("ecco commit: " + commitConfig);
 
+                            //TODO: remove try catch bock for accurate time measurement.
                             eccoTime = System.currentTimeMillis();
+                            /*try {
+
+                            } catch (EccoException ee) {
+                                System.out.println("error in ecco commit --> ignore for now");
+                                eccoTime = -100;
+                            }*/
                             eccoService.commit(commitConfig);
                             eccoTime = System.currentTimeMillis() - eccoTime;
 
                             // add data to csv
                             String[] data = {String.valueOf(gcl.size()), gc.getCommitName(),
                                     String.valueOf(gitTime), String.valueOf(eccoTime)};
+
+                            writer.writeNext(data);
+                        }
+                    }
+
+                    eccoService.close();
+
+                    // closing writer connection
+                    try { writer.close(); } catch (IOException e) { e.printStackTrace(); }
+                }
+        );
+    }
+
+    /**
+     * Same as enableAutoCommitConfigForEveryModel
+     * Except that here also the amount of artifacts + the amount of features will be counted.
+     */
+    public void enableAutoCommitConfigForEveryModelAndCntArtifacts(){
+        this.addGitCommitListener(
+                (gc, gcl) -> {
+                    final Set<String> config = new HashSet<>();
+                    String commitConfig = "";
+                    String baseFolder = gitHelper.getPath().substring(0,gitHelper.getPath().lastIndexOf('\\'));
+                    String gitrepo = baseFolder + "\\gitrepo";
+                    String eccorepo = baseFolder + "\\eccorepo";
+
+                    //GIT
+                    File srcDir = new File(gitHelper.getPath());
+                    File destDir = new File(gitrepo);
+                    File gitDir = new File(gitrepo + "\\.git");
+                    File gitSave = new File(baseFolder);
+                    Git git = null;
+                    GitCommand c = null;
+                    boolean append = true;
+
+                    try {
+                        prepareDirectory(destDir,srcDir, gitDir, gitSave);
+                        if(gcl.size() < 1) {
+                            //safety delete of git folder
+                            FileUtils.deleteDirectory(gitDir);
+                            git = Git.init().setDirectory(destDir).call();
+                            append = false;
+                        } else {
+                            git = Git.open(destDir);
+                        }
+
+                        c = git.commit().setMessage("");
+                        git.add().addFilepattern(".").call();
+
+                    } catch (IOException|GitAPIException e) {
+                        System.out.println("Failed to generate variants, copy of the og. dir failed.");
+                    }
+
+                    long gitTime = System.currentTimeMillis();
+
+                    try {
+                        c.call();
+                    } catch (GitAPIException e) {
+                        System.out.println("Commit failed!");
+                        e.printStackTrace();
+                    }
+
+                    System.out.println("------\ngit commit: " + (gcl.size() + 1));
+                    gitTime = System.currentTimeMillis() - gitTime;
+
+                    git.close();
+
+
+                    //ECCO + CSV Output
+                    long eccoTime = 0;
+                    String doubleCheck = "";
+                    final File csvFile = new File(gitHelper.getPath()+"result.csv");
+                    FileWriter outputfile = null;
+                    try { outputfile = new FileWriter(csvFile, append); } catch(IOException ioe){
+                        System.out.println("Error while handling the csv file output!");
+                    }
+
+                    // create CSVWriter object filewriter object as parameter
+                    //deprcated but no other way available --> it still works anyways
+                    @SuppressWarnings("deprecation") CSVWriter writer = new CSVWriter(outputfile, ';', CSVWriter.NO_QUOTE_CHARACTER);
+
+                    //if this is the first commit also add the header.
+                    if(gcl.size() < 1) {
+                        // adding header to csv
+                        String[] header = {"CommitNr", "Commit-Hash", "GitTime[ms]",
+                                "EccoTime[ms]", "Features", "Artifacts"};
+
+                        writer.writeNext(header);
+
+                        File ecco = new File(eccorepo + "\\repo");
+                        File eccodata = new File(eccorepo + "\\data");
+                        File eccodel = new File(eccorepo + "\\repo\\.ecco");
+                        try {
+                            if(eccodel.exists()) FileUtils.deleteDirectory(eccodel);
+                            if(!ecco.exists()) FileUtils.forceMkdir(ecco);
+                            if(!eccodata.exists()) FileUtils.forceMkdir(eccodata);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    EccoService eccoService =
+                            new EccoService(Paths.get(eccorepo + "\\data"),Paths.get(eccorepo + "\\repo\\.ecco"));
+                    if(gcl.size() < 1) eccoService.init();
+                    else eccoService.open();
+
+                    //for every changed cond. --> one partial ecco commit:
+                    for (ComittableChange change : gc.getChanges()) {
+                        //Create commit config:
+                        for (List<String> configList : extractChangedLiteralsForAllModels(change.getChanged())) {
+                            configList.addAll(change.getAffected());
+                            commitConfig = configList.stream().filter(s -> s.length()>=1).collect(Collectors.joining(","));
+
+                            //if this partial ecco commit was already performed for this git commit --> skip the rest.
+                            if(doubleCheck.contains(commitConfig)) continue;
+                            doubleCheck += commitConfig;
+
+                            //create variant config
+                            config.add(change.getChanged());
+                            config.addAll(change.getAffected());
+
+                            //generate variant: (also moves to the expected directory)
+                            VariantGenerator vg = new VariantGenerator();
+                            vg.generateVariants(config,gitHelper.getPath(),eccorepo);
+
+                            System.out.println("ecco commit: " + commitConfig);
+
+                            //TODO: remove try catch bock for accurate time measurement.
+                            eccoTime = System.currentTimeMillis();
+                            eccoService.commit(commitConfig);
+                            eccoTime = System.currentTimeMillis() - eccoTime;
+
+                            //Count all the artifacts of the current state of the repository
+                            int artifactCnt = 0;
+                            for (Association a : eccoService.getRepository().getAssociations()) {
+                                artifactCnt += a.getRootNode().countArtifacts();
+                            }
+
+                            //Count all the tracked features.
+                            int featureCnt = eccoService.getRepository().getFeatures().size();
+
+                            // add data to csv
+                            String[] data = {String.valueOf(gcl.size()), gc.getCommitName(),
+                                    String.valueOf(gitTime), String.valueOf(eccoTime),
+                                    String.valueOf(featureCnt), String.valueOf(artifactCnt)};
 
                             writer.writeNext(data);
                         }
