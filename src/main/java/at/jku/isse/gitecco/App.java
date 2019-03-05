@@ -2,6 +2,16 @@ package at.jku.isse.gitecco;
 
 import at.jku.isse.gitecco.git.GitCommitList;
 import at.jku.isse.gitecco.git.GitHelper;
+import org.logicng.datastructures.Assignment;
+import org.logicng.datastructures.Tristate;
+import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
+import org.logicng.io.parsers.PropositionalParser;
+import org.logicng.solvers.MiniSat;
+import org.logicng.solvers.SATSolver;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Main app for the git to ecco tool.
@@ -23,9 +33,11 @@ public class App {
         //Stuff for testing out implemented git, parse and tree methods, etc.
         final GitHelper gitHelper = new GitHelper(repositoryPath);
         final GitCommitList commits = new GitCommitList(repositoryPath);
+
         //gitHelper.checkOutCommit(Constants.MASTER);
         //commits.enableAutoCommitConfigForEveryModel();
         //commits.enableAutoCommitConfig();
+
         commits.enableAutoCommitConfigForEveryModelAndCntArtifacts();
         gitHelper.getAllCommits(commits);
     }

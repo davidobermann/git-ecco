@@ -3,6 +3,9 @@ package at.jku.isse.gitecco.cdt;
 import at.jku.isse.gitecco.tree.nodes.*;
 import org.eclipse.cdt.core.dom.ast.*;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Class for parsing features in the c++ file.
  */
@@ -45,6 +48,7 @@ public class FeatureParser {
                     nacnt++;
                     continue;
                 }
+
                 currentBlock = new ConditionBlockNode(currentConditional);
                 currentConditional.addChild(currentBlock);
                 currentConditional = currentBlock.setIfBlock(new IFCondition(currentBlock, condName));
@@ -112,6 +116,17 @@ public class FeatureParser {
             }
         }
         return srcfilenode;
+    }
+
+    //removes the defined() macro and replaces it by simply the variable
+    //the variable will be defined therefore and coan will expand the macro --> should work.
+    private String removeDefindeMacro(String s) {
+        Pattern p = Pattern.compile("defined\\((.*?)\\)");
+        Matcher m = p.matcher(s);
+        while(m.find()) {
+            s = s.replaceFirst("defined\\((.*?)\\)",m.group(1));
+        }
+        return s;
     }
 
 }

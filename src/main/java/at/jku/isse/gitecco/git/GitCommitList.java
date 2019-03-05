@@ -558,7 +558,6 @@ public class GitCommitList extends ArrayList<GitCommit> {
 
                             System.out.println("ecco commit: " + commitConfig);
 
-                            //TODO: remove try catch bock for accurate time measurement.
                             eccoTime = System.currentTimeMillis();
                             eccoService.commit(commitConfig);
                             eccoTime = System.currentTimeMillis() - eccoTime;
@@ -589,6 +588,15 @@ public class GitCommitList extends ArrayList<GitCommit> {
         );
     }
 
+    /**
+     * Helper method that prepares the given directory for further operation.
+     * Used by all the autocommit methods.
+     * @param destDir
+     * @param srcDir
+     * @param gitDir
+     * @param gitSave
+     * @throws IOException
+     */
     private void prepareDirectory(File destDir, File srcDir, File gitDir, File gitSave) throws IOException {
         boolean check = false;
         //save git folder
@@ -656,8 +664,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
         try {
             final FormulaFactory f = new FormulaFactory();
             final PropositionalParser p = new PropositionalParser(f);
-            //also turn disjunctive clauses into conjunctive clauses to get every positive literal
-            s = s.replace('!','~').replace("&&","&").replace("||","&");
+            s = s.replace('!','~').replace("&&","&").replace("||","|");
             final Formula formula = p.parse(s);
             final SATSolver miniSat = MiniSat.miniSat(f);
             miniSat.add(formula);
