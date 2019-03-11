@@ -25,6 +25,7 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -121,7 +122,7 @@ public class GitHelper {
 
         filePath = pathUrl + "\\" + filePath;
 
-        if (changes.size() == 0) changes.add(new Change(0, Files.readAllLines(Paths.get(filePath)).size()));
+        if (changes.size() == 0) changes.add(new Change(0, Files.readAllLines(Paths.get(filePath), StandardCharsets.ISO_8859_1).size()));
 
         return changes.toArray(new Change[changes.size()]);
     }

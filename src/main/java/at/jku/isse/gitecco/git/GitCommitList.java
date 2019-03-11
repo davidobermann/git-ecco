@@ -29,16 +29,13 @@ import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
+import scala.Char;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -133,7 +130,8 @@ public class GitCommitList extends ArrayList<GitCommit> {
                 //check if source file has changed --> create subtree with features, otherwise insert src file as leaf
                 if (changedFiles.contains(file.replace("/","\\"))) {
                     final String path = gitHelper.getPath()+"\\"+file;
-                    final List<String> codelist = Files.readAllLines(Paths.get(path));
+
+                    List<String> codelist = Files.readAllLines(Paths.get(path), StandardCharsets.ISO_8859_1);
                     final String code = codelist.stream().collect(Collectors.joining("\n"));
 
                     //file parsing

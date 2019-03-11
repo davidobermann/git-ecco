@@ -43,7 +43,7 @@ public class FeatureParser {
             /* starting statements*/
             if (pps instanceof IASTPreprocessorIfStatement) {
                 pp = new PPStatement(pps);
-                String condName = CDTHelper.getCondName(pp.getStatement());
+                String condName = removeDefinedMacro(CDTHelper.getCondName(pp.getStatement()));
                 if(condName.contains("<") || condName.contains(">") || condName.contains("==")){
                     nacnt++;
                     continue;
@@ -57,7 +57,7 @@ public class FeatureParser {
 
             } else if (pps instanceof IASTPreprocessorIfdefStatement) {
                 pp = new PPStatement(pps);
-                String condName = CDTHelper.getCondName(pp.getStatement());
+                String condName = removeDefinedMacro(CDTHelper.getCondName(pp.getStatement()));
                 if(condName.contains("<") || condName.contains(">") || condName.contains("==")){
                     nacnt++;
                     continue;
@@ -70,7 +70,7 @@ public class FeatureParser {
 
             } else if (pps instanceof IASTPreprocessorIfndefStatement) {
                 pp = new PPStatement(pps);
-                String condName = CDTHelper.getCondName(pp.getStatement());
+                String condName = removeDefinedMacro(CDTHelper.getCondName(pp.getStatement()));
                 if(condName.contains("<") || condName.contains(">") || condName.contains("==")){
                     nacnt++;
                     continue;
@@ -84,7 +84,7 @@ public class FeatureParser {
             /* ending statements */
             } else if (pps instanceof IASTPreprocessorElifStatement) {
                 pp = new PPStatement(pps);
-                String condName = CDTHelper.getCondName(pp.getStatement());
+                String condName = removeDefinedMacro(CDTHelper.getCondName(pp.getStatement()));
                 if(condName.contains("<") || condName.contains(">") || condName.contains("==")){
                     nacnt++;
                     continue;
@@ -120,12 +120,13 @@ public class FeatureParser {
 
     //removes the defined() macro and replaces it by simply the variable
     //the variable will be defined therefore and coan will expand the macro --> should work.
-    private String removeDefindeMacro(String s) {
+    private String removeDefinedMacro(String s) {
         Pattern p = Pattern.compile("defined\\((.*?)\\)");
         Matcher m = p.matcher(s);
-        while(m.find()) {
+
+        while(m.find())
             s = s.replaceFirst("defined\\((.*?)\\)",m.group(1));
-        }
+
         return s;
     }
 
