@@ -40,11 +40,12 @@ public class FeatureParser {
         ConditionalNode currentConditional = baseNode.getIfBlock();
 
         for(IASTPreprocessorStatement pps : ppstatements) {
-            /* starting statements*/
+            /* starting statements*/ try {
             if (pps instanceof IASTPreprocessorIfStatement) {
                 pp = new PPStatement(pps);
                 String condName = removeDefinedMacro(CDTHelper.getCondName(pp.getStatement()));
-                if(condName.contains("<") || condName.contains(">") || condName.contains("==")){
+                if(condName.contains("<") || condName.contains(">")
+                        || condName.contains("==") || hasNumberOcc(condName)){
                     nacnt++;
                     continue;
                 }
@@ -58,7 +59,8 @@ public class FeatureParser {
             } else if (pps instanceof IASTPreprocessorIfdefStatement) {
                 pp = new PPStatement(pps);
                 String condName = removeDefinedMacro(CDTHelper.getCondName(pp.getStatement()));
-                if(condName.contains("<") || condName.contains(">") || condName.contains("==")){
+                if(condName.contains("<") || condName.contains(">")
+                        || condName.contains("==") || hasNumberOcc(condName)){
                     nacnt++;
                     continue;
                 }
@@ -71,7 +73,8 @@ public class FeatureParser {
             } else if (pps instanceof IASTPreprocessorIfndefStatement) {
                 pp = new PPStatement(pps);
                 String condName = removeDefinedMacro(CDTHelper.getCondName(pp.getStatement()));
-                if(condName.contains("<") || condName.contains(">") || condName.contains("==")){
+                if(condName.contains("<") || condName.contains(">")
+                        || condName.contains("==") || hasNumberOcc(condName)){
                     nacnt++;
                     continue;
                 }
@@ -85,7 +88,8 @@ public class FeatureParser {
             } else if (pps instanceof IASTPreprocessorElifStatement) {
                 pp = new PPStatement(pps);
                 String condName = removeDefinedMacro(CDTHelper.getCondName(pp.getStatement()));
-                if(condName.contains("<") || condName.contains(">") || condName.contains("==")){
+                if(condName.contains("<") || condName.contains(">")
+                        || condName.contains("==") || hasNumberOcc(condName)){
                     nacnt++;
                     continue;
                 }
@@ -93,7 +97,7 @@ public class FeatureParser {
                 currentBlock = currentConditional.getParent();
                 currentConditional = currentBlock.addElseIfBlock(new IFCondition(currentBlock,condName));
                 currentConditional.setLineFrom(pp.getLineStart());
-                acnt++;
+                //acnt++; should not matter --> new feature is generated anyways
 
             } else if (pps instanceof IASTPreprocessorElseStatement) {
                 if(nacnt > 0 && acnt == 0) continue;
@@ -102,6 +106,7 @@ public class FeatureParser {
                 currentBlock = currentConditional.getParent();
                 currentConditional = currentBlock.setElseBlock(new ELSECondition(currentBlock));
                 currentConditional.setLineFrom(pp.getLineStart());
+                acnt--;
 
             } else if (pps instanceof IASTPreprocessorEndifStatement) {
                 if(nacnt > 0 && acnt == 0) {
@@ -114,6 +119,9 @@ public class FeatureParser {
                 currentConditional = currentBlock.getParent();
                 acnt--;
             }
+            } catch(IllegalAccessException e) {
+                System.out.println("oh oooh: " + pps.toString());
+            }
         }
         return srcfilenode;
     }
@@ -121,13 +129,21 @@ public class FeatureParser {
     //removes the defined() macro and replaces it by simply the variable
     //the variable will be defined therefore and coan will expand the macro --> should work.
     private String removeDefinedMacro(String s) {
-        Pattern p = Pattern.compile("defined\\((.*?)\\)");
+        Pattern p = Pattern.compile("defined *\\((.*?)\\)");
         Matcher m = p.matcher(s);
 
         while(m.find())
-            s = s.replaceFirst("defined\\((.*?)\\)",m.group(1));
+            s = s.replaceFirst("defined *\\((.*?)\\)",m.group(1));
 
         return s;
     }
 
+    //checks if a string contains space separated number
+    //or a variable with a number at the beginning of the string
+    private boolean hasNumberOcc(String s) {
+        String strs[] = s.split(" ");
+        for (String str : strs)
+            if(str.matches("^\\d[0-9a-zA-Z]*$")) return true;
+        return false;
+    }
 }

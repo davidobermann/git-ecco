@@ -76,9 +76,15 @@ public class ChangeComputation {
         final FormulaFactory f = new FormulaFactory();
         final PropositionalParser p = new PropositionalParser(f);
         condition = condition.replace('!', '~').replace("&&", "&").replace("||", "|");
-        final Formula formula = p.parse(condition);
         final SATSolver miniSat = MiniSat.miniSat(f);
-        miniSat.add(formula);
+
+        try {
+            final Formula formula = p.parse(condition);
+            miniSat.add(formula);
+        } catch (ParserException e) {
+            System.out.println("error processing condition: " + condition);
+        }
+
         final Tristate result = miniSat.sat();
 
         if (result.equals(Tristate.FALSE)) return false;

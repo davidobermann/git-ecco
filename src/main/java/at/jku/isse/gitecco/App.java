@@ -39,7 +39,8 @@ public class App {
         //final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo3";
         //final String repositoryPath = "C:\\obermanndavid\\git-ecco-test\\test1\\Unity";
 
-        final String repositoryPath = "C:\\obermanndavid\\git-ecco-test\\test2\\betaflight";
+        //final String repositoryPath = "C:\\obermanndavid\\git-ecco-test\\test2\\betaflight";
+        final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo4";
         final GitHelper gitHelper = new GitHelper(repositoryPath);
         final GitCommitList commits = new GitCommitList(repositoryPath);
         commits.enableAutoCommitConfigForEveryModelAndCntArtifacts();
@@ -49,6 +50,19 @@ public class App {
         List<String> codelist = Files.readAllLines(Paths.get(path), StandardCharsets.ISO_8859_1);
 
         codelist.forEach(System.out::println);*/
+
+        /*String condition = "!(__CC_ARM)";
+        final FormulaFactory f = new FormulaFactory();
+        final PropositionalParser p = new PropositionalParser(f);
+        condition = condition.replace('!', '~').replace("&&", "&").replace("||", "|");
+        final Formula formula = p.parse(condition);
+        final SATSolver miniSat = MiniSat.miniSat(f);
+        miniSat.add(formula);
+
+        final Tristate result = miniSat.sat();
+        Assignment model = miniSat.model();
+
+        model.positiveLiterals().forEach(System.out::println);*/
     }
 
 }

@@ -166,6 +166,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
         gitCommit.setChanges(committableChanges);
         //trigger listeners, etc.
         notifyObservers(gitCommit, self);
+        System.out.println("commit nr.:" + this.size());
         return super.add(gitCommit);
     }
 

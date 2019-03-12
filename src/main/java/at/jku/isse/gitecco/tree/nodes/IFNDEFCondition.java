@@ -12,7 +12,7 @@ public final class IFNDEFCondition extends ConditionalNode implements Visitable 
 
     public IFNDEFCondition(ConditionBlockNode parent, String condition) {
         super(parent);
-        this.condition = "!(" + condition + ")";
+        this.condition = "~(" + condition + ")";//"!(" + condition + ")";
     }
 
     @Override
