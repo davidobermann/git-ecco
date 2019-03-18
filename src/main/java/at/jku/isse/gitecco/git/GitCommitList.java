@@ -37,6 +37,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -546,6 +548,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
                             //if this partial ecco commit was already performed for this git commit --> skip the rest.
                             if(doubleCheck.contains(commitConfig)) continue;
                             doubleCheck += commitConfig;
+                            commitConfig = removeNot(commitConfig);
 
                             //create variant config
                             config.add(change.getChanged());
@@ -585,6 +588,16 @@ public class GitCommitList extends ArrayList<GitCommit> {
                     try { writer.close(); } catch (IOException e) { e.printStackTrace(); }
                 }
         );
+    }
+
+    private String removeNot(String s) {
+        Pattern p = Pattern.compile("~ *\\((.*?)\\)");
+        Matcher m = p.matcher(s);
+
+        while(m.find())
+            s = s.replaceFirst("~ *\\((.*?)\\)",m.group(1));
+
+        return s;
     }
 
     /**

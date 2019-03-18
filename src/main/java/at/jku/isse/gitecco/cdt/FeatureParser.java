@@ -40,7 +40,7 @@ public class FeatureParser {
         ConditionalNode currentConditional = baseNode.getIfBlock();
 
         for(IASTPreprocessorStatement pps : ppstatements) {
-            /* starting statements*/ try {
+            /* starting statements*/
             if (pps instanceof IASTPreprocessorIfStatement) {
                 pp = new PPStatement(pps);
                 String condName = removeDefinedMacro(CDTHelper.getCondName(pp.getStatement()));
@@ -100,7 +100,7 @@ public class FeatureParser {
                 //acnt++; should not matter --> new feature is generated anyways
 
             } else if (pps instanceof IASTPreprocessorElseStatement) {
-                if(nacnt > 0 && acnt == 0) continue;
+                if(nacnt > 0 ) continue;
                 pp = new PPStatement(pps);
                 currentConditional.setLineTo(pp.getLineEnd());
                 currentBlock = currentConditional.getParent();
@@ -109,7 +109,7 @@ public class FeatureParser {
                 acnt--;
 
             } else if (pps instanceof IASTPreprocessorEndifStatement) {
-                if(nacnt > 0 && acnt == 0) {
+                if(nacnt > 0) {
                     nacnt--;
                     continue;
                 }
@@ -118,9 +118,6 @@ public class FeatureParser {
                 currentBlock = currentConditional.getParent();
                 currentConditional = currentBlock.getParent();
                 acnt--;
-            }
-            } catch(IllegalAccessException e) {
-                System.out.println("oh oooh: " + pps.toString());
             }
         }
         return srcfilenode;

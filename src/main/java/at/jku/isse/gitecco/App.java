@@ -7,8 +7,10 @@ import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.PropositionalParser;
+import org.logicng.io.parsers.PseudoBooleanParser;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
+import org.logicng.solvers.sat.MiniCard;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -39,8 +41,8 @@ public class App {
         //final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo3";
         //final String repositoryPath = "C:\\obermanndavid\\git-ecco-test\\test1\\Unity";
 
-        //final String repositoryPath = "C:\\obermanndavid\\git-ecco-test\\test2\\betaflight";
-        final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo4";
+        final String repositoryPath = "C:\\obermanndavid\\git-ecco-test\\test2\\betaflight";
+        //final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo4";
         final GitHelper gitHelper = new GitHelper(repositoryPath);
         final GitCommitList commits = new GitCommitList(repositoryPath);
         commits.enableAutoCommitConfigForEveryModelAndCntArtifacts();
@@ -49,20 +51,22 @@ public class App {
         /*final String path = "C:\\obermanndavid\\git-ecco-test\\test2\\betaflight\\drv_bmp085.c";
         List<String> codelist = Files.readAllLines(Paths.get(path), StandardCharsets.ISO_8859_1);
 
-        codelist.forEach(System.out::println);*/
+        codelist.forEach(System.out::println);
 
-        /*String condition = "!(__CC_ARM)";
+        /*String condition = "A <= 400 & B";
         final FormulaFactory f = new FormulaFactory();
-        final PropositionalParser p = new PropositionalParser(f);
+        final PseudoBooleanParser p = new PseudoBooleanParser(f);
         condition = condition.replace('!', '~').replace("&&", "&").replace("||", "|");
         final Formula formula = p.parse(condition);
+        System.out.println(formula.variables());
         final SATSolver miniSat = MiniSat.miniSat(f);
         miniSat.add(formula);
-
         final Tristate result = miniSat.sat();
-        Assignment model = miniSat.model();
-
-        model.positiveLiterals().forEach(System.out::println);*/
+        MiniSat c = MiniSat.miniCard(f);
+        c.sat();
+        c.enumerateAllModels().forEach(System.out::println);
+        //Assignment model = miniSat.model();
+        //model.positiveLiterals().forEach(System.out::println);*/
     }
 
 }

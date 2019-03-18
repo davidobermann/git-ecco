@@ -12,7 +12,7 @@ import org.logicng.solvers.SATSolver;
 import java.io.File;
 import java.io.IOException;
 import java.security.InvalidParameterException;
-import java.util.Collection;
+import java.util.Set;
 
 /**
  * Class for generating a variant of the repository.
@@ -23,14 +23,21 @@ public class VariantGenerator {
      * @param conditions the features which should be contained inside the variant.
      * @param inPath the ABSOLUTE path to the folder which should be processed to a variant.
      */
-    public void generateVariants(Collection<String> conditions, String inPath, String outPath) {
+    public void generateVariants(Set<String> conditions, String inPath, String outPath) {
 
         //Test for dead code:
         String test = "";
+        boolean first = true;
         for (String condition : conditions) {
-            test += condition.replace('!','~').replace("&&","&").replace("||","|");
+            if(first) {
+                test = condition.replace('!','~').replace("&&","&").replace("||","|");
+                first = false;
+            } else {
+                test += " & " + condition.replace('!','~').replace("&&","&").replace("||","|");
+            }
         }
 
+        //check for dead code
         try {
             final FormulaFactory f = new FormulaFactory();
             final PropositionalParser p = new PropositionalParser(f);
@@ -42,6 +49,7 @@ public class VariantGenerator {
             if(!result.equals(Tristate.TRUE)) throw new InvalidParameterException("Dead Code!");
 
         } catch (ParserException e) {
+            System.out.println("error in variant generation:");
             e.printStackTrace();
         }
 
