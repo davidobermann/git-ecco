@@ -29,7 +29,7 @@ public class VariantGenerator {
         String test = "";
         boolean first = true;
         for (String condition : conditions) {
-            if(first) {
+            if(first || condition.length() < 1) {
                 test = condition.replace('!','~').replace("&&","&").replace("||","|");
                 first = false;
             } else {
@@ -49,7 +49,7 @@ public class VariantGenerator {
             if(!result.equals(Tristate.TRUE)) throw new InvalidParameterException("Dead Code!");
 
         } catch (ParserException e) {
-            System.out.println("error in variant generation:");
+            System.out.println("error in variant generation: " + test);
             e.printStackTrace();
         }
 

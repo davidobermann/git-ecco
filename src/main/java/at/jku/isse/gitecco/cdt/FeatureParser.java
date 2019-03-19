@@ -100,13 +100,13 @@ public class FeatureParser {
                 //acnt++; should not matter --> new feature is generated anyways
 
             } else if (pps instanceof IASTPreprocessorElseStatement) {
-                if(nacnt > 0 ) continue;
+                if(nacnt > 0) continue;
                 pp = new PPStatement(pps);
                 currentConditional.setLineTo(pp.getLineEnd());
                 currentBlock = currentConditional.getParent();
                 currentConditional = currentBlock.setElseBlock(new ELSECondition(currentBlock));
                 currentConditional.setLineFrom(pp.getLineStart());
-                acnt--;
+                //acnt--;
 
             } else if (pps instanceof IASTPreprocessorEndifStatement) {
                 if(nacnt > 0) {
@@ -130,9 +130,9 @@ public class FeatureParser {
         Matcher m = p.matcher(s);
 
         while(m.find())
-            s = s.replaceFirst("defined *\\((.*?)\\)",m.group(1));
+            s = s.replaceFirst("defined *\\((.*?)\\)", m.group(1));
 
-        return s;
+        return s.replace("defined","").replace("not","!");
     }
 
     //checks if a string contains space separated number

@@ -46,7 +46,7 @@ public class ChangeComputation {
         else {
             for (ConditionalNode node : v.getchangedNodes()) {
                 //Changed: get first positive condition
-                while (!checkPositive(node.getCondition()) && node.getParent().getParent() != null) {
+                while (!checkPositive(node.getCondition(),sfn) && node.getParent().getParent() != null) {
                     node = node.getParent().getParent();
                 }
 
@@ -72,7 +72,7 @@ public class ChangeComputation {
      * @return
      * @throws ParserException
      */
-    private boolean checkPositive(String condition) throws ParserException {
+    private boolean checkPositive(String condition, SourceFileNode sfn) throws ParserException {
         final FormulaFactory f = new FormulaFactory();
         final PropositionalParser p = new PropositionalParser(f);
         condition = condition.replace('!', '~').replace("&&", "&").replace("||", "|");
@@ -83,6 +83,7 @@ public class ChangeComputation {
             miniSat.add(formula);
         } catch (ParserException e) {
             System.out.println("error processing condition: " + condition);
+            System.out.println(sfn.getFilePath() + "\n");
         }
 
         final Tristate result = miniSat.sat();
