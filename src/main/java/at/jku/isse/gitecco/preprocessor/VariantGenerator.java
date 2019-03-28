@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.Set;
 
+import static org.eclipse.collections.impl.block.factory.StringPredicates.matches;
+
 /**
  * Class for generating a variant of the repository.
  */
@@ -25,11 +27,11 @@ public class VariantGenerator {
      */
     public void generateVariants(Set<String> conditions, String inPath, String outPath) {
 
-        //Test for dead code:
+        //build condition to test for dead code:
         String test = "";
         boolean first = true;
         for (String condition : conditions) {
-            if(first || condition.length() < 1) {
+            if(first || condition.matches(".*\\w.*")) {
                 test = condition.replace('!','~').replace("&&","&").replace("||","|");
                 first = false;
             } else {

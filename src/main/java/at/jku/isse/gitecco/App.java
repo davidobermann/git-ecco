@@ -38,16 +38,18 @@ public class App {
     public static void main(String... args) throws Exception {
         //final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo2";
         //old repo: not suitable anymore since we assume there will be only true/false expressions.
-        final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo3";
+        //final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo3";
+        final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo5";
         //final String repositoryPath = "C:\\obermanndavid\\git-ecco-test\\test1\\Unity";
 
         //final String repositoryPath = "C:\\obermanndavid\\git-ecco-test\\test2\\betaflight";
         //final String repositoryPath = "C:\\obermanndavid\\git-to-ecco\\test_repo4";
         final GitHelper gitHelper = new GitHelper(repositoryPath);
         final GitCommitList commits = new GitCommitList(repositoryPath);
-        commits.enableAutoCommitConfigForEveryModelAndCntArtifacts();
+        //commits.enableAutoCommitConfigForEveryModelAndCntArtifacts();
         gitHelper.getAllCommits(commits);
-
+        //commits.forEach(x->System.out.println(x.getCommitName() + " - diff to:" + x.getDiffCommitName()));
+        System.out.println("end");
         /*final String path = "C:\\obermanndavid\\git-ecco-test\\test2\\betaflight\\drv_bmp085.c";
         List<String> codelist = Files.readAllLines(Paths.get(path), StandardCharsets.ISO_8859_1);
 
@@ -67,15 +69,4 @@ public class App {
         model.positiveLiterals().forEach(System.out::println);
         System.out.println(condition);*/
     }
-
-    private static String removeDefinedMacro(String s) {
-        Pattern p = Pattern.compile("defined *\\((.*?)\\)");
-        Matcher m = p.matcher(s);
-
-        while(m.find())
-            s = s.replaceFirst("defined *\\((.*?)\\)", m.group(1));
-
-        return s.replace("defined","").replace("not","!");
-    }
-
 }

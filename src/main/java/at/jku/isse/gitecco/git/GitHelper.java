@@ -236,57 +236,6 @@ public class GitHelper {
         return commitNames.toArray(new String[commitNames.size()]);
     }
 
-    public String[] getAllCommitNamesNew() throws GitAPIException, IOException {
-        List<String> commitNames = new ArrayList();
-        Repository repository = git.getRepository();
-
-        Collection<Ref> allRefs = repository.getAllRefs().values();
-
-        // a RevWalk allows to walk over commits based on some filtering that is defined
-        try (RevWalk revWalk = new RevWalk( repository )) {
-
-            for(Ref ref : allRefs) {
-                revWalk.markStart(revWalk.parseCommit(ref.getObjectId()));
-            }
-            for(RevCommit rc : revWalk) {
-                System.out.println(rc.getName());
-                try {
-                    System.out.println("Diff to: " + rc.getParent(0).getName());
-                    System.out.println(rc.getParentCount());
-                }catch (ArrayIndexOutOfBoundsException e) {
-                    System.out.println("Diff to: zero commit --> no parrent available");
-                }
-                commitNames.add(rc.getName());
-            }
-        }
-        Collections.reverse(commitNames);
-        return commitNames.toArray(new String[commitNames.size()]);
-    }
-
-    public String[] getAllCommitNamesNewTest() throws GitAPIException, IOException {
-        List<String> commitNames = new ArrayList();
-        Repository repository = git.getRepository();
-        Collection<Ref> allRefs = repository.getAllRefs().values();
-
-        // a RevWalk allows to walk over commits based on some filtering that is defined
-        try (RevWalk revWalk = new RevWalk( repository )) {
-
-            for(Ref ref : allRefs) revWalk.markStart(revWalk.parseCommit(ref.getObjectId()));
-
-            for(RevCommit rc : revWalk) {
-                try {
-                    //System.out.println("Diff to: " + rc.getParent(0).getName());
-                    //System.out.println(rc.getParentCount());
-                }catch (ArrayIndexOutOfBoundsException e) {
-                    //System.out.println("Diff to: zero commit --> no parrent available");
-                }
-                commitNames.add(rc.getName());
-            }
-        }
-        Collections.reverse(commitNames);
-        return commitNames.toArray(new String[commitNames.size()]);
-    }
-
     /**
      * Method to retrieve all commits form a repository and put it to a GitCommitList.
      *

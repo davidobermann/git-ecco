@@ -55,31 +55,6 @@ public class CDTHelper {
     }
 
     /**
-     * Extracts the condition string of a conditional preprocessor statement.
-     * Only if given Statement is in fact conditional. Other statements are ignored.
-     *
-     * @param s a PreprocessorStatement of type IASTPreprocessorStatement.
-     * @return String Condition
-     */
-    public static String getCondName(IASTPreprocessorStatement s) {
-        StringBuilder result = new StringBuilder();
-        if (s instanceof IASTPreprocessorIfStatement) {
-            IASTPreprocessorIfStatement is = (IASTPreprocessorIfStatement) s;
-            result.append(is.getCondition());
-        } else if (s instanceof IASTPreprocessorIfndefStatement) {
-            IASTPreprocessorIfndefStatement is = (IASTPreprocessorIfndefStatement) s;
-            result.append(is.getCondition());
-        } else if (s instanceof IASTPreprocessorIfdefStatement) {
-            IASTPreprocessorIfdefStatement is = (IASTPreprocessorIfdefStatement) s;
-            result.append(is.getCondition());
-        } else if (s instanceof IASTPreprocessorElifStatement) {
-            IASTPreprocessorElifStatement is = (IASTPreprocessorElifStatement) s;
-            result.append(is.getCondition());
-        }
-        return result.toString();
-    }
-
-    /**
      * Checks if the given PreprocessorStatement is the start of a feature.
      * Features are usually indicated through #if, #ifdef, #ifndef, #elif, #else.
      *

@@ -1,4 +1,4 @@
-package at.jku.isse.gitecco.cdt;
+package at.jku.isse.gitecco.cdt.statements;
 
 import org.eclipse.cdt.core.dom.ast.*;
 
@@ -51,12 +51,29 @@ public class PPStatement {
     }
 
     /**
-     * Gets the IASTPreprocessorStatement of which this PPStatement was created
+     * Extracts the condition string of a conditional preprocessor statement.
+     * Only if given Statement is in fact conditional. Other statements are ignored.
      *
-     * @return The IASTPreprocessorStatement of which this PPStatement was created
+     * @return String Condition
      */
-    public IASTPreprocessorStatement getStatement() {
-        return this.statement;
+    public String getCondName() {
+        IASTPreprocessorStatement s = statement;
+        StringBuilder result = new StringBuilder();
+        if (s instanceof IASTPreprocessorIfStatement) {
+            IASTPreprocessorIfStatement is = (IASTPreprocessorIfStatement) s;
+            result.append(is.getCondition());
+        } else if (s instanceof IASTPreprocessorIfndefStatement) {
+            IASTPreprocessorIfndefStatement is = (IASTPreprocessorIfndefStatement) s;
+            result.append(is.getCondition());
+        } else if (s instanceof IASTPreprocessorIfdefStatement) {
+            IASTPreprocessorIfdefStatement is = (IASTPreprocessorIfdefStatement) s;
+            result.append(is.getCondition());
+        } else if (s instanceof IASTPreprocessorElifStatement) {
+            IASTPreprocessorElifStatement is = (IASTPreprocessorElifStatement) s;
+            result.append(is.getCondition());
+        }
+
+        return result.toString();
     }
 }
 
