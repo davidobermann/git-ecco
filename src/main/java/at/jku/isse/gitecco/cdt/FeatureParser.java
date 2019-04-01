@@ -2,7 +2,7 @@ package at.jku.isse.gitecco.cdt;
 
 import at.jku.isse.gitecco.cdt.statements.PPStatement;
 import at.jku.isse.gitecco.tree.nodes.*;
-import at.jku.isse.gitecco.tree.types.Define;
+import at.jku.isse.gitecco.tree.nodes.Define;
 import org.eclipse.cdt.core.dom.ast.*;
 
 import java.util.regex.Matcher;
@@ -85,9 +85,20 @@ public class FeatureParser {
                 currentConditional.setLineTo(pp.getLineEnd());
                 currentBlock = currentConditional.getParent();
                 currentConditional = currentBlock.getParent();
+
+            /* define/undef statements: */
             } else if (pps instanceof IASTPreprocessorMacroDefinition) {
                 IASTPreprocessorMacroDefinition md = (IASTPreprocessorMacroDefinition) pps;
-                currentConditional.addDefine(new Define(md.getName().toString(),md.getExpansion()));
+                currentConditional.addDefineNode(
+                        new Define(md.getName().toString(),
+                                   md.getExpansion(),
+                                   md.getFileLocation().getStartingLineNumber())
+                );
+            } else if (pps instanceof IASTPreprocessorUndefStatement) {
+                IASTPreprocessorUndefStatement uds = (IASTPreprocessorUndefStatement) pps;
+                currentConditional.addDefineNode(
+                        new Undef(uds.getMacroName().toString(), uds.getFileLocation().getStartingLineNumber())
+                );
             }
         }
         return srcfilenode;

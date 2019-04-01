@@ -1,12 +1,10 @@
 package at.jku.isse.gitecco.tree.nodes;
 
 import at.jku.isse.gitecco.git.Change;
-import at.jku.isse.gitecco.tree.types.Define;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Abstract class for representing a conditional expression.
@@ -17,7 +15,7 @@ public abstract class ConditionalNode extends ConditionNode {
     private int lineTo = -1;
     private final List<ConditionBlockNode> children;
     private final ConditionBlockNode parent;
-    private final List<Define> defines = new ArrayList();
+    private final List<DefineNodes> defineNodes = new ArrayList();
 
     public ConditionalNode(ConditionBlockNode parent) {
         children = new ArrayList<ConditionBlockNode>();
@@ -28,16 +26,16 @@ public abstract class ConditionalNode extends ConditionNode {
      * Adds a new define to the node.
      * @param d
      */
-    public void addDefine(Define d) {
-        this.defines.add(d);
+    public void addDefineNode(DefineNodes d) {
+        this.defineNodes.add(d);
     }
 
     /**
-     * removes a define from the node if it exists
-     * @param d
+     * Returns all the define nodes parented by this node.
+     * @return
      */
-    public void checkAndRemove(Define d) {
-        defines.remove(d);
+    public List<DefineNodes> getDefineNodes() {
+        return Collections.unmodifiableList(defineNodes);
     }
 
     /**

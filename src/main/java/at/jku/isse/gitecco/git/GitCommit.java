@@ -35,6 +35,15 @@ public class GitCommit {
     }
 
     /**
+     * Dispose the tree and invoke garbage collection.
+     * For memory saving purposes.
+     */
+    public void disposeTree() {
+        this.tree = null;
+        System.gc();
+    }
+
+    /**
      * Retrieves all changes as a list.
      * @return
      */

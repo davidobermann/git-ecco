@@ -1,6 +1,5 @@
 package at.jku.isse.gitecco.git;
 
-import at.jku.isse.ecco.EccoException;
 import at.jku.isse.ecco.EccoService;
 import at.jku.isse.ecco.core.Association;
 import at.jku.isse.gitecco.cdt.CDTHelper;
@@ -29,14 +28,17 @@ import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
-import scala.Char;
 
-import java.io.*;
-import java.nio.charset.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -51,6 +53,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
     private final List<GitCommitListener> observersC = new ArrayList();
     private final List<GitBranchListener> observersB = new ArrayList();
     private final List<GitMergeListener> observersM = new ArrayList();
+    private boolean dispose = false;
 
     public GitCommitList(String repoPath) throws IOException {
         super();
@@ -82,6 +85,14 @@ public class GitCommitList extends ArrayList<GitCommit> {
      */
     public void addGitBranchListener(GitBranchListener gbl) {
         observersB.add(gbl);
+    }
+
+    /**
+     * Disposes the tree of the commit after evaluation.
+     * HIGHLY RECOMMENDED FOR BIG REPOSITORIES
+     */
+    public void setTreeDispose(boolean enable) {
+        this.dispose = enable;
     }
 
     /**
@@ -130,34 +141,36 @@ public class GitCommitList extends ArrayList<GitCommit> {
                 fn = new SourceFileNode(tree, file);
 
                 //check if source file has changed --> create subtree with features, otherwise insert src file as leaf
-                if (changedFiles.contains(file.replace("/","\\"))) {
-                    final String path = gitHelper.getPath()+"\\"+file;
+                //if (changedFiles.contains(file.replace("/","\\"))) {
 
-                    List<String> codelist = Files.readAllLines(Paths.get(path), StandardCharsets.ISO_8859_1);
-                    final String code = codelist.stream().collect(Collectors.joining("\n"));
+                //build tree for every file.
+                final String path = gitHelper.getPath()+"\\"+file;
 
-                    //file parsing
-                    final IASTTranslationUnit translationUnit = CDTHelper.parse(code.toCharArray());
-                    final IASTPreprocessorStatement[] ppstatements = translationUnit.getAllPreprocessorStatements();
-                    final FeatureParser featureParser = new FeatureParser();
-                    //actual tree building
-                    featureParser.parseToTree(ppstatements, codelist.size(), (SourceFileNode) fn);
+                List<String> codelist = Files.readAllLines(Paths.get(path), StandardCharsets.ISO_8859_1);
+                final String code = codelist.stream().collect(Collectors.joining("\n"));
 
-                    fn.setChanged();
-                    //link changes: commit of monday 21st of jan. --> linkChanges still in.
-                    changes = gitHelper.getFileDiffs(gitCommit,file);
+                //file parsing
+                final IASTTranslationUnit translationUnit = CDTHelper.parse(code.toCharArray());
+                final IASTPreprocessorStatement[] ppstatements = translationUnit.getAllPreprocessorStatements();
+                final FeatureParser featureParser = new FeatureParser();
+                //actual tree building
+                featureParser.parseToTree(ppstatements, codelist.size(), (SourceFileNode) fn);
 
-                    //get the nodes, etc, for the commit
-                    ChangeComputation cp = new ChangeComputation();
+                fn.setChanged();
+                //link changes: commit of monday 21st of jan. --> linkChanges still in.
+                changes = gitHelper.getFileDiffs(gitCommit, file);
+
+                //get the nodes, etc, for the commit
+                ChangeComputation cp = new ChangeComputation();
+                committableChanges.addAll(cp.getChanged());
+
+                //add each of them to the list --> list is later linked to the commit.
+                for (Change c : changes) {
+                    cp.computeForChange(c, (SourceFileNode) fn);
                     committableChanges.addAll(cp.getChanged());
-
-                    //add each of them to the list --> list is later linked to the commit.
-                    for (Change c : changes) {
-                        cp.computeForChange(c, (SourceFileNode) fn);
-                        committableChanges.addAll(cp.getChanged());
-                    }
-
                 }
+
+                //}
             } else {
                 fn = new BinaryFileNode(tree, file);
                 if(changedFiles.contains(file.replace("/","\\"))) fn.setChanged();
@@ -302,6 +315,8 @@ public class GitCommitList extends ArrayList<GitCommit> {
 
                     // closing writer connection
                     try { writer.close(); } catch (IOException e) { e.printStackTrace(); }
+
+                    if(dispose) gc.disposeTree();
                 }
         );
     }
@@ -441,6 +456,8 @@ public class GitCommitList extends ArrayList<GitCommit> {
 
                     // closing writer connection
                     try { writer.close(); } catch (IOException e) { e.printStackTrace(); }
+
+                    if(dispose) gc.disposeTree();
                 }
         );
     }
@@ -586,6 +603,8 @@ public class GitCommitList extends ArrayList<GitCommit> {
 
                     // closing writer connection
                     try { writer.close(); } catch (IOException e) { e.printStackTrace(); }
+
+                    if(dispose) gc.disposeTree();
                 }
         );
     }
