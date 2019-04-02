@@ -2,27 +2,8 @@ package at.jku.isse.gitecco;
 
 import at.jku.isse.gitecco.git.GitCommitList;
 import at.jku.isse.gitecco.git.GitHelper;
-import org.logicng.datastructures.Assignment;
-import org.logicng.datastructures.Tristate;
-import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFactory;
-import org.logicng.io.parsers.PropositionalParser;
-import org.logicng.io.parsers.PseudoBooleanParser;
-import org.logicng.solvers.MiniSat;
-import org.logicng.solvers.SATSolver;
-import org.logicng.solvers.sat.MiniCard;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.MalformedInputException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import at.jku.isse.gitecco.tree.nodes.RootNode;
+import at.jku.isse.gitecco.tree.visitor.GetGlobalFeaturesVisitor;
 
 /**
  * Main app for the git to ecco tool.
@@ -48,12 +29,14 @@ public class App {
         final GitCommitList commits = new GitCommitList(repositoryPath);
         //commits.enableAutoCommitConfigForEveryModelAndCntArtifacts();
         gitHelper.getAllCommits(commits);
-        //commits.forEach(x->System.out.println(x.getCommitName() + " - diff to:" + x.getDiffCommitName()));
-        System.out.println("end");
-        /*final String path = "C:\\obermanndavid\\git-ecco-test\\test2\\betaflight\\drv_bmp085.c";
-        List<String> codelist = Files.readAllLines(Paths.get(path), StandardCharsets.ISO_8859_1);
 
-        codelist.forEach(System.out::println);*/
+
+        GetGlobalFeaturesVisitor v = new GetGlobalFeaturesVisitor();
+        RootNode tree = commits.get(0).getTree();
+        tree.accept(v);
+        v.getGlobal().forEach(System.out::println);
+
+        System.out.println("end");
 
         /*String condition = "not defined(TRUSTED_ACCZ)";
 

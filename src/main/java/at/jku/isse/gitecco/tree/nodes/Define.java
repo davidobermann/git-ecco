@@ -15,4 +15,8 @@ public final class Define extends DefineNodes{
         return macroExpansion;
     }
 
+    @Override
+    public String toString() {
+        return "#define " + this.getMacroName() + " " + this.getMacroExpansion();
+    }
 }

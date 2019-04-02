@@ -4,30 +4,49 @@ import at.jku.isse.gitecco.conditionparser.ConditionParser;
 import at.jku.isse.gitecco.conditionparser.Feature;
 import at.jku.isse.gitecco.tree.nodes.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-public class GetGlobalFeatures implements TreeVisitor {
+public class GetGlobalFeaturesVisitor implements TreeVisitor {
 
     private final ArrayList<DefineNodes> definitions;
     private final Set<Feature> allFeatures;
 
-    public GetGlobalFeatures() {
+    public GetGlobalFeaturesVisitor() {
         definitions = new ArrayList<>();
         allFeatures = new HashSet<>();
     }
 
-    public List<String> getGLobal() {
-        List<String> ret = new ArrayList<>();
+    /**
+     * Retrieves all global features of the tree,
+     * after passing the visitor through the tree.
+     * @return
+     */
+    public List<Feature> getGlobal() {
+        List<Feature> global = new ArrayList<>();
 
         for (Feature f : allFeatures) {
-            //if(f.compareToDefine(null))
+            if(!comp(definitions, f)) global.add(f);
         }
 
-        return ret;
+        return Collections.unmodifiableList(global);
     }
+
+    /**
+     * Helper method: checks if the feaure
+     * is internally defined some time in the code.
+     * Very inefficient, maybe a better solution possible.
+     * @param defines
+     * @param f
+     * @return
+     */
+    private boolean comp(List<DefineNodes> defines, Feature f) {
+        for (DefineNodes d : defines) {
+            if(f.compareToDefine(d)) return true;
+        }
+        return false;
+    }
+
+    /* Visitor methods:*/
 
     @Override
     public void visit(RootNode n) {

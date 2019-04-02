@@ -23,4 +23,9 @@ public class Undef extends DefineNodes {
     public int hashCode() {
         return Objects.hash(getMacroName());
     }
+
+    @Override
+    public String toString() {
+        return "#undef " + getMacroName();
+    }
 }
