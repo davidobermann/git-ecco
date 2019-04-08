@@ -169,6 +169,8 @@ public class GitHelper {
         /*System.out.println("Checking out commit: "+name
                 +"\n at "+pathUrl);*/
 
+        //TODO: replace with JGit calls.
+
         Process p;
         try {
             p = Runtime.getRuntime().exec(String.format("git -C %s clean --force", this.pathUrl));
@@ -247,7 +249,8 @@ public class GitHelper {
     public GitCommitList getAllCommits(GitCommitList commits) throws Exception {
         final List<GitCommitType> types = new ArrayList<>();
         final Repository repository = git.getRepository();
-        final Collection<Ref> allRefs = repository.getAllRefs().values();
+        final Collection<Ref> allRefs = repository.getRefDatabase().getRefs();
+        //getAllRefs().values();
         RevWalk revWalk = new RevWalk(repository);
         revWalk.sort(RevSort.TOPO, true);
         revWalk.sort(RevSort.REVERSE, true);

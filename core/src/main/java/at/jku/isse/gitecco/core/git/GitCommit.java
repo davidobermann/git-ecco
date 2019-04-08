@@ -40,7 +40,6 @@ public class GitCommit {
      */
     public void disposeTree() {
         this.tree = null;
-        System.gc();
     }
 
     /**

@@ -4,7 +4,7 @@ import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PropositionalParser;
+import org.logicng.io.parsers.PseudoBooleanParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ public class ConditionParser {
 
         try {
             final FormulaFactory f = new FormulaFactory();
-            final PropositionalParser p = new PropositionalParser(f);
+            final PseudoBooleanParser p = new PseudoBooleanParser(f);
             cond = cond.replace('!', '~').replace("&&", "&").replace("||", "|");
             final Formula formula = p.parse(cond);
             for (Literal literal : formula.literals()) {
@@ -28,5 +28,11 @@ public class ConditionParser {
         }
 
         return ret;
+    }
+
+    public static List<Feature> parseConditionNew(String cond) {
+
+
+        return null;
     }
 }
