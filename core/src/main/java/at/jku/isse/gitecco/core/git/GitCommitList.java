@@ -4,7 +4,6 @@ import at.jku.isse.ecco.EccoService;
 import at.jku.isse.ecco.core.Association;
 import at.jku.isse.gitecco.core.cdt.CDTHelper;
 import at.jku.isse.gitecco.core.cdt.FeatureParser;
-import at.jku.isse.gitecco.core.preprocessor.VariantGenerator;
 import at.jku.isse.gitecco.core.tree.nodes.BinaryFileNode;
 import at.jku.isse.gitecco.core.tree.nodes.FileNode;
 import at.jku.isse.gitecco.core.tree.nodes.RootNode;
@@ -295,8 +294,8 @@ public class GitCommitList extends ArrayList<GitCommit> {
                         config.addAll(change.getAffected());
 
                         //generate variant: (also moves to the expected directory)
-                        VariantGenerator vg = new VariantGenerator();
-                        vg.generateVariants(config,gitHelper.getPath(),eccorepo);
+                        //VariantGenerator vg = new VariantGenerator();
+                        //vg.generateVariants(config,gitHelper.getPath(),eccorepo);
 
                         System.out.println("ecco commit: " + commitConfig);
 
@@ -428,8 +427,8 @@ public class GitCommitList extends ArrayList<GitCommit> {
                             config.addAll(change.getAffected());
 
                             //generate variant: (also moves to the expected directory)
-                            VariantGenerator vg = new VariantGenerator();
-                            vg.generateVariants(config,gitHelper.getPath(),eccorepo);
+                            //VariantGenerator vg = new VariantGenerator();
+                            //vg.generateVariants(config,gitHelper.getPath(),eccorepo);
 
                             System.out.println("ecco commit: " + commitConfig);
 
@@ -572,8 +571,8 @@ public class GitCommitList extends ArrayList<GitCommit> {
                             config.addAll(change.getAffected());
 
                             //generate variant: (also moves to the expected directory)
-                            VariantGenerator vg = new VariantGenerator();
-                            vg.generateVariants(config,gitHelper.getPath(),eccorepo);
+                            //VariantGenerator vg = new VariantGenerator();
+                            //vg.generateVariants(config,gitHelper.getPath(),eccorepo);
 
                             System.out.println("ecco commit: " + commitConfig);
 

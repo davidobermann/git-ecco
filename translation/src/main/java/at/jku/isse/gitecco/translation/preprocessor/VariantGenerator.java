@@ -1,4 +1,4 @@
-package at.jku.isse.gitecco.core.preprocessor;
+package at.jku.isse.gitecco.translation.preprocessor;
 
 import org.apache.commons.io.FileUtils;
 import org.logicng.datastructures.Tristate;
@@ -13,8 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.Set;
-
-import static org.eclipse.collections.impl.block.factory.StringPredicates.matches;
 
 /**
  * Class for generating a variant of the repository.

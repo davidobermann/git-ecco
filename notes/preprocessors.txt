@@ -1,0 +1,26 @@
+Trying different kinds of preprocessors for generating variants:
+
+-gcc -E: the gnu compile collection. with the -E option only preprocessing is done.
+   Good: Retrieves all includes and expands all macros (even from includes).
+   Bad:  Every included File is expanded into the single chosen file.
+      Also: Preprocessing/Variant generation must be done for every changed file/the entire repository.
+            This may end in a hand full of files with the same includes.
+            So --> need to use the produced file with collapsed includes.
+
+-JCPP https://mvnrepository.com/artifact/org.anarres/jcpp/1.4.13
+   Good: Directly acccessible through java api, also on maven central etc.
+         Ok to use (not too easy but has lots of configurability)
+         Processing on token level. --> can filter out what we want and what we do not want.
+         Looks very promising --> needs more detailed check up on whether it solves our problems or not.
+   Bad:  Documentatin is not necesarrily the best. Sometimes hard to understand usage of operations.
+         Does not mark included files like gcc --> no filtering. Although not sure if we even need this.
+
+-cppp https://www.muppetlabs.com/~breadbox/software/cppp.html
+   Good: will keep comments, otherwise nothing special that sets it apart from the others.
+   Bad:  Will most likely not process macros and not expand includes --> missing macros.
+
+-coan
+   Good: Expands most of the macros. Has lots of options, rewrites the files instantly.
+   Bad:  Big Pro and even bigger con: does not expand includes. Thus some macors will be missing.
+
+

@@ -1,20 +1,28 @@
 package at.jku.isse.gitecco.featureid.featuretree.visitor;
 
-import at.jku.isse.gitecco.core.conditionparser.ConditionParser;
-import at.jku.isse.gitecco.core.conditionparser.Feature;
+import at.jku.isse.gitecco.featureid.parser.ConditionParser;
+import at.jku.isse.gitecco.core.type.Feature;
 import at.jku.isse.gitecco.core.tree.nodes.*;
 import at.jku.isse.gitecco.core.tree.visitor.TreeVisitor;
 
 import java.util.*;
 
-public class GetGlobalFeaturesVisitor implements TreeVisitor {
+public class GetFeaturesAndDefinesVisitor implements TreeVisitor {
 
     private final ArrayList<DefineNodes> definitions;
     private final Set<Feature> allFeatures;
 
-    public GetGlobalFeaturesVisitor() {
+    public GetFeaturesAndDefinesVisitor() {
         definitions = new ArrayList<>();
         allFeatures = new HashSet<>();
+    }
+
+    public Set<Feature> getAllFeatures() {
+        return allFeatures;
+    }
+
+    public List<DefineNodes> getDefinitions() {
+        return definitions;
     }
 
     /**
@@ -33,7 +41,7 @@ public class GetGlobalFeaturesVisitor implements TreeVisitor {
     }
 
     /**
-     * Helper method: checks if the feaure
+     * Helper method: checks if the feature
      * is internally defined some time in the code.
      * Very inefficient, maybe a better solution possible.
      * @param defines

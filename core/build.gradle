@@ -9,8 +9,10 @@ dependencies {
 //    compile 'org.slf4j:slf4j-simple:1.7.25'
 //    compile 'org.tukaani:xz:1.8'
 
-    //mXparser
-    //compile group: 'org.mariuszgromada.math', name: 'MathParser.org-mXparser', version: '4.2.0'
+    //mXParser:  mathematical expression parser + solver
+    //https://mvnrepository.com/artifact/org.mariuszgromada.math/MathParser.org-mXparser
+    compile group: 'org.mariuszgromada.math', name: 'MathParser.org-mXparser', version: '4.3.3'
+
 
     //Eclipse CDT
 //    compile group: 'org.eclipse.osgi', name: 'org.eclipse.osgi', version: '3.7.1'

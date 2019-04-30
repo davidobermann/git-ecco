@@ -1,10 +1,10 @@
-package at.jku.isse.gitecco.core.conditionparser;
+package at.jku.isse.gitecco.core.type;
 
 import at.jku.isse.gitecco.core.tree.nodes.DefineNodes;
 
 import java.util.Objects;
 
-public class Feature {
+public class Feature implements Comparable<Feature> {
     private final String name;
 
     public Feature(String name) {
@@ -35,5 +35,10 @@ public class Feature {
     @Override
     public String toString() {
         return this.getName();
+    }
+
+    @Override
+    public int compareTo(Feature o) {
+        return this.name.compareTo(o.name);
     }
 }

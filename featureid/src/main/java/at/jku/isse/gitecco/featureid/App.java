@@ -1,9 +1,9 @@
 package at.jku.isse.gitecco.featureid;
 
-import at.jku.isse.gitecco.core.conditionparser.Feature;
+import at.jku.isse.gitecco.core.type.Feature;
 import at.jku.isse.gitecco.core.git.GitCommitList;
 import at.jku.isse.gitecco.core.git.GitHelper;
-import at.jku.isse.gitecco.featureid.featuretree.visitor.GetGlobalFeaturesVisitor;
+import at.jku.isse.gitecco.featureid.featuretree.visitor.GetFeaturesAndDefinesVisitor;
 import com.opencsv.CSVWriter;
 
 import java.io.File;
@@ -29,14 +29,14 @@ public class App {
     }
 
     /**
-     * Implements a CommitListener in which all global features a retrieved and added to a given set.
+     * Implements a CommitListener in which all global features are retrieved and added to a given set.
      * @param commitList
      * @param features
      */
     private static void addAndConfigureObserver(GitCommitList commitList, Set<Feature> features) {
         commitList.addGitCommitListener(
                 (gc, gcl) -> {
-                    final GetGlobalFeaturesVisitor visitor = new GetGlobalFeaturesVisitor();
+                    final GetFeaturesAndDefinesVisitor visitor = new GetFeaturesAndDefinesVisitor();
                     gc.getTree().accept(visitor);
 
                     features.addAll(visitor.getGlobal());

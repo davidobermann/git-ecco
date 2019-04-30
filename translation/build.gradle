@@ -3,4 +3,7 @@ dependencies {
     compile project(':core')
 
     testCompile project(':featureid')
+
+    // https://mvnrepository.com/artifact/org.anarres/jcpp
+    compile group: 'org.anarres', name: 'jcpp', version: '1.4.13'
 }
