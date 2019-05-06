@@ -1,6 +1,5 @@
 package at.jku.isse.gitecco.featureid.featuretree.visitor;
 
-import at.jku.isse.gitecco.featureid.parser.ConditionParser;
 import at.jku.isse.gitecco.core.type.Feature;
 import at.jku.isse.gitecco.core.tree.nodes.*;
 import at.jku.isse.gitecco.core.tree.visitor.TreeVisitor;
@@ -79,25 +78,25 @@ public class GetFeaturesAndDefinesVisitor implements TreeVisitor {
 
     @Override
     public void visit(IFCondition c) {
-        allFeatures.addAll(ConditionParser.parseCondition(c.getCondition()));
+        allFeatures.addAll(Feature.parseCondition(c.getCondition()));
         definitions.addAll(c.getDefineNodes());
     }
 
     @Override
     public void visit(IFDEFCondition c) {
-        allFeatures.addAll(ConditionParser.parseCondition(c.getCondition()));
+        allFeatures.addAll(Feature.parseCondition(c.getCondition()));
         definitions.addAll(c.getDefineNodes());
     }
 
     @Override
     public void visit(IFNDEFCondition c) {
-        allFeatures.addAll(ConditionParser.parseCondition(c.getCondition()));
+        allFeatures.addAll(Feature.parseCondition(c.getCondition()));
         definitions.addAll(c.getDefineNodes());
     }
 
     @Override
     public void visit(ELSECondition c) {
-        allFeatures.addAll(ConditionParser.parseCondition(c.getCondition()));
+        allFeatures.addAll(Feature.parseCondition(c.getCondition()));
         definitions.addAll(c.getDefineNodes());
     }
 }

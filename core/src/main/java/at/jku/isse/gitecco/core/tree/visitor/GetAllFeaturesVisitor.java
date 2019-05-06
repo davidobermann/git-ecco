@@ -1,20 +1,19 @@
 package at.jku.isse.gitecco.core.tree.visitor;
 
 import at.jku.isse.gitecco.core.tree.nodes.*;
+import at.jku.isse.gitecco.core.type.Feature;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class GetAllFeaturesVisitor implements TreeVisitor {
-    private final List<String> featureNames;
+    private final Set<Feature> features;
 
     public GetAllFeaturesVisitor() {
-        this.featureNames = new ArrayList<>();
+        this.features = new HashSet<>();
     }
 
-    public Collection<String> getAllFeatures() {
-        return featureNames;
+    public Set<Feature> getAllFeatures() {
+        return Collections.unmodifiableSet(features);
     }
 
     @Override
@@ -39,17 +38,17 @@ public class GetAllFeaturesVisitor implements TreeVisitor {
 
     @Override
     public void visit(IFCondition c) {
-        featureNames.add(c.getCondition());
+        features.addAll(Feature.parseCondition(c.getCondition()));
     }
 
     @Override
     public void visit(IFDEFCondition c) {
-        featureNames.add(c.getCondition());
+        features.addAll(Feature.parseCondition(c.getCondition()));
     }
 
     @Override
     public void visit(IFNDEFCondition c) {
-        featureNames.add(c.getCondition());
+        features.addAll(Feature.parseCondition(c.getCondition()));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package at.jku.isse.gitecco.core.git;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
@@ -168,31 +169,41 @@ public class GitHelper {
     public void checkOutCommit(String name) {
         /*System.out.println("Checking out commit: "+name
                 +"\n at "+pathUrl);*/
-
-        //TODO: replace with JGit calls.
-
-        Process p;
         try {
-            p = Runtime.getRuntime().exec(String.format("git -C %s clean --force", this.pathUrl));
-            p.waitFor();
-            p = Runtime.getRuntime().exec(String.format("git -C %s reset --hard", this.pathUrl));
-            p.waitFor();
-            p = Runtime.getRuntime().exec(String.format("git -C %s checkout %s", this.pathUrl, name));
-            p.waitFor();
-        } catch (IOException|InterruptedException e) {
+            git.clean().setForce(true).call();
+            git.reset().setMode(ResetCommand.ResetType.HARD).call();
+            git.checkout().setName(name).call();
+        } catch (GitAPIException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Checks out a commit by the given name.
+     * Does this by using the runtime execution since JGit is buggy
+     * when it comes to checkouts and cleans, etc.
+     *
+     * @param gc The commit, which should be checked out.
+     */
+    public void checkOutCommit(GitCommit gc) {
+        this.checkOutCommit(gc.getCommitName());
+    }
 
-    private Git cloneRepo(String url, String dirPath) throws Exception {
+
+    private Git cloneRepo(String url, String dirPath) {
         File dir = new File(dirPath);
         System.out.println("Cloning from "+url+" to "+dir);
 
-        Git git = Git.cloneRepository()
-                .setURI(url)
-                .setDirectory(dir)
-                .call();
+        Git git = null;
+        try {
+            git = Git.cloneRepository()
+                    .setURI(url)
+                    .setDirectory(dir)
+                    .call();
+        } catch (GitAPIException e) {
+            System.err.println("problems checking out the given repo to the given destination path");
+            e.printStackTrace();
+        }
 
         System.out.println("Having repository: "+git.getRepository().getDirectory()+"\n");
 
@@ -266,62 +277,8 @@ public class GitHelper {
             }catch (ArrayIndexOutOfBoundsException e) {
                 parent = "NULLCOMMIT";
             }
-            commits.add(new GitCommit(rc.getName(), parent, new ArrayList<GitCommitType>(types), branch, rc), commits);
+            commits.add(new GitCommit(rc.getName(), parent, new ArrayList<GitCommitType>(types), branch, rc));
         }
-        return commits;
-    }
-
-    /**
-     * Method to retrieve all commits form a repository and put it to a GitCommitList.
-     *  PRODUCES WRONG RESULTS
-     * @param commits the GitCommitList to which the commits a re saved to.
-     * @return The GitCommitList which was passed to the method.
-     * @throws GitAPIException
-     * @throws IOException
-     */
-    @Deprecated
-    public GitCommitList getAllCommitsOld(GitCommitList commits) throws Exception {
-        final List<GitCommitType> types = new ArrayList<>();
-        final String[] commitNames = getAllCommitNames();
-        final Repository repo = git.getRepository();
-        final PlotWalk revWalk = new PlotWalk(repo);
-        final RevCommit root = revWalk.parseCommit(repo.resolve("refs/heads/master"));
-        revWalk.markStart(root);
-        revWalk.sort(RevSort.TOPO, true);
-        revWalk.sort(RevSort.REVERSE, true);
-
-        PlotCommitList<PlotLane> plotCommitList = new PlotCommitList<>();
-        plotCommitList.source(revWalk);
-        plotCommitList.fillTo(Integer.MAX_VALUE);
-
-        for (int i = 0; i<commitNames.length; i++) {
-            types.clear();
-            types.add(GitCommitType.COMMIT);
-
-            if (plotCommitList.get(i).getChildCount()>1
-                    || plotCommitList.get(i).getChildCount() == 0 && plotCommitList.get(i).getChildCount()>0) {
-                types.add(GitCommitType.BRANCH);
-            }
-
-            if (plotCommitList.get(i).getParentCount()>1) {
-                types.add(GitCommitType.MERGE);
-            }
-
-            String branch = getBranchOfCommit(commitNames[i]);
-            String parent;
-
-            try {
-                parent = plotCommitList.get(i).getParent(0).getName();
-            } catch(ArrayIndexOutOfBoundsException aioobe){
-                parent = "NULLCOMMIT";
-            }
-
-            commits.add(new GitCommit(plotCommitList.get(i).getName(), parent,
-                    new ArrayList<GitCommitType>(types),
-                    branch, plotCommitList.get(i)),
-                    commits);
-        }
-
         return commits;
     }
 

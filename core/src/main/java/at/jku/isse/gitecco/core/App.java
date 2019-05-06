@@ -28,27 +28,5 @@ public class App {
         final GitCommitList commits = new GitCommitList(repositoryPath);
         //commits.enableAutoCommitConfigForEveryModelAndCntArtifacts();
         gitHelper.getAllCommits(commits);
-
-
-        //GetGlobalFeaturesVisitor v = new GetGlobalFeaturesVisitor();
-        RootNode tree = commits.get(0).getTree();
-        //tree.accept(v);
-        //v.getGlobal().forEach(System.out::println);
-
-        System.out.println("end");
-
-        /*String condition = "not defined(TRUSTED_ACCZ)";
-
-        condition = removeDefinedMacro(condition);
-        final FormulaFactory f = new FormulaFactory();
-        final PropositionalParser p = new PropositionalParser(f);
-        condition = condition.replace('!', '~').replace("&&", "&").replace("||", "|");
-        final Formula formula = p.parse(condition);
-        final SATSolver miniSat = MiniSat.miniSat(f);
-        miniSat.add(formula);
-        final Tristate result = miniSat.sat();
-        Assignment model = miniSat.model();
-        model.positiveLiterals().forEach(System.out::println);
-        System.out.println(condition);*/
     }
 }
