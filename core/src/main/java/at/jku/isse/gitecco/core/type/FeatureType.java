@@ -1,4 +1,4 @@
-package at.jku.isse.gitecco.featureid.identification;
+package at.jku.isse.gitecco.core.type;
 
 public enum FeatureType {
     INTERNAL, EXTERNAL, TRANSIENT

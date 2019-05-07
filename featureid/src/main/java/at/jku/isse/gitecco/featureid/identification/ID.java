@@ -5,16 +5,21 @@ import at.jku.isse.gitecco.core.tree.nodes.FileNode;
 import at.jku.isse.gitecco.core.tree.nodes.RootNode;
 import at.jku.isse.gitecco.core.tree.nodes.SourceFileNode;
 import at.jku.isse.gitecco.core.type.Feature;
+import at.jku.isse.gitecco.core.type.FeatureType;
 import at.jku.isse.gitecco.core.type.TraceableFeature;
 import at.jku.isse.gitecco.featureid.featuretree.visitor.GetAllFeaturesAndDefinesVisitor;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class ID {
 
+    /**
+     * Identifies all features and their types that occur in a tree of a commit.
+     * @param tree
+     * @return
+     */
     public static Map<Feature, FeatureType> id(RootNode tree) {
         /*
          * idea:
@@ -35,6 +40,7 @@ public class ID {
          */
         Map<Feature, FeatureType> featureMap = new HashMap<>();
         GetAllFeaturesAndDefinesVisitor v = new GetAllFeaturesAndDefinesVisitor();
+        FeatureType type = null;
 
         for (FileNode child : tree.getChildren()) {
             v.reset();
@@ -43,6 +49,7 @@ public class ID {
                 child.accept(v);
 
                 for (Map.Entry<Feature, Integer> entry : v.getFeatureMap().entrySet()) {
+                    type = featureMap.get(entry.getKey());
                     for (DefineNodes define : v.getDefines()) {
                         boolean sameName = entry.getKey().getName().equals(define.getMacroName());
                         int lineResult = entry.getValue().compareTo(define.getLineInfo());
@@ -53,13 +60,13 @@ public class ID {
                             break;
                         } else if(sameName && lineResult >= 0){
                             //feature is defined, and never (at least until this define) appears before its define:
-                            if(!featureMap.get(entry.getKey()).equals(FeatureType.TRANSIENT))
+                            if(type == null || !type.equals(FeatureType.TRANSIENT))
                                 featureMap.put(entry.getKey(), FeatureType.INTERNAL);
                         }
                     }
 
                     //if the feature has never been defined in this file it is external:
-                    if(featureMap.get(entry.getKey()).equals(FeatureType.EXTERNAL))
+                    if(type == null || type.equals(FeatureType.EXTERNAL))
                         featureMap.put(entry.getKey(), FeatureType.EXTERNAL);
                 }
             }
@@ -67,8 +74,21 @@ public class ID {
         return featureMap;
     }
 
+    /**
+     * Evaluates the map that results from analyzing one commit.
+     * For every occurrence of a feature the counter is increased corresponding to its type.
+     * @param evalList A list of traceable features.
+     * @param map The map that results from the id method
+     * @return the list that was passed.
+     */
     public static List<TraceableFeature> evaluateFeatureMap(List<TraceableFeature> evalList, Map<Feature, FeatureType> map) {
-
+        for (Map.Entry<Feature, FeatureType> entry : map.entrySet()) {
+            if(evalList.contains(entry.getKey())) {
+                evalList.get(evalList.indexOf(entry.getKey())).inc(entry.getValue());
+            } else {
+                evalList.add(new TraceableFeature(entry.getKey()).inc(entry.getValue()));
+            }
+        }
         return evalList;
     }
 

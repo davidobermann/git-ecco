@@ -1,9 +1,8 @@
 package at.jku.isse.gitecco.featureid;
 
-import at.jku.isse.gitecco.core.type.Feature;
 import at.jku.isse.gitecco.core.git.GitCommitList;
 import at.jku.isse.gitecco.core.git.GitHelper;
-import at.jku.isse.gitecco.featureid.featuretree.visitor.GetFeaturesAndDefinesVisitor;
+import at.jku.isse.gitecco.core.type.Feature;
 import com.opencsv.CSVWriter;
 
 import java.io.File;
@@ -36,11 +35,7 @@ public class App {
     private static void addAndConfigureObserver(GitCommitList commitList, Set<Feature> features) {
         commitList.addGitCommitListener(
                 (gc, gcl) -> {
-                    final GetFeaturesAndDefinesVisitor visitor = new GetFeaturesAndDefinesVisitor();
-                    gc.getTree().accept(visitor);
-
-                    features.addAll(visitor.getGlobal());
-
+                    //TODO: all that stuff that retrieves the features etc.
                     //dispose tree if it is not needed -> for memory saving reasons.
                     if (DISPOSE) gc.disposeTree();
                 }

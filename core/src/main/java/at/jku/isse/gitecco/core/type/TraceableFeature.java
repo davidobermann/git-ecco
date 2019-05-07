@@ -19,16 +19,23 @@ public class TraceableFeature extends Feature{
         transientOcc = 0;
     }
 
-    public void incExternalOcc() {
-        externalOcc++;
-    }
-
-    public void incInternalOcc() {
-        internalOcc++;
-    }
-
-    public void setTransientOcc() {
-        transientOcc++;
+    /**
+     * Increments the counter corresponding to the type.
+     * @param t The type of the feature.
+     */
+    public TraceableFeature inc(FeatureType t) {
+        switch (t) {
+            case EXTERNAL:
+                externalOcc++;
+                break;
+            case INTERNAL:
+                internalOcc++;
+                break;
+            case TRANSIENT:
+                transientOcc++;
+                break;
+        }
+        return this;
     }
 
     public int getExternalOcc() {
