@@ -1,4 +1,4 @@
-package at.jku.isse.gitecco.featureid;
+package at.jku.isse.gitecco.core.type;
 
 import at.jku.isse.gitecco.core.type.Feature;
 
@@ -7,6 +7,13 @@ public class TraceableFeature extends Feature{
 
     public TraceableFeature(String name) {
         super(name);
+        externalOcc = 0;
+        internalOcc = 0;
+        transientOcc = 0;
+    }
+
+    public TraceableFeature(Feature f) {
+        super(f.getName());
         externalOcc = 0;
         internalOcc = 0;
         transientOcc = 0;

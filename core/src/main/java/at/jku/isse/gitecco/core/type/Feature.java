@@ -32,10 +32,14 @@ public class Feature implements Comparable<Feature> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Feature feature = (Feature) o;
-        return Objects.equals(name, feature.name);
+        if(o instanceof Feature || o instanceof TraceableFeature) {
+            return equals(((Feature) o));
+        }
+        return false;
+    }
+
+    private boolean equals(Feature f) {
+        return this.getName().equals(f.getName());
     }
 
     @Override

@@ -3,6 +3,7 @@ package at.jku.isse.gitecco.featureid;
 import at.jku.isse.gitecco.core.type.Feature;
 import at.jku.isse.gitecco.core.tree.nodes.DefineNodes;
 import at.jku.isse.gitecco.featureid.featuretree.visitor.GetFeaturesAndDefinesVisitor;
+import at.jku.isse.gitecco.core.type.TraceableFeature;
 
 import java.util.HashSet;
 import java.util.List;

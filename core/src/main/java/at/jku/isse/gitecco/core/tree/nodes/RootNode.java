@@ -4,6 +4,7 @@ import at.jku.isse.gitecco.core.tree.visitor.TreeVisitor;
 import at.jku.isse.gitecco.core.tree.visitor.Visitable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,6 +38,10 @@ public final class RootNode extends Node implements Visitable {
             v.visit(this);
             child.accept(v);
         }
+    }
+
+    public List<FileNode> getChildren() {
+        return Collections.unmodifiableList(children);
     }
 
     /**

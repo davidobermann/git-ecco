@@ -1,11 +1,14 @@
 package at.jku.isse.gitecco.core.tree.nodes;
 
+import at.jku.isse.gitecco.core.tree.visitor.TreeVisitor;
+import at.jku.isse.gitecco.core.tree.visitor.Visitable;
+
 import java.util.Objects;
 
 /**
  * Class to represent a #undef preprocessor statement
  */
-public final class Undef extends DefineNodes {
+public final class Undef extends DefineNodes implements Visitable {
 
     public Undef(String name, int lineInfo) {
         super(name, lineInfo);
@@ -27,5 +30,10 @@ public final class Undef extends DefineNodes {
     @Override
     public String toString() {
         return "#undef " + getMacroName();
+    }
+
+    @Override
+    public void accept(TreeVisitor v) {
+        v.visit(this);
     }
 }

@@ -54,4 +54,14 @@ public class GetAllFeaturesVisitor implements TreeVisitor {
     @Override
     public void visit(ELSECondition c) {
     }
+
+    @Override
+    public void visit(Define d) {
+
+    }
+
+    @Override
+    public void visit(Undef d) {
+
+    }
 }
