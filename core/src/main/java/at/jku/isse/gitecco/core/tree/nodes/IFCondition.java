@@ -25,6 +25,9 @@ public final class IFCondition extends ConditionalNode implements Visitable {
         for (ConditionBlockNode child : getChildren()) {
             child.accept(v);
         }
+        for (DefineNodes defineNode : getDefineNodes()) {
+            defineNode.accept(v);
+        }
         v.visit(this);
     }
 

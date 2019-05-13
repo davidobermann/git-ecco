@@ -1,48 +1,93 @@
 package at.jku.isse.gitecco.featureid;
 
+
 import at.jku.isse.gitecco.core.git.GitCommitList;
 import at.jku.isse.gitecco.core.git.GitHelper;
-import at.jku.isse.gitecco.core.type.Feature;
+import at.jku.isse.gitecco.core.type.TraceableFeature;
+import at.jku.isse.gitecco.featureid.identification.ID;
 import com.opencsv.CSVWriter;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
-public class App {
+public class App extends Thread{
 
-    private final static String REPO_PATH = "C:\\obermanndavid\\git-to-ecco\\test_repo5";
+    private final static String REPO_PATH = "C:\\obermanndavid\\git-ecco-test\\test_featureid\\Marlin";
+    //"C:\\obermanndavid\\git-to-ecco\\test_repo5";
+    private final static String CSV_PATH = "C:\\obermanndavid\\git-ecco-test\\results\\results.csv";
     private final static boolean DISPOSE = true;
+    private final static boolean debug = true;
 
     public static void main(String... args) throws Exception {
-        final GitHelper gitHelper = new GitHelper(REPO_PATH);
-        final GitCommitList commitList = new GitCommitList(REPO_PATH);
-        final Set<Feature> globalFeatures = new HashSet<>();
 
-        addAndConfigureObserver(commitList, globalFeatures);
+        if(!debug && args.length < 2) {
+            System.err.println("Two few arguments\n" +
+                    "correct usage: arg1: repo path, arg2: path for csv file, arg3: dispose tree(y/n)");
+            System.exit(-1);
+        }
+
+        String repoPath;
+        String csvPath;
+        boolean dispose;
+
+        if(debug) {
+            repoPath = REPO_PATH;
+            csvPath = CSV_PATH;
+            dispose = DISPOSE;
+        } else {
+            repoPath = args[0];
+            csvPath = args[1];
+            dispose = args[2].equals("y");
+        }
+
+        final GitHelper gitHelper = new GitHelper(repoPath);
+        final GitCommitList commitList = new GitCommitList(repoPath);
+        final List<TraceableFeature> evaluation = Collections.synchronizedList(new ArrayList<>());
+        final List<Future<?>> tasks = new ArrayList<>();
+        ExecutorService executorService = Executors.newFixedThreadPool(50);
+
+        commitList.addGitCommitListener(
+                (gc, gcl) -> {
+                    ID.evaluateFeatureMap(evaluation, ID.id(gc.getTree()));
+                    //dispose tree if it is not needed -> for memory saving reasons.
+                    if (dispose) gc.disposeTree();
+                }
+        );
+
         gitHelper.getAllCommits(commitList);
 
-        writeToCsv(globalFeatures, gitHelper.getPath()+"_features.csv");
+
+        /*while(!isDone(tasks) && System.in.available() == 0) {
+            sleep(100);
+        }*/
+
+        //print to CSV:
+        writeToCsv(evaluation, csvPath);
+
+        System.out.println("finished analyzing repo");
     }
 
     /**
-     * Implements a CommitListener in which all global features are retrieved and added to a given set.
-     * @param commitList
-     * @param features
+     * Helper method to check if all tasks are done.
+     * @param tasks
+     * @return
      */
-    private static void addAndConfigureObserver(GitCommitList commitList, Set<Feature> features) {
-        commitList.addGitCommitListener(
-                (gc, gcl) -> {
-                    //TODO: all that stuff that retrieves the features etc.
-                    //dispose tree if it is not needed -> for memory saving reasons.
-                    if (DISPOSE) gc.disposeTree();
-                }
-        );
+    private static boolean isDone(List<Future<?>> tasks) {
+        for (Future task : tasks)
+            if(!task.isDone()) return false;
+
+        return true;
     }
 
-    private static void writeToCsv(Set<Feature> features, String fileName) {
+
+    private static void writeToCsv(List<TraceableFeature> features, String fileName) {
         final File csvFile = new File(fileName);
         FileWriter outputfile = null;
 
@@ -53,15 +98,23 @@ public class App {
             System.out.println("Error while handling the csv file output!");
         }
 
-        // create CSVWriter object filewriter object as parameter
-        //deprcated but no other way available --> it still works anyways
-        @SuppressWarnings("deprecation") CSVWriter writer = new CSVWriter(outputfile, ';', CSVWriter.NO_QUOTE_CHARACTER);
+        // create CSVWriter object file writer object as parameter
+        //deprecated but no other way available --> it still works anyways
+        @SuppressWarnings("deprecation")CSVWriter writer = new CSVWriter(outputfile, ';', CSVWriter.NO_QUOTE_CHARACTER);
 
         //adding header to csv
-        writer.writeNext(new String[]{"FeatureName"});
+        writer.writeNext(new String[]{"Label/FeatureName","#total","#internal", "#external", "#transient"});
 
-        for (Feature feature : features) {
-            writer.writeNext(new String[]{feature.getName()});
+        //write each feature/label with: Name, totalOcc, InternalOcc, externalOcc, transientOcc.
+        for (TraceableFeature feature : features) {
+            writer.writeNext(
+                    new String[]{
+                            feature.getName(),
+                            feature.getTotalOcc().toString(),
+                            feature.getInternalOcc().toString(),
+                            feature.getExternalOcc().toString(),
+                            feature.getTransientOcc().toString()
+            });
         }
 
         // closing writer connection

@@ -15,6 +15,8 @@ Trying different kinds of preprocessors for generating variants:
    Bad:  Documentatin is not necesarrily the best. Sometimes hard to understand usage of operations.
          Does not mark included files like gcc --> no filtering. Although not sure if we even need this.
 
+------ what stefan eventually used and now build a preprocessor for our needs on with an api on top of JCPP
+
 -cppp https://www.muppetlabs.com/~breadbox/software/cppp.html
    Good: will keep comments, otherwise nothing special that sets it apart from the others.
    Bad:  Will most likely not process macros and not expand includes --> missing macros.

@@ -1,11 +1,13 @@
 package at.jku.isse.gitecco.core.tree.nodes;
 
+import at.jku.isse.gitecco.core.tree.visitor.Visitable;
+
 import java.util.Objects;
 
 /**
  * SuperClass for all define nodes (define, undef)
  */
-public abstract class DefineNodes implements Comparable<DefineNodes> {
+public abstract class DefineNodes implements Comparable<DefineNodes>, Visitable {
     private final String macroName;
     private final int lineInfo;
 

@@ -3,7 +3,7 @@ package at.jku.isse.gitecco.core.type;
 import at.jku.isse.gitecco.core.type.Feature;
 
 public class TraceableFeature extends Feature{
-    private int externalOcc, internalOcc, transientOcc;
+    private Integer externalOcc, internalOcc, transientOcc;
 
     public TraceableFeature(String name) {
         super(name);
@@ -38,19 +38,19 @@ public class TraceableFeature extends Feature{
         return this;
     }
 
-    public int getExternalOcc() {
+    public Integer getExternalOcc() {
         return externalOcc;
     }
 
-    public int getInternalOcc() {
+    public Integer getInternalOcc() {
         return internalOcc;
     }
 
-    public int getTransientOcc() {
+    public Integer getTransientOcc() {
         return transientOcc;
     }
 
-    public int getTotalOcc() {
+    public Integer getTotalOcc() {
         return externalOcc + internalOcc + transientOcc;
     }
 }

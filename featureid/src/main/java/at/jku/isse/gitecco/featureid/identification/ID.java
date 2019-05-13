@@ -49,22 +49,23 @@ public class ID {
                 child.accept(v);
 
                 for (Map.Entry<Feature, Integer> entry : v.getFeatureMap().entrySet()) {
-                    type = featureMap.get(entry.getKey());
                     for (DefineNodes define : v.getDefines()) {
+                        type = featureMap.get(entry.getKey());
                         boolean sameName = entry.getKey().getName().equals(define.getMacroName());
                         int lineResult = entry.getValue().compareTo(define.getLineInfo());
                         if(sameName && lineResult < 0) {
                             //feature is defined but also appears before its define:
                             featureMap.put(entry.getKey(), FeatureType.TRANSIENT);
-                            System.err.println("Feature: " + entry.getKey().getName() + " is transient!");
+                            System.err.println("Feature: " + entry.getKey().getName() + " is transient at some point!");
                             break;
-                        } else if(sameName && lineResult >= 0){
+                        } else if(sameName && lineResult >= 0) {
                             //feature is defined, and never (at least until this define) appears before its define:
                             if(type == null || !type.equals(FeatureType.TRANSIENT))
                                 featureMap.put(entry.getKey(), FeatureType.INTERNAL);
                         }
                     }
 
+                    type = featureMap.get(entry.getKey());
                     //if the feature has never been defined in this file it is external:
                     if(type == null || type.equals(FeatureType.EXTERNAL))
                         featureMap.put(entry.getKey(), FeatureType.EXTERNAL);
@@ -91,46 +92,5 @@ public class ID {
         }
         return evalList;
     }
-
-    /* ugly version:
-    public static void id(RootNode tree) {
-        Map<FileNode, Map<Feature, FeatureType>> featureMap = new HashMap<>();
-        Map<Feature, FeatureType> innerMap;
-        GetAllDefinesVisitor dv = new GetAllDefinesVisitor();
-        GetAllFeaturesVisitor fv = new GetAllFeaturesVisitor();
-
-        for (FileNode child : tree.getChildren()) {
-            dv.reset();
-            fv.reset();
-
-            if(child instanceof SourceFileNode) {
-                child.accept(dv);
-                child.accept(fv);
-                innerMap = new HashMap<>();
-
-                for (Map.Entry<Feature, Integer> entry : fv.getFeatureMap().entrySet()) {
-                    for (DefineNodes define : dv.getDefines()) {
-                        boolean sameName = entry.getKey().getName().equals(define.getMacroName());
-                        int lineResult = entry.getValue().compareTo(define.getLineInfo());
-                        if(sameName && lineResult < 0) {
-                            //feature is defined but also appears before its define:
-                            innerMap.put(entry.getKey(), FeatureType.TRANSIENT);
-                            System.err.println("Feature: " + entry.getKey().getName() + " is transient!");
-                            break;
-                        } else if(sameName && lineResult >= 0){
-                            //feature is defined, and never (until this define) appears before its define:
-                            innerMap.put(entry.getKey(), FeatureType.INTERNAL);
-                        }
-                    }
-
-                    //if the feature has never been defined in this file it is external:
-                    if(!innerMap.containsKey(entry.getKey())) innerMap.put(entry.getKey(), FeatureType.EXTERNAL);
-                }
-                //eventually link the innerMap to the file node
-                featureMap.put(child, Collections.unmodifiableMap(innerMap));
-            }
-        }
-    }
-     */
 
 }

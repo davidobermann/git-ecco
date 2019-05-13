@@ -136,20 +136,6 @@ public class GitCommitList extends ArrayList<GitCommit> {
                     //actual tree building
                     featureParser.parseToTree(ppstatements, codelist.size(), (SourceFileNode) fn);
 
-                    fn.setChanged();
-                    //link changes: commit of monday 21st of jan. --> linkChanges still in.
-                    changes = gitHelper.getFileDiffs(gitCommit, file);
-
-                    //get the nodes, etc, for the commit
-                    ChangeComputation cp = new ChangeComputation();
-                    committableChanges.addAll(cp.getChanged());
-
-                    //add each of them to the list --> list is later linked to the commit.
-                    for (Change c : changes) {
-                        cp.computeForChange(c, (SourceFileNode) fn);
-                        committableChanges.addAll(cp.getChanged());
-                    }
-
                 } else {
                     fn = new BinaryFileNode(tree, file);
                     if(changedFiles.contains(file.replace("/","\\"))) fn.setChanged();
