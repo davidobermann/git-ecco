@@ -23,11 +23,13 @@ public class App extends Thread{
     //"C:\\obermanndavid\\git-to-ecco\\test_repo5";
     private final static String CSV_PATH = "C:\\obermanndavid\\git-ecco-test\\results\\results.csv";
     private final static boolean DISPOSE = true;
-    private final static boolean debug = true;
+    private final static boolean DEBUG = true;
+    private final static int MAX_COMMITS = 200;
+    private final static boolean MAX_COMMITS_ENA = true;
 
     public static void main(String... args) throws Exception {
-
-        if(!debug && args.length < 2) {
+        long measure = System.currentTimeMillis();
+        if(!DEBUG && args.length < 2) {
             System.err.println("Two few arguments\n" +
                     "correct usage: arg1: repo path, arg2: path for csv file, arg3: dispose tree(y/n)");
             System.exit(-1);
@@ -37,7 +39,7 @@ public class App extends Thread{
         String csvPath;
         boolean dispose;
 
-        if(debug) {
+        if(DEBUG) {
             repoPath = REPO_PATH;
             csvPath = CSV_PATH;
             dispose = DISPOSE;
@@ -49,24 +51,33 @@ public class App extends Thread{
 
         final GitHelper gitHelper = new GitHelper(repoPath);
         final GitCommitList commitList = new GitCommitList(repoPath);
+
         final List<TraceableFeature> evaluation = Collections.synchronizedList(new ArrayList<>());
         final List<Future<?>> tasks = new ArrayList<>();
-        ExecutorService executorService = Executors.newFixedThreadPool(50);
+        final ExecutorService executorService = Executors.newFixedThreadPool(30);
+
 
         commitList.addGitCommitListener(
                 (gc, gcl) -> {
-                    ID.evaluateFeatureMap(evaluation, ID.id(gc.getTree()));
-                    //dispose tree if it is not needed -> for memory saving reasons.
-                    if (dispose) gc.disposeTree();
+                    if(gcl.size() > MAX_COMMITS && MAX_COMMITS_ENA) {
+                        writeToCsv(evaluation, csvPath);
+                        System.out.println((System.currentTimeMillis()-measure)/1000);
+                        System.exit(0);
+                    }
+
+                    tasks.add(
+                            executorService.submit(() -> {
+                                ID.evaluateFeatureMap(evaluation, ID.id(gc.getTree()));
+                                //dispose tree if it is not needed -> for memory saving reasons.
+                                if (dispose) gc.disposeTree();
+                            })
+                    );
                 }
         );
 
         gitHelper.getAllCommits(commitList);
 
-
-        /*while(!isDone(tasks) && System.in.available() == 0) {
-            sleep(100);
-        }*/
+        while(!isDone(tasks)) sleep(100);
 
         //print to CSV:
         writeToCsv(evaluation, csvPath);
@@ -89,6 +100,7 @@ public class App extends Thread{
 
     private static void writeToCsv(List<TraceableFeature> features, String fileName) {
         final File csvFile = new File(fileName);
+        System.out.println("writing to CSV");
         FileWriter outputfile = null;
 
         try {
@@ -103,7 +115,7 @@ public class App extends Thread{
         @SuppressWarnings("deprecation")CSVWriter writer = new CSVWriter(outputfile, ';', CSVWriter.NO_QUOTE_CHARACTER);
 
         //adding header to csv
-        writer.writeNext(new String[]{"Label/FeatureName","#total","#internal", "#external", "#transient"});
+        writer.writeNext(new String[]{"Label/FeatureName","#total", "#external", "#internal", "#transient"});
 
         //write each feature/label with: Name, totalOcc, InternalOcc, externalOcc, transientOcc.
         for (TraceableFeature feature : features) {
@@ -111,8 +123,8 @@ public class App extends Thread{
                     new String[]{
                             feature.getName(),
                             feature.getTotalOcc().toString(),
-                            feature.getInternalOcc().toString(),
                             feature.getExternalOcc().toString(),
+                            feature.getInternalOcc().toString(),
                             feature.getTransientOcc().toString()
             });
         }

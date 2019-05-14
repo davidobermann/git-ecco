@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.Future;
 
 /**
  * HelperClass for working with JGit.
@@ -279,6 +280,7 @@ public class GitHelper {
             }
             commits.add(new GitCommit(rc.getName(), parent, new ArrayList<GitCommitType>(types), branch, rc));
         }
+
         return commits;
     }
 
@@ -288,20 +290,24 @@ public class GitHelper {
      * @return List of paths as Strings
      * @throws IOException
      */
-    public List<String> getRepositoryContents(GitCommit commit) throws IOException {
+    public List<String> getRepositoryContents(GitCommit commit) {
         final List<String> files = new ArrayList<>();
 
-        RevWalk walk = new RevWalk(git.getRepository());
+        try {
+            RevWalk walk = new RevWalk(git.getRepository());
 
-        RevCommit revCommit = walk.parseCommit(git.getRepository().resolve(commit.getCommitName()));
-        RevTree tree = revCommit.getTree();
+            RevCommit revCommit = walk.parseCommit(git.getRepository().resolve(commit.getCommitName()));
+            RevTree tree = revCommit.getTree();
 
-        TreeWalk treeWalk = new TreeWalk(git.getRepository());
-        treeWalk.addTree(tree);
-        treeWalk.setRecursive(true);
+            TreeWalk treeWalk = new TreeWalk(git.getRepository());
+            treeWalk.addTree(tree);
+            treeWalk.setRecursive(true);
 
-        while (treeWalk.next()) {
-            files.add(treeWalk.getPathString());
+            while (treeWalk.next()) {
+                files.add(treeWalk.getPathString());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         return Collections.unmodifiableList(files);

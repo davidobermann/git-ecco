@@ -4,6 +4,7 @@ import at.jku.isse.gitecco.core.tree.visitor.TreeVisitor;
 import at.jku.isse.gitecco.core.tree.visitor.Visitable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,6 +31,15 @@ public final class RootNode extends Node implements Visitable {
      */
     public void addChild(FileNode n) {
         children.add(n);
+    }
+
+    /**
+     * Adds a new child to the root node.
+     * These children can only be an instance of a FileNode.
+     * @param n
+     */
+    public void addAllChildren(Collection<FileNode> n) {
+        children.addAll(n);
     }
 
     @Override

@@ -5,6 +5,7 @@ import org.eclipse.cdt.core.dom.ast.gnu.cpp.GPPLanguage;
 import org.eclipse.cdt.core.index.IIndex;
 import org.eclipse.cdt.core.model.ILanguage;
 import org.eclipse.cdt.core.parser.*;
+import org.eclipse.core.runtime.CoreException;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -40,7 +41,7 @@ public class CDTHelper {
      * @return IASTTranslationUnit - ultimately gives access to the AST
      * @throws Exception
      */
-    public static IASTTranslationUnit parse(char[] code) throws Exception {
+    public static IASTTranslationUnit parse(char[] code) throws CoreException {
 
         FileContent fc = FileContent.create("/Path/ToResolveIncludePaths.cpp", code);
         Map<String, String> macroDefinitions = new HashMap<String, String>();
