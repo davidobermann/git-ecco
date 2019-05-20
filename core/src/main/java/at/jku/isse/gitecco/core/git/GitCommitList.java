@@ -34,7 +34,6 @@ public class GitCommitList extends ArrayList<GitCommit> {
     private final List<GitCommitListener> observersC = new ArrayList();
     private final List<GitBranchListener> observersB = new ArrayList();
     private final List<GitMergeListener> observersM = new ArrayList();
-    private boolean dispose = false;
 
     public GitCommitList(String repoPath) throws IOException {
         super();
@@ -68,13 +67,6 @@ public class GitCommitList extends ArrayList<GitCommit> {
         observersB.add(gbl);
     }
 
-    /**
-     * Disposes the tree of the commit after evaluation.
-     * HIGHLY RECOMMENDED FOR BIG REPOSITORIES
-     */
-    public void setTreeDispose(boolean enable) {
-        this.dispose = enable;
-    }
 
     /**
      * Dummy method which blocks unobserved adding.
@@ -112,6 +104,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
                 //file parsing
                 IASTTranslationUnit translationUnit = null;
                 try {
+                    System.out.println("trying to parse: " + file);
                     translationUnit = CDTHelper.parse(code.toCharArray());
                 } catch (CoreException e1) {
                     System.err.println("error parsing with CDT Core: "+file);
@@ -133,92 +126,13 @@ public class GitCommitList extends ArrayList<GitCommit> {
             }
         }
 
-        /* parallel version: why not faster?!
-        final List<FileNode> childList = Collections.synchronizedList(new ArrayList<>());
-        final List<Future<?>> tasks = new ArrayList<>();
-        final ExecutorService executorService = Executors.newFixedThreadPool(20);
-
-        //for all files
-        for (String file : gitHelper.getRepositoryContents(gitCommit)) {
-
-            //source file or binary file --> with parsing, without.
-            if (FilenameUtils.getExtension(file).equals("cpp")
-                    || FilenameUtils.getExtension(file).equals("c")
-                    || FilenameUtils.getExtension(file).equals("h")
-                    || FilenameUtils.getExtension(file).equals("hpp")
-                    || FilenameUtils.getExtension(file).equals("hh")) {
-                tasks.add(
-                        executorService.submit(() -> {
-
-                            final SourceFileNode fn = new SourceFileNode(tree, file);
-
-                            final String path = gitHelper.getPath()+"\\"+file;
-                            List<String> codelist = null;
-                            try {
-                                codelist = Files.readAllLines(Paths.get(path), StandardCharsets.ISO_8859_1);
-                            } catch (IOException e1) {
-                                System.err.println("error reading file: "+file);
-                                e1.printStackTrace();
-                            }
-                            final String code = codelist.stream().collect(Collectors.joining("\n"));
-
-                            //file parsing
-                            IASTTranslationUnit translationUnit = null;
-                            try {
-                                translationUnit = CDTHelper.parse(code.toCharArray());
-                            } catch (CoreException e1) {
-                                System.err.println("error parsing with CDT Core: "+file);
-                                e1.printStackTrace();
-                            }
-                            final IASTPreprocessorStatement[] ppstatements = translationUnit.getAllPreprocessorStatements();
-                            final FeatureParser featureParser = new FeatureParser();
-                            //actual tree building
-                            try {
-                                featureParser.parseToTree(ppstatements, codelist.size(), fn);
-                            } catch (Exception e) {
-                                System.err.println("error parsing to tree: "+file);
-                                e.printStackTrace();
-                            }
-                            childList.add(fn);
-                        })
-                );
-            } else {
-                final BinaryFileNode fn = new BinaryFileNode(tree, file);
-                childList.add(fn);
-            }
-        }
-
-        while (!isDone(tasks)) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        tree.addAllChildren(childList);
-        */
-
         gitCommit.setTree(tree);
         //TODO: set changes another time --> later on when traversing the trees a second time
-        gitCommit.setChanges(committableChanges);
+        //gitCommit.setChanges(committableChanges);
         //trigger listeners, etc.
         notifyObservers(gitCommit);
         System.out.println("commit nr.:"+this.size());
         return super.add(gitCommit);
-    }
-
-    /**
-     * Helper method to check if all tasks are done.
-     *
-     * @param tasks
-     * @return
-     */
-    private static boolean isDone(List<Future<?>> tasks) {
-        for (Future task : tasks)
-            if (!task.isDone()) return false;
-
-        return true;
     }
 
     //TODO: KEEP! may be useful later on
@@ -267,7 +181,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
     private void notifyObservers(GitCommit gc) {
         for (GitCommitListener oc : observersC) {
             oc.onCommit(gc, this);
-            for (GitCommitType gct : gc.getType()) {
+            /*for (GitCommitType gct : gc.getType()) {
                 if (gct.equals(GitCommitType.BRANCH)) {
                     for (GitBranchListener ob : observersB) {
                         ob.onBranch(gc, this);
@@ -278,7 +192,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
                         gm.onMerge(gc, this);
                     }
                 }
-            }
+            }*/
         }
     }
 }

@@ -235,7 +235,7 @@ public class GitHelper {
     /**
      * Gets all commit names of all the commits of the opened repository.
      *
-     * @return String[] of alle the commit names.
+     * @return String[] of all the commit names.
      * @throws GitAPIException
      */
     public String[] getAllCommitNames() throws GitAPIException, IOException {
@@ -259,10 +259,11 @@ public class GitHelper {
      * @throws IOException
      */
     public GitCommitList getAllCommits(GitCommitList commits) throws Exception {
+        final boolean FASTMODE = true;
         final List<GitCommitType> types = new ArrayList<>();
         final Repository repository = git.getRepository();
         final Collection<Ref> allRefs = repository.getRefDatabase().getRefs();
-        //getAllRefs().values();
+
         RevWalk revWalk = new RevWalk(repository);
         revWalk.sort(RevSort.TOPO, true);
         revWalk.sort(RevSort.REVERSE, true);
@@ -270,7 +271,7 @@ public class GitHelper {
         for(Ref ref : allRefs) revWalk.markStart(revWalk.parseCommit(ref.getObjectId()));
 
         for(RevCommit rc : revWalk) {
-            String branch = getBranchOfCommit(rc.getName());
+            String branch = FASTMODE ? null : getBranchOfCommit(rc.getName());
             String parent;
 
             try {
@@ -278,7 +279,7 @@ public class GitHelper {
             }catch (ArrayIndexOutOfBoundsException e) {
                 parent = "NULLCOMMIT";
             }
-            commits.add(new GitCommit(rc.getName(), parent, new ArrayList<GitCommitType>(types), branch, rc));
+            commits.add(new GitCommit(rc.getName(), parent, null/*new ArrayList<GitCommitType>(types)*/, branch, rc));
         }
 
         return commits;
@@ -313,6 +314,14 @@ public class GitHelper {
         return Collections.unmodifiableList(files);
     }
 
+    /**
+     * Retrieves the first branch of a commit.
+     * Actually not very useful. --> disabled through the fastmode in getAllCommits.
+     * @param commit
+     * @return
+     * @throws MissingObjectException
+     * @throws GitAPIException
+     */
     private String getBranchOfCommit(String commit) throws MissingObjectException, GitAPIException {
         Map<ObjectId, String> map = git
                 .nameRev()

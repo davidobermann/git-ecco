@@ -42,35 +42,31 @@ public class FeatureParser {
             /* starting statements*/
             if (pps instanceof IASTPreprocessorIfStatement) {
                 pp = new PPStatement(pps);
-                String condName = removeDefinedMacro(pp.getCondName());
                 currentBlock = new ConditionBlockNode(currentConditional);
                 currentConditional.addChild(currentBlock);
-                currentConditional = currentBlock.setIfBlock(new IFCondition(currentBlock, condName));
+                currentConditional = currentBlock.setIfBlock(new IFCondition(currentBlock, pp.getCondName()));
                 currentConditional.setLineFrom(pp.getLineStart());
 
             } else if (pps instanceof IASTPreprocessorIfdefStatement) {
                 pp = new PPStatement(pps);
-                String condName = removeDefinedMacro(pp.getCondName());
                 currentBlock = new ConditionBlockNode(currentConditional);
                 currentConditional.addChild(currentBlock);
-                currentConditional = currentBlock.setIfBlock(new IFDEFCondition(currentBlock, condName));
+                currentConditional = currentBlock.setIfBlock(new IFDEFCondition(currentBlock, pp.getCondName()));
                 currentConditional.setLineFrom(pp.getLineStart());
 
             } else if (pps instanceof IASTPreprocessorIfndefStatement) {
                 pp = new PPStatement(pps);
-                String condName = removeDefinedMacro(pp.getCondName());
                 currentBlock = new ConditionBlockNode(currentConditional);
                 currentConditional.addChild(currentBlock);
-                currentConditional = currentBlock.setIfBlock(new IFNDEFCondition(currentBlock, condName));
+                currentConditional = currentBlock.setIfBlock(new IFNDEFCondition(currentBlock, pp.getCondName()));
                 currentConditional.setLineFrom(pp.getLineStart());
 
             /* ending statements */
             } else if (pps instanceof IASTPreprocessorElifStatement) {
                 pp = new PPStatement(pps);
-                String condName = removeDefinedMacro(pp.getCondName());
                 currentConditional.setLineTo(pp.getLineEnd());
                 currentBlock = currentConditional.getParent();
-                currentConditional = currentBlock.addElseIfBlock(new IFCondition(currentBlock,condName));
+                currentConditional = currentBlock.addElseIfBlock(new IFCondition(currentBlock,pp.getCondName()));
                 currentConditional.setLineFrom(pp.getLineStart());
 
             } else if (pps instanceof IASTPreprocessorElseStatement) {

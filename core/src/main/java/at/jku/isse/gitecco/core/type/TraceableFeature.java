@@ -1,7 +1,5 @@
 package at.jku.isse.gitecco.core.type;
 
-import at.jku.isse.gitecco.core.type.Feature;
-
 public class TraceableFeature extends Feature{
     private Integer externalOcc, internalOcc, transientOcc;
 

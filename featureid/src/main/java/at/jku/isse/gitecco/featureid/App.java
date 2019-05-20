@@ -19,12 +19,14 @@ import java.util.concurrent.Future;
 
 public class App extends Thread{
 
-    private final static String REPO_PATH = "C:\\obermanndavid\\git-ecco-test\\test_featureid\\Marlin";
-    //"C:\\obermanndavid\\git-to-ecco\\test_repo5";
-    private final static String CSV_PATH = "C:\\obermanndavid\\git-ecco-test\\results\\results.csv";
+    private final static String REPO_PATH = "C:\\obermanndavid\\git-ecco-test\\test_featureid\\betaflight";
+    // "C:\\obermanndavid\\git-to-ecco\\test_repo5"
+    // "C:\\obermanndavid\\git-ecco-test\\test_featureid\\betaflight"
+    // "C:\\obermanndavid\\git-ecco-test\\test_featureid\\Marlin"
+    private final static String CSV_PATH = "C:\\obermanndavid\\git-ecco-test\\results\\results_ marlin_200.csv";
     private final static boolean DISPOSE = true;
     private final static boolean DEBUG = true;
-    private final static int MAX_COMMITS = 200;
+    private final static int MAX_COMMITS = 50;
     private final static boolean MAX_COMMITS_ENA = true;
 
     public static void main(String... args) throws Exception {
@@ -61,7 +63,8 @@ public class App extends Thread{
                 (gc, gcl) -> {
                     if(gcl.size() > MAX_COMMITS && MAX_COMMITS_ENA) {
                         writeToCsv(evaluation, csvPath);
-                        System.out.println((System.currentTimeMillis()-measure)/1000);
+                        System.out.println((System.currentTimeMillis()-measure)/1000 + " seconds");
+                        executorService.shutdownNow();
                         System.exit(0);
                     }
 
@@ -78,6 +81,7 @@ public class App extends Thread{
         gitHelper.getAllCommits(commitList);
 
         while(!isDone(tasks)) sleep(100);
+        executorService.shutdownNow();
 
         //print to CSV:
         writeToCsv(evaluation, csvPath);
