@@ -19,14 +19,14 @@ import java.util.concurrent.Future;
 
 public class App extends Thread{
 
-    private final static String REPO_PATH = "C:\\obermanndavid\\git-ecco-test\\test_featureid\\betaflight";
+    private final static String REPO_PATH = "C:\\obermanndavid\\git-ecco-test\\test_featureid\\Marlin";
     // "C:\\obermanndavid\\git-to-ecco\\test_repo5"
     // "C:\\obermanndavid\\git-ecco-test\\test_featureid\\betaflight"
     // "C:\\obermanndavid\\git-ecco-test\\test_featureid\\Marlin"
     private final static String CSV_PATH = "C:\\obermanndavid\\git-ecco-test\\results\\results_ marlin_200.csv";
     private final static boolean DISPOSE = true;
     private final static boolean DEBUG = true;
-    private final static int MAX_COMMITS = 50;
+    private final static int MAX_COMMITS = 10;
     private final static boolean MAX_COMMITS_ENA = true;
 
     public static void main(String... args) throws Exception {

@@ -104,7 +104,6 @@ public class GitCommitList extends ArrayList<GitCommit> {
                 //file parsing
                 IASTTranslationUnit translationUnit = null;
                 try {
-                    System.out.println("trying to parse: " + file);
                     translationUnit = CDTHelper.parse(code.toCharArray());
                 } catch (CoreException e1) {
                     System.err.println("error parsing with CDT Core: "+file);

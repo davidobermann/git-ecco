@@ -13,4 +13,5 @@ public interface TreeVisitor {
     void visit(ELSECondition c);
     void visit(Define d);
     void visit(Undef d);
+    void visit(IncludeNode n);
 }

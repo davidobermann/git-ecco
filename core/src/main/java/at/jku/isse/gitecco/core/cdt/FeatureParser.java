@@ -4,6 +4,7 @@ import at.jku.isse.gitecco.core.cdt.statements.PPStatement;
 import at.jku.isse.gitecco.core.tree.nodes.*;
 import at.jku.isse.gitecco.core.tree.nodes.Define;
 import org.eclipse.cdt.core.dom.ast.*;
+import org.eclipse.cdt.core.parser.ISignificantMacros;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -94,6 +95,11 @@ public class FeatureParser {
                 IASTPreprocessorUndefStatement uds = (IASTPreprocessorUndefStatement) pps;
                 currentConditional.addDefineNode(
                         new Undef(uds.getMacroName().toString(), uds.getFileLocation().getStartingLineNumber())
+                );
+            } else if (pps instanceof IASTPreprocessorIncludeStatement) {
+                IASTPreprocessorIncludeStatement is = (IASTPreprocessorIncludeStatement) pps;
+                currentConditional.addInclude(
+                        new IncludeNode(is.getPath(), is.getFileLocation().getStartingLineNumber())
                 );
             }
         }

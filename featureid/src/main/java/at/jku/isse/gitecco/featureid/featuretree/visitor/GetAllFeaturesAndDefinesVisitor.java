@@ -99,4 +99,9 @@ public class GetAllFeaturesAndDefinesVisitor implements TreeVisitor {
     public void visit(Undef d) {
         defines.add(d);
     }
+
+    @Override
+    public void visit(IncludeNode n) {
+
+    }
 }

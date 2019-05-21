@@ -48,6 +48,13 @@ public class ID {
             if(child instanceof SourceFileNode) {
                 child.accept(v);
 
+                //TODO: use includes to get all other defines.
+                //idea:  - for each include retrieve the subtree
+                //       - collect all defines form that subtree
+                //       - create virtual define nodes, with all the collected defines.
+                //       - give every virtual define the line number of the include statement
+                //       - proceed as usual.
+
                 for (Map.Entry<Feature, Integer> entry : v.getFeatureMap().entrySet()) {
                     for (DefineNodes define : v.getDefines()) {
                         type = featureMap.get(entry.getKey());

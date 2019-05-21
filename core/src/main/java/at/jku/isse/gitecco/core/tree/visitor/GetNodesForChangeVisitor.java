@@ -92,4 +92,9 @@ public class GetNodesForChangeVisitor implements TreeVisitor{
     public void visit(Undef d) {
 
     }
+
+    @Override
+    public void visit(IncludeNode n) {
+
+    }
 }

@@ -16,10 +16,27 @@ public abstract class ConditionalNode extends ConditionNode {
     private final List<ConditionBlockNode> children;
     private final ConditionBlockNode parent;
     private final List<DefineNodes> defineNodes = new ArrayList();
+    private final List<IncludeNode> includeNodes = new ArrayList<>();
 
     public ConditionalNode(ConditionBlockNode parent) {
         children = new ArrayList<ConditionBlockNode>();
         this.parent = parent;
+    }
+
+    /**
+     * Adds a new include as IncludeNode to the ConditionalNode.
+     * @param n the IncludeNode
+     */
+    public void addInclude(IncludeNode n) {
+        this.includeNodes.add(n);
+    }
+
+    /**
+     * Returns a list of all the include nodes contained in this ConditionalNode
+     * @return list of all includes in the conditional node.
+     */
+    public List<IncludeNode> getIncludeNodes() {
+        return Collections.unmodifiableList(includeNodes);
     }
 
     /**
