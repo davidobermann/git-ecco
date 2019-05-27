@@ -6,18 +6,21 @@ import at.jku.isse.gitecco.core.type.Feature;
 
 import java.util.*;
 
-public class GetAllFeaturesAndDefinesVisitor implements TreeVisitor {
+public class GetAllFeaturesDefinesIncludesVisitor implements TreeVisitor {
     private final Map<Feature, Integer> featureMap;
     private final List<DefineNodes> defines;
+    private final List<IncludeNode> includes;
 
-    public GetAllFeaturesAndDefinesVisitor() {
+    public GetAllFeaturesDefinesIncludesVisitor() {
         featureMap = new HashMap<>();
         defines = new ArrayList<>();
+        includes = new ArrayList<>();
     }
 
     public void reset() {
         featureMap.clear();
         defines.clear();
+        includes.clear();
     }
 
     /**
@@ -42,6 +45,14 @@ public class GetAllFeaturesAndDefinesVisitor implements TreeVisitor {
      */
     public List<DefineNodes> getDefines() {
         return Collections.unmodifiableList(defines);
+    }
+
+    /**
+     * Returns all the found includes.
+     * @return all the found includes.
+     */
+    public List<IncludeNode> getIncludes() {
+        return Collections.unmodifiableList(includes);
     }
 
     @Override
@@ -102,6 +113,6 @@ public class GetAllFeaturesAndDefinesVisitor implements TreeVisitor {
 
     @Override
     public void visit(IncludeNode n) {
-
+        includes.add(n);
     }
 }

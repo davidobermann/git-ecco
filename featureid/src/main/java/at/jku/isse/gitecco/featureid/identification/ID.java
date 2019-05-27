@@ -1,14 +1,13 @@
 package at.jku.isse.gitecco.featureid.identification;
 
-import at.jku.isse.gitecco.core.tree.nodes.DefineNodes;
-import at.jku.isse.gitecco.core.tree.nodes.FileNode;
-import at.jku.isse.gitecco.core.tree.nodes.RootNode;
-import at.jku.isse.gitecco.core.tree.nodes.SourceFileNode;
+import at.jku.isse.gitecco.core.tree.nodes.*;
 import at.jku.isse.gitecco.core.type.Feature;
 import at.jku.isse.gitecco.core.type.FeatureType;
 import at.jku.isse.gitecco.core.type.TraceableFeature;
-import at.jku.isse.gitecco.featureid.featuretree.visitor.GetAllFeaturesAndDefinesVisitor;
+import at.jku.isse.gitecco.featureid.featuretree.visitor.GetAllDefinesVisitor;
+import at.jku.isse.gitecco.featureid.featuretree.visitor.GetAllFeaturesDefinesIncludesVisitor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,24 +38,41 @@ public class ID {
          *
          */
         Map<Feature, FeatureType> featureMap = new HashMap<>();
-        GetAllFeaturesAndDefinesVisitor v = new GetAllFeaturesAndDefinesVisitor();
+        GetAllFeaturesDefinesIncludesVisitor allincVisitor = new GetAllFeaturesDefinesIncludesVisitor();
+        GetAllDefinesVisitor definesVisitor = new GetAllDefinesVisitor();
+        List<DefineNodes> allDefines = new ArrayList<>();
         FeatureType type = null;
 
         for (FileNode child : tree.getChildren()) {
-            v.reset();
+            allincVisitor.reset();
+            allDefines.clear();
 
             if(child instanceof SourceFileNode) {
-                child.accept(v);
+                child.accept(allincVisitor);
 
-                //TODO: use includes to get all other defines.
+                // use includes to get all other defines.
                 //idea:  - for each include retrieve the subtree
                 //       - collect all defines form that subtree
                 //       - create virtual define nodes, with all the collected defines.
                 //       - give every virtual define the line number of the include statement
                 //       - proceed as usual.
 
-                for (Map.Entry<Feature, Integer> entry : v.getFeatureMap().entrySet()) {
-                    for (DefineNodes define : v.getDefines()) {
+                //retrieve virtual defines from all includes
+                for (IncludeNode include : allincVisitor.getIncludes()) {
+                    definesVisitor.reset();
+                    FileNode tmpF = tree.getChild(include.getFileName());
+                    if(tmpF != null) tmpF.accept(definesVisitor);
+                    for (DefineNodes define : definesVisitor.getDefines()) {
+                        //just acting like undefs are just defines because in this scenario it does not matter
+                        allDefines.add(new Define(define.getMacroName(), null, include.getLineInfo()));
+                    }
+                }
+
+                //local defines of the current file
+                allDefines.addAll(allincVisitor.getDefines());
+
+                for (Map.Entry<Feature, Integer> entry : allincVisitor.getFeatureMap().entrySet()) {
+                    for (DefineNodes define : allDefines) {
                         type = featureMap.get(entry.getKey());
                         boolean sameName = entry.getKey().getName().equals(define.getMacroName());
                         int lineResult = entry.getValue().compareTo(define.getLineInfo());

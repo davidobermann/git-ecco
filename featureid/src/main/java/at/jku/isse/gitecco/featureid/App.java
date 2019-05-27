@@ -26,8 +26,9 @@ public class App extends Thread{
     private final static String CSV_PATH = "C:\\obermanndavid\\git-ecco-test\\results\\results_ marlin_200.csv";
     private final static boolean DISPOSE = true;
     private final static boolean DEBUG = true;
-    private final static int MAX_COMMITS = 10;
+    private final static int MAX_COMMITS = 100;
     private final static boolean MAX_COMMITS_ENA = true;
+    private final static boolean PARALLEL = true;
 
     public static void main(String... args) throws Exception {
         long measure = System.currentTimeMillis();
@@ -68,19 +69,25 @@ public class App extends Thread{
                         System.exit(0);
                     }
 
-                    tasks.add(
-                            executorService.submit(() -> {
-                                ID.evaluateFeatureMap(evaluation, ID.id(gc.getTree()));
-                                //dispose tree if it is not needed -> for memory saving reasons.
-                                if (dispose) gc.disposeTree();
-                            })
-                    );
+                    if(PARALLEL) {
+                        tasks.add(
+                                executorService.submit(() -> {
+                                    ID.evaluateFeatureMap(evaluation, ID.id(gc.getTree()));
+                                    //dispose tree if it is not needed -> for memory saving reasons.
+                                    if (dispose) gc.disposeTree();
+                                })
+                        );
+                    } else {
+                        ID.evaluateFeatureMap(evaluation, ID.id(gc.getTree()));
+                        //dispose tree if it is not needed -> for memory saving reasons.
+                        if (dispose) gc.disposeTree();
+                    }
                 }
         );
 
         gitHelper.getAllCommits(commitList);
 
-        while(!isDone(tasks)) sleep(100);
+        while(PARALLEL && !isDone(tasks)) sleep(100);
         executorService.shutdownNow();
 
         //print to CSV:

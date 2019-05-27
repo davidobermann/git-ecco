@@ -34,6 +34,18 @@ public final class RootNode extends Node implements Visitable {
     }
 
     /**
+     * Retrieves a child node for a given path
+     * @param path
+     * @return
+     */
+    public FileNode getChild(String path) {
+        for (FileNode child : children) {
+            if(child.getFilePath().contains(path)) return child;
+        }
+        return null;
+    }
+
+    /**
      * Adds a new child to the root node.
      * These children can only be an instance of a FileNode.
      * @param n

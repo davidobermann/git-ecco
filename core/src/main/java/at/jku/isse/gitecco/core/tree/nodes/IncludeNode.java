@@ -16,6 +16,14 @@ public final class IncludeNode implements Visitable {
     }
 
     /**
+     * Retrieves the line info of this include node.
+     * @return
+     */
+    public int getLineInfo() {
+        return lineInfo;
+    }
+
+    /**
      * Retrieves the name of the file which is to be included into the source file.
      * @return
      */

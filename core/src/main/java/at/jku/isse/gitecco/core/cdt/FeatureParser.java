@@ -99,7 +99,7 @@ public class FeatureParser {
             } else if (pps instanceof IASTPreprocessorIncludeStatement) {
                 IASTPreprocessorIncludeStatement is = (IASTPreprocessorIncludeStatement) pps;
                 currentConditional.addInclude(
-                        new IncludeNode(is.getPath(), is.getFileLocation().getStartingLineNumber())
+                        new IncludeNode(is.getName().toString(), is.getFileLocation().getStartingLineNumber())
                 );
             }
         }

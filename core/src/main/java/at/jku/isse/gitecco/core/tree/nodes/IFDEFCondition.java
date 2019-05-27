@@ -29,6 +29,9 @@ public final class IFDEFCondition extends ConditionalNode implements Visitable {
         for (DefineNodes defineNode : getDefineNodes()) {
             defineNode.accept(v);
         }
+        for (IncludeNode includeNode : getIncludeNodes()) {
+            includeNode.accept(v);
+        }
         v.visit(this);
     }
 }
