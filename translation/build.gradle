@@ -4,6 +4,8 @@ dependencies {
 
     testCompile project(':featureid')
 
-    // https://mvnrepository.com/artifact/org.anarres/jcpp
-    compile group: 'org.anarres', name: 'jcpp', version: '1.4.13'
+    // https://mvnrepository.com/artifact/org.choco-solver/choco-solver
+    compile group: 'org.choco-solver', name: 'choco-solver', version: '4.10.0'
+
+    compile fileTree(dir: 'libs', include: ['*.jar'])
 }
