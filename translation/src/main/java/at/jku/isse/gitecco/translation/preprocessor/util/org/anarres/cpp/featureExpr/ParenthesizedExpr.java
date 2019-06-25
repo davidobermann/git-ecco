@@ -23,6 +23,10 @@ public class ParenthesizedExpr extends FeatureExpression {
         this.expr.setParent(this);
     }
 
+    public FeatureExpression getExpr() {
+        return this.expr;
+    }
+
     @Override
     public String toString() {
         return "(" + expr + ")";

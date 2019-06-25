@@ -77,6 +77,11 @@ public class PreprocessorHelper {
         pp.setKeepIncludes(true);
         pp.setKeepDefines(true);
 
+        for (Feature feature : configuration) {
+            //TODO: add support for non boolean defines: A < 100 --> A = 100 etc.
+            pp.addMacro(feature.getName());
+        }
+
         File src = new File(inPath);
         File target = new File(outPath);
 
