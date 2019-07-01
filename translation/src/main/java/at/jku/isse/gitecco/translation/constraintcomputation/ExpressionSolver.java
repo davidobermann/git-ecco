@@ -11,6 +11,9 @@ import org.chocosolver.solver.variables.Variable;
 
 import java.util.*;
 
+/**
+ * Class for finding positive solutions for preprocessor conditions
+ */
 public class ExpressionSolver {
     private String expr;
     private Model model;
@@ -18,6 +21,10 @@ public class ExpressionSolver {
     private final Stack<Variable> stack;
     private boolean isIntVar = false;
 
+    /**
+     * Create new solver with a given expression to solve.
+     * @param expr
+     */
     public ExpressionSolver(String expr) {
         this.expr = expr;
         this.model = new Model();
@@ -25,6 +32,9 @@ public class ExpressionSolver {
         this.stack = new Stack<>();
     }
 
+    /**
+     * Resets the solver so a new expression can be solved.
+     */
     public void reset() {
         this.expr = "";
         this.model = new Model();
@@ -32,6 +42,10 @@ public class ExpressionSolver {
         this.stack.clear();
     }
 
+    /**
+     * Resets the solver and assigns a new expression to solve.
+     * @param expr
+     */
     public void reset(String expr) {
         this.expr = expr;
         this.model = new Model();
@@ -39,10 +53,19 @@ public class ExpressionSolver {
         this.stack.clear();
     }
 
+    /**
+     * Sets a new expression for the solver.
+     * @param expr
+     */
     public void setExpr(String expr) {
         this.expr = expr;
     }
 
+    /**
+     * Solves the expression currently assigned to this solver.
+     * Returns a Map with the Feature as key and the value to be assigned as an Integer.
+     * @return The Map with the solution.
+     */
     public Map<Feature, Integer> solve() {
         Map<Feature, Integer> assignments = new HashMap<>();
 
@@ -62,6 +85,11 @@ public class ExpressionSolver {
         return Collections.unmodifiableMap(assignments);
     }
 
+    /**
+     * Helper Method
+     * Traverses the expression tree which was created before by the FeatureExpressionParser.
+     * @param expr the expression tree to be parsed.
+     */
     private void traverse(FeatureExpression expr) {
         if(expr == null) return;
 
@@ -194,6 +222,14 @@ public class ExpressionSolver {
         }
     }
 
+    /**
+     * Helper Method
+     * Checks if a variable with a given name exists already in a given model.
+     * If it does the variable is returned. Otherwise null is returned.
+     * @param model
+     * @param name
+     * @return
+     */
     private Variable checkVars(Model model, String name) {
         for (Variable var : model.getVars()) {
             if(var.getName().equals(name)) return var;
