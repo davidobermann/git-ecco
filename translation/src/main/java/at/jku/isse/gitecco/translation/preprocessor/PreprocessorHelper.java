@@ -45,7 +45,7 @@ public class PreprocessorHelper {
         for (Map.Entry<Feature, Integer> entry : configuration.entrySet()) {
             //TODO: one of them migth be removable since we extract the solution form the clean version
             pp.addMacro(entry.getKey().getName(),entry.getValue().toString());
-            pp.addMacro("SWITCH_ENABLED_"+entry.getKey().getName(),entry.getValue().toString());
+            //pp.addMacro("SWITCH_ENABLED_"+entry.getKey().getName(),entry.getValue().toString());
         }
 
         pp.preprocess(src, target);

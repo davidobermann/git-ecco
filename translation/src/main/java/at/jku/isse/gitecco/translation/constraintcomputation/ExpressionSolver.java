@@ -23,6 +23,7 @@ public class ExpressionSolver {
 
     /**
      * Create new solver with a given expression to solve.
+     *
      * @param expr
      */
     public ExpressionSolver(String expr) {
@@ -44,6 +45,7 @@ public class ExpressionSolver {
 
     /**
      * Resets the solver and assigns a new expression to solve.
+     *
      * @param expr
      */
     public void reset(String expr) {
@@ -55,6 +57,7 @@ public class ExpressionSolver {
 
     /**
      * Sets a new expression for the solver.
+     *
      * @param expr
      */
     public void setExpr(String expr) {
@@ -64,6 +67,7 @@ public class ExpressionSolver {
     /**
      * Solves the expression currently assigned to this solver.
      * Returns a Map with the Feature as key and the value to be assigned as an Integer.
+     *
      * @return The Map with the solution.
      */
     public Map<Feature, Integer> solve() {
@@ -80,6 +84,8 @@ public class ExpressionSolver {
             for (IntVar var : vars) {
                 assignments.put(new Feature(var.getName()), solution.getIntVal(var));
             }
+        } else {
+            System.err.println("DEAD CODE: No solution found for "+expr);
         }
 
         return Collections.unmodifiableMap(assignments);
@@ -88,17 +94,18 @@ public class ExpressionSolver {
     /**
      * Helper Method
      * Traverses the expression tree which was created before by the FeatureExpressionParser.
+     *
      * @param expr the expression tree to be parsed.
      */
     private void traverse(FeatureExpression expr) {
-        if(expr == null) return;
+        if (expr == null) return;
 
-        if(expr instanceof Name) {
+        if (expr instanceof Name) {
             String name = ((Name) expr).getToken().getText();
             Variable check = checkVars(model, name);
-            if(check == null) {
-                if(isIntVar) {
-                    IntVar iv = model.intVar(name, Short.MIN_VALUE,Short.MAX_VALUE);
+            if (check == null) {
+                if (isIntVar) {
+                    IntVar iv = model.intVar(name, Short.MIN_VALUE, Short.MAX_VALUE);
                     vars.add(iv);
                     stack.push(iv);
                 } else {
@@ -109,9 +116,10 @@ public class ExpressionSolver {
             } else {
                 stack.push(check);
             }
-        } else if(expr instanceof NumberLiteral) {
+        } else if (expr instanceof NumberLiteral) {
             stack.push(model.intVar(Integer.valueOf((((NumberLiteral) expr).getToken().getText()))));
-        } else if(expr instanceof SingleTokenExpr) {
+            isIntVar = true;
+        } else if (expr instanceof SingleTokenExpr) {
             IntVar right;
             IntVar left;
             BoolVar bright;
@@ -124,6 +132,7 @@ public class ExpressionSolver {
                     stack.push(left.ge(right).boolVar());
                     break;
                 case Token.EQ:      //equal "=="
+                    //TODO: isIntVar and realVar
                     right = stack.pop().asIntVar();
                     left = stack.pop().asIntVar();
                     stack.push(left.eq(right).boolVar());
@@ -193,21 +202,21 @@ public class ExpressionSolver {
                     stack.push(left.pow(right).intVar());
                     break;
                 default:
-                    System.err.println("unexpected token with token id: " + e.getToken().getType() + " and symbol: " + e.getToken().getText());
+                    System.err.println("unexpected token with token id: "+e.getToken().getType()+" and symbol: "+e.getToken().getText());
                     break;
             }
-        } else if(expr instanceof CondExpr) {
+        } else if (expr instanceof CondExpr) {
             CondExpr e = (CondExpr) expr;
             //idea: parse that created expression and attach it instead of the CondExpr and continue to traverse again.
-            String cond = "(!("+e.getExpr()+")||("+e.getThenExpr()+"))&&(("+e.getExpr()+")||("+e.getElseExpr() + "))";
+            String cond = "(!("+e.getExpr()+")||("+e.getThenExpr()+"))&&(("+e.getExpr()+")||("+e.getElseExpr()+"))";
             traverse(new FeatureExpressionParser(cond).parse());
-        } else if(expr instanceof PrefixExpr) {
+        } else if (expr instanceof PrefixExpr) {
             traverse(((PrefixExpr) expr).getExpr());
             traverse(((PrefixExpr) expr).getOperator());
-        } else if(expr instanceof InfixExpr) {
+        } else if (expr instanceof InfixExpr) {
             int op = ((InfixExpr) expr).getOperator().getToken().getType();
 
-            if(op == 43 || op == 45 || op == 42 || op == 47 || op == 37 //266 == wirklich notwendig?
+            if (op == 43 || op == 45 || op == 42 || op == 47 || op == 37 //266 == wirklich notwendig?
                     || op == 94 || op == 267 || op == 266 || op == 283 || op == 60 || op == 62 || op == 275)
                 isIntVar = true;
             else isIntVar = false;
@@ -215,10 +224,10 @@ public class ExpressionSolver {
             traverse(((InfixExpr) expr).getLeftHandSide());
             traverse(((InfixExpr) expr).getRightHandSide());
             traverse(((InfixExpr) expr).getOperator());
-        } else if(expr instanceof ParenthesizedExpr){
+        } else if (expr instanceof ParenthesizedExpr) {
             traverse(((ParenthesizedExpr) expr).getExpr());
         } else {
-            System.err.println("unexpected node in AST: " + expr.getClass());
+            System.err.println("unexpected node in AST: "+expr.getClass());
         }
     }
 
@@ -226,13 +235,14 @@ public class ExpressionSolver {
      * Helper Method
      * Checks if a variable with a given name exists already in a given model.
      * If it does the variable is returned. Otherwise null is returned.
+     *
      * @param model
      * @param name
      * @return
      */
     private Variable checkVars(Model model, String name) {
         for (Variable var : model.getVars()) {
-            if(var.getName().equals(name)) return var;
+            if (var.getName().equals(name)) return var;
         }
         return null;
     }

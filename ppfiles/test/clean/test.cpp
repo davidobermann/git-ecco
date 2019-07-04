@@ -1,6 +1,6 @@
 #include "macros.h"
 
-#if MIN(2, 3) > 1
+#if 2 > 1
  int a;
 #endif
 
@@ -9,7 +9,7 @@
 #endif
 
 #if SWITCH_ENABLED_A
-    #define C 
+    #define C
     #if AA
         int aa = 20;
     #endif
