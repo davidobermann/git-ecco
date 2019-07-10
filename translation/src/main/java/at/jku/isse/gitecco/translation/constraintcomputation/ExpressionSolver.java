@@ -20,6 +20,19 @@ public class ExpressionSolver {
     private final List<IntVar> vars;
     private final Stack<Variable> stack;
     private boolean isIntVar = false;
+    private final List<FeatureImplication> implications;
+
+    /**
+     * Inner Class for handling feature implications
+     */
+    private class FeatureImplication {
+        BoolVar a, b;
+
+        public FeatureImplication(BoolVar a, BoolVar b) {
+            this.a = a;
+            this.b = b;
+        }
+    }
 
     /**
      * Create new solver with a given expression to solve.
@@ -31,6 +44,7 @@ public class ExpressionSolver {
         this.model = new Model();
         this.vars = new LinkedList<>();
         this.stack = new Stack<>();
+        this.implications = new LinkedList<>();
     }
 
     /**
@@ -41,6 +55,14 @@ public class ExpressionSolver {
         this.model = new Model();
         this.vars.clear();
         this.stack.clear();
+        this.implications.clear();
+    }
+
+    /**
+     * Resets just the implications
+     */
+    public void clearImpications() {
+        this.implications.clear();
     }
 
     /**
@@ -53,6 +75,8 @@ public class ExpressionSolver {
         this.model = new Model();
         this.vars.clear();
         this.stack.clear();
+        this.implications.clear();
+
     }
 
     /**
@@ -73,12 +97,32 @@ public class ExpressionSolver {
     public Map<Feature, Integer> solve() {
         Map<Feature, Integer> assignments = new HashMap<>();
 
+        //parse the expression and traverse the syntax tree
         FeatureExpressionParser p = new FeatureExpressionParser(expr);
         FeatureExpression root = p.parse();
         traverse(root);
 
+        //add the parsed problem to the solver model
         model.post(stack.pop().asBoolVar().extension());
 
+        //add all the feature implications to the model:
+        Variable ifVar = null;
+        Variable thenVar = null;
+
+        for (FeatureImplication im : implications) {
+            ifVar = checkVars(model, im.a.getName());
+            thenVar = checkVars(model, im.b.getName());
+
+            if(ifVar == null) ifVar = model.boolVar(im.a.getName());
+            if(thenVar == null) thenVar = model.boolVar(im.b.getName());
+
+            this.vars.add(ifVar.asIntVar());
+
+            //model.ifThen(ifVar.asBoolVar(),thenVar.asBoolVar().extension());
+            model.ifThenElse(ifVar.asBoolVar(),thenVar.asBoolVar().extension(),thenVar.asBoolVar().not().extension());
+        }
+
+        //acutal solving
         Solution solution = model.getSolver().findSolution();
         if (solution != null) {
             for (IntVar var : vars) {
@@ -89,6 +133,21 @@ public class ExpressionSolver {
         }
 
         return Collections.unmodifiableMap(assignments);
+    }
+
+
+    public void addFeatureImplication(String ifex, String thenex) {
+        FeatureExpressionParser p = new FeatureExpressionParser(ifex);
+        FeatureExpression root = p.parse();
+        traverse(root);
+        BoolVar bif = stack.pop().asBoolVar();
+
+        p = new FeatureExpressionParser(thenex);
+        root = p.parse();
+        traverse(root);
+        BoolVar bthen = stack.pop().asBoolVar();
+
+        this.implications.add(new FeatureImplication(bif,bthen));
     }
 
     /**
@@ -117,6 +176,7 @@ public class ExpressionSolver {
                 stack.push(check);
             }
         } else if (expr instanceof NumberLiteral) {
+            //TODO: implement option to parse double values too.
             stack.push(model.intVar(Integer.valueOf((((NumberLiteral) expr).getToken().getText()))));
             isIntVar = true;
         } else if (expr instanceof SingleTokenExpr) {
@@ -132,10 +192,15 @@ public class ExpressionSolver {
                     stack.push(left.ge(right).boolVar());
                     break;
                 case Token.EQ:      //equal "=="
-                    //TODO: isIntVar and realVar
-                    right = stack.pop().asIntVar();
-                    left = stack.pop().asIntVar();
-                    stack.push(left.eq(right).boolVar());
+                    if(isIntVar) {
+                        right = stack.pop().asIntVar();
+                        left = stack.pop().asIntVar();
+                        stack.push(left.eq(right).boolVar());
+                    } else {
+                        bright = stack.pop().asBoolVar();
+                        bleft = stack.pop().asBoolVar();
+                        stack.push(bleft.eq(bright).boolVar());
+                    }
                     break;
                 case Token.LE:      //less than or equal "<="
                     right = stack.pop().asIntVar();
