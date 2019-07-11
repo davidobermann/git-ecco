@@ -1,17 +1,10 @@
 package at.jku.isse.gitecco.core.tree.util;
 
 import at.jku.isse.gitecco.core.git.Change;
+import at.jku.isse.gitecco.core.solver.ExpressionSolver;
 import at.jku.isse.gitecco.core.tree.nodes.ConditionalNode;
 import at.jku.isse.gitecco.core.tree.nodes.SourceFileNode;
 import at.jku.isse.gitecco.core.tree.visitor.GetNodesForChangeVisitor;
-import org.logicng.datastructures.Assignment;
-import org.logicng.datastructures.Tristate;
-import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFactory;
-import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PropositionalParser;
-import org.logicng.solvers.MiniSat;
-import org.logicng.solvers.SATSolver;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -33,9 +26,8 @@ public class ChangeComputation {
      *
      * @param c
      * @param sfn
-     * @throws ParserException
      */
-    public void computeForChange(Change c, SourceFileNode sfn) throws ParserException {
+    public void computeForChange(Change c, SourceFileNode sfn) {
         changed.clear();
 
         final Set<String> affected = new HashSet<>();
@@ -46,7 +38,7 @@ public class ChangeComputation {
         else {
             for (ConditionalNode node : v.getchangedNodes()) {
                 //Changed: get first positive condition
-                while (!checkPositive(node.getCondition(),sfn) && node.getParent().getParent() != null) {
+                while (!checkPositive(node.getCondition()) && node.getParent().getParent() != null) {
                     node = node.getParent().getParent();
                 }
 
@@ -66,32 +58,19 @@ public class ChangeComputation {
     }
 
     /**
-     * Determines if a condition is positive --> if its model has positive literals
+     * Checks if the given condition has a positive solution.
+     * Positive Solution: At least one variable has an assignment that is not false(0).
      *
      * @param condition
      * @return
-     * @throws ParserException
      */
-    private boolean checkPositive(String condition, SourceFileNode sfn) throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
-        final PropositionalParser p = new PropositionalParser(f);
-        condition = condition.replace('!', '~').replace("&&", "&").replace("||", "|");
-        final SATSolver miniSat = MiniSat.miniSat(f);
-
-        try {
-            final Formula formula = p.parse(condition);
-            miniSat.add(formula);
-        } catch (ParserException e) {
-            System.out.println("error processing condition: " + condition);
-            System.out.println(sfn.getFilePath() + "\n");
-        }
-
-        final Tristate result = miniSat.sat();
-
-        if (result.equals(Tristate.FALSE)) return false;
-
-        Assignment model = miniSat.model();
-
-        return model.positiveLiterals().size()>0;
+    private boolean checkPositive(String condition) {
+        return new ExpressionSolver(condition)
+                        .solve()
+                        .entrySet()
+                        .stream()
+                        .filter(x->x.getValue()!=0)
+                        .count()
+                        > 0;
     }
 }

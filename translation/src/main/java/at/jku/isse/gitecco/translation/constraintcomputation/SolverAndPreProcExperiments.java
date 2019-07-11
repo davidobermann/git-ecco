@@ -1,11 +1,8 @@
 package at.jku.isse.gitecco.translation.constraintcomputation;
 
+import at.jku.isse.gitecco.core.solver.ExpressionSolver;
 import at.jku.isse.gitecco.core.type.Feature;
-import at.jku.isse.gitecco.translation.preprocessor.PreprocessorHelper;
-import org.chocosolver.solver.Model;
-import org.chocosolver.solver.Solution;
-import org.chocosolver.solver.variables.RealVar;
-import org.chocosolver.solver.variables.Variable;
+import at.jku.isse.gitecco.core.preprocessor.PreprocessorHelper;
 
 import java.io.File;
 import java.util.*;

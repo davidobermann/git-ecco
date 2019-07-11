@@ -1,11 +1,11 @@
 package at.jku.isse.gitecco.core.type;
 
+import at.jku.isse.gitecco.core.preprocessor.util.org.anarres.cpp.featureExpr.*;
 import at.jku.isse.gitecco.core.tree.nodes.DefineNodes;
-import org.mariuszgromada.math.mxparser.Expression;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Class to represent a feature.
@@ -57,18 +57,49 @@ public class Feature implements Comparable<Feature> {
         return this.name.compareTo(o.name);
     }
 
+
     /**
      * Extracts all features from a given condition string
      * @param condition the condition string
      * @return A Set of type feature
      */
     public static Set<Feature> parseCondition(String condition) {
-        return new Expression(condition)
-                .getCopyOfInitialTokens()
-                .stream()
-                .filter(x->x.looksLike.equals("argument"))
-                .map(x->new Feature(x.tokenStr))
-                .collect(Collectors.toSet());
+        Set<Feature> ret = new HashSet<>();
+
+        FeatureExpressionParser fep = new FeatureExpressionParser(condition);
+        FeatureExpression root = fep.parse();
+
+        traverse(root, ret);
+
+        return ret;
+    }
+
+    /**
+     * Helper Method
+     * Traverses the expression tree which was created before by the FeatureExpressionParser.
+     *
+     * @param expr the expression tree to be parsed.
+     */
+    private static void traverse(FeatureExpression expr, Set<Feature> features) {
+        if (expr == null) return;
+
+        if (expr instanceof Name) {
+            features.add(new Feature(((Name) expr).getToken().getText()));
+        } else if (expr instanceof CondExpr) {
+            CondExpr e = (CondExpr) expr;
+            //idea: parse that created expression and attach it instead of the CondExpr and continue to traverse again.
+            String cond = "(!("+e.getExpr()+")||("+e.getThenExpr()+"))&&(("+e.getExpr()+")||("+e.getElseExpr()+"))";
+            traverse(new FeatureExpressionParser(cond).parse(), features);
+        } else if (expr instanceof PrefixExpr) {
+            traverse(((PrefixExpr) expr).getExpr(), features);
+            traverse(((PrefixExpr) expr).getOperator(), features);
+        } else if (expr instanceof InfixExpr) {
+            traverse(((InfixExpr) expr).getLeftHandSide(), features);
+            traverse(((InfixExpr) expr).getRightHandSide(), features);
+            traverse(((InfixExpr) expr).getOperator(), features);
+        } else if (expr instanceof ParenthesizedExpr) {
+            traverse(((ParenthesizedExpr) expr).getExpr(), features);
+        }
     }
 
 }
