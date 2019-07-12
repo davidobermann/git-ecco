@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 /**
  * Class for storing a row of commits
  * With the option to react to added commits
- * depending on their type.
+ * depending on their types.
  */
 public class GitCommitList extends ArrayList<GitCommit> {
     private final GitHelper gitHelper;

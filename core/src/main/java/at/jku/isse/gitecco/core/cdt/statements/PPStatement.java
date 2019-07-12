@@ -14,7 +14,7 @@ public class PPStatement {
      * Creates a new PPStatement
      *
      * @param pps IASTPreprocessorStatement which should be checked.
-     * @throws Exception - If the IASTPreprocessorStatement is not of the right type.
+     * @throws Exception - If the IASTPreprocessorStatement is not of the right types.
      */
     public PPStatement(IASTPreprocessorStatement pps) throws Exception {
 

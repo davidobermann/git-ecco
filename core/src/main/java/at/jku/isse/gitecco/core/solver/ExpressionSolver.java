@@ -1,10 +1,11 @@
 package at.jku.isse.gitecco.core.solver;
 
-import at.jku.isse.gitecco.core.type.Feature;
+import at.jku.isse.gitecco.core.types.Feature;
 import at.jku.isse.gitecco.core.preprocessor.util.org.anarres.cpp.Token;
 import at.jku.isse.gitecco.core.preprocessor.util.org.anarres.cpp.featureExpr.*;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
+import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
@@ -102,9 +103,6 @@ public class ExpressionSolver {
         FeatureExpression root = p.parse();
         traverse(root);
 
-        //add the parsed problem to the solver model
-        model.post(stack.pop().asBoolVar().extension());
-
         //add all the feature implications to the model:
         Variable ifVar = null;
         Variable thenVar = null;
@@ -121,6 +119,9 @@ public class ExpressionSolver {
             //model.ifThen(ifVar.asBoolVar(),thenVar.asBoolVar().extension());
             model.ifThenElse(ifVar.asBoolVar(),thenVar.asBoolVar().extension(),thenVar.asBoolVar().not().extension());
         }
+
+        //add the parsed problem to the solver model
+        model.post(stack.pop().asBoolVar().extension());
 
         //acutal solving
         Solution solution = model.getSolver().findSolution();
@@ -175,9 +176,42 @@ public class ExpressionSolver {
             } else {
                 stack.push(check);
             }
+        } else if (expr instanceof AssignExpr) {
+            //TODO: does not work like this.
+            //TODO: need to push a BoolVar, but that does not work --> instatiate the intVar somehow conditional
+            AssignExpr aexp = (AssignExpr) expr;
+            if(aexp.getLeftHandSide() instanceof Name) {
+                String name = ((Name) aexp.getLeftHandSide()).getToken().getText();
+                Variable check = checkVars(model, name);
+                if(check == null) {
+                    IntVar iv = model.intVar(name, Double.valueOf((((NumberLiteral) aexp.getRightHandSide()).getToken().getText())).intValue());
+                    vars.add(iv);
+                    //TODO: !! not like this !!
+                    stack.push(model.boolVar(true));
+                } else {
+                    try {
+                        check.asIntVar().instantiateTo(Double.valueOf((((NumberLiteral) aexp.getRightHandSide()).getToken().getText())).intValue(),null);
+                    } catch (ContradictionException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                String name = ((Name) aexp.getRightHandSide()).getToken().getText();
+                Variable check = checkVars(model, name);
+                if(check == null) {
+                    IntVar iv = model.intVar(name, Double.valueOf((((NumberLiteral) aexp.getLeftHandSide()).getToken().getText())).intValue());
+                    vars.add(iv);
+                    stack.push(model.boolVar(true));
+                } else {
+                    try {
+                        check.asIntVar().instantiateTo(Double.valueOf((((NumberLiteral) aexp.getLeftHandSide()).getToken().getText())).intValue(),null);
+                    } catch (ContradictionException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         } else if (expr instanceof NumberLiteral) {
-            //TODO: implement option to parse double values too.
-            stack.push(model.intVar(Integer.valueOf((((NumberLiteral) expr).getToken().getText()))));
+            stack.push(model.intVar(Double.valueOf((((NumberLiteral) expr).getToken().getText())).intValue()));
             isIntVar = true;
         } else if (expr instanceof SingleTokenExpr) {
             IntVar right;

@@ -1,7 +1,7 @@
 package at.jku.isse.gitecco.core.tree.visitor;
 
 import at.jku.isse.gitecco.core.tree.nodes.*;
-import at.jku.isse.gitecco.core.type.Feature;
+import at.jku.isse.gitecco.core.types.Feature;
 
 import java.util.*;
 

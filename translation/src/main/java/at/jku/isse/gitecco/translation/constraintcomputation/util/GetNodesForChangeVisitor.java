@@ -1,14 +1,15 @@
-package at.jku.isse.gitecco.core.tree.visitor;
+package at.jku.isse.gitecco.translation.constraintcomputation.util;
 
 import at.jku.isse.gitecco.core.git.Change;
 import at.jku.isse.gitecco.core.tree.nodes.*;
+import at.jku.isse.gitecco.core.tree.visitor.TreeVisitor;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class GetNodesForChangeVisitor implements TreeVisitor{
+public class GetNodesForChangeVisitor implements TreeVisitor {
     private Change change;
     private final Set<ConditionalNode> changedNodes;
 

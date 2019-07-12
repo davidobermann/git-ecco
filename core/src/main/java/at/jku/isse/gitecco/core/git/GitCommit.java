@@ -101,7 +101,7 @@ public class GitCommit {
     }
 
     /**
-     * Gets the type of the commit: commit/branch/merge
+     * Gets the types of the commit: commit/branch/merge
      *
      * @return
      */

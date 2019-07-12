@@ -1,6 +1,6 @@
 package at.jku.isse.gitecco.core.preprocessor;
 
-import at.jku.isse.gitecco.core.type.Feature;
+import at.jku.isse.gitecco.core.types.Feature;
 import at.jku.isse.gitecco.core.preprocessor.util.org.anarres.cpp.OnlyExpandMacrosInIfsController;
 import at.jku.isse.gitecco.core.preprocessor.util.org.anarres.cpp.PreprocessorAPI;
 

@@ -1,10 +1,10 @@
-package at.jku.isse.gitecco.core.tree.util;
+package at.jku.isse.gitecco.translation.constraintcomputation.util;
 
 import at.jku.isse.gitecco.core.git.Change;
 import at.jku.isse.gitecco.core.solver.ExpressionSolver;
 import at.jku.isse.gitecco.core.tree.nodes.ConditionalNode;
 import at.jku.isse.gitecco.core.tree.nodes.SourceFileNode;
-import at.jku.isse.gitecco.core.tree.visitor.GetNodesForChangeVisitor;
+import at.jku.isse.gitecco.core.tree.util.ComittableChange;
 
 import java.util.Collections;
 import java.util.HashSet;

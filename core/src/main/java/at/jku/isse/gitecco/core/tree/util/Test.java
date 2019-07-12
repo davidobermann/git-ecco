@@ -1,7 +1,7 @@
 package at.jku.isse.gitecco.core.tree.util;
 
 
-import at.jku.isse.gitecco.core.type.Feature;
+import at.jku.isse.gitecco.core.types.Feature;
 
 public class Test {
     public static void main(String... args) {

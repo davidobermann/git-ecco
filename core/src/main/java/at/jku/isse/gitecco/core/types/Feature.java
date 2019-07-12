@@ -1,4 +1,4 @@
-package at.jku.isse.gitecco.core.type;
+package at.jku.isse.gitecco.core.types;
 
 import at.jku.isse.gitecco.core.preprocessor.util.org.anarres.cpp.featureExpr.*;
 import at.jku.isse.gitecco.core.tree.nodes.DefineNodes;
@@ -61,7 +61,7 @@ public class Feature implements Comparable<Feature> {
     /**
      * Extracts all features from a given condition string
      * @param condition the condition string
-     * @return A Set of type feature
+     * @return A Set of types feature
      */
     public static Set<Feature> parseCondition(String condition) {
         Set<Feature> ret = new HashSet<>();

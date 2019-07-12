@@ -1,9 +1,9 @@
 package at.jku.isse.gitecco.featureid.identification;
 
 import at.jku.isse.gitecco.core.tree.nodes.*;
-import at.jku.isse.gitecco.core.type.Feature;
-import at.jku.isse.gitecco.core.type.FeatureType;
-import at.jku.isse.gitecco.core.type.TraceableFeature;
+import at.jku.isse.gitecco.core.types.Feature;
+import at.jku.isse.gitecco.core.types.FeatureType;
+import at.jku.isse.gitecco.core.types.TraceableFeature;
 import at.jku.isse.gitecco.featureid.featuretree.visitor.GetAllDefinesVisitor;
 import at.jku.isse.gitecco.featureid.featuretree.visitor.GetAllFeaturesDefinesIncludesVisitor;
 
@@ -29,8 +29,8 @@ public class ID {
          *        - if a feature is used without a single define of it in the file --> external
          *        - if a feature is used before a define of it in the same file --> transient
          *        - every time a value would be stored in the map check for the current value
-         *        - only override if the type is weaker than the one in the map
-         *        - after this procedure the map contains all features and its type
+         *        - only override if the types is weaker than the one in the map
+         *        - after this procedure the map contains all features and its types
          *          for one commit.
          *
          *       Further steps: continue with evaluating the map --> translating this result into a set of
@@ -100,7 +100,7 @@ public class ID {
 
     /**
      * Evaluates the map that results from analyzing one commit.
-     * For every occurrence of a feature the counter is increased corresponding to its type.
+     * For every occurrence of a feature the counter is increased corresponding to its types.
      * @param evalList A list of traceable features.
      * @param map The map that results from the id method
      * @return the list that was passed.

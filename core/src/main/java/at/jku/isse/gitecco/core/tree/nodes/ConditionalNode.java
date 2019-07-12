@@ -69,7 +69,7 @@ public abstract class ConditionalNode extends ConditionNode {
 
     /**
      * Adds a child to this node.
-     * Children are of type ConditionBlockNode. Which then will have ConditionalNodes as children.
+     * Children are of types ConditionBlockNode. Which then will have ConditionalNodes as children.
      * @param n
      * @return
      */

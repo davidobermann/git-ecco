@@ -664,7 +664,7 @@ public class LexerSource extends Source {
      * Section 6.4.4.2 of C99
      *
      * A floating constant has a significand part that may be followed
-     * by an exponent part and a suffix that specifies its type. The
+     * by an exponent part and a suffix that specifies its types. The
      * components of the significand part may include a digit sequence
      * representing the whole-number part, followed by a period (.),
      * followed by a digit sequence representing the fraction part.

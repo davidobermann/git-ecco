@@ -1,4 +1,4 @@
-package at.jku.isse.gitecco.core.type;
+package at.jku.isse.gitecco.core.types;
 
 public class TraceableFeature extends Feature{
     private Integer externalOcc, internalOcc, transientOcc;
@@ -18,8 +18,8 @@ public class TraceableFeature extends Feature{
     }
 
     /**
-     * Increments the counter corresponding to the type.
-     * @param t The type of the feature.
+     * Increments the counter corresponding to the types.
+     * @param t The types of the feature.
      */
     public TraceableFeature inc(FeatureType t) {
         switch (t) {

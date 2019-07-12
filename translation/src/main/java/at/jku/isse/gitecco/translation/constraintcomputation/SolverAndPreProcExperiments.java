@@ -1,7 +1,7 @@
 package at.jku.isse.gitecco.translation.constraintcomputation;
 
 import at.jku.isse.gitecco.core.solver.ExpressionSolver;
-import at.jku.isse.gitecco.core.type.Feature;
+import at.jku.isse.gitecco.core.types.Feature;
 import at.jku.isse.gitecco.core.preprocessor.PreprocessorHelper;
 
 import java.io.File;
@@ -35,7 +35,7 @@ public class SolverAndPreProcExperiments {
         //String expr = "!A && B || C <= 100 || (C > 100 ? A : B)";
         //String expr = "!a&&b||a&&!b||c<10";
         //String expr = "(!a&&b||a&&!b)
-        String expr = "B && C";
+        String expr = "C>4";
 
         /*
         //how to model implicated features: not via implication --> ifthen
@@ -54,7 +54,7 @@ public class SolverAndPreProcExperiments {
 
         ExpressionSolver es = new ExpressionSolver(expr);
         es.addFeatureImplication("A","B");
-        es.addFeatureImplication("B", "!C");
+        es.addFeatureImplication("X", "C=3");
         Map<Feature, Integer> assignment = es.solve();
 
         assignment.entrySet().forEach(x->System.out.println(x.getKey().getName() + " = " + x.getValue().toString()));
