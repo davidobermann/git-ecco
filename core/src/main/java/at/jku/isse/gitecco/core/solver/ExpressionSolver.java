@@ -1,6 +1,6 @@
 package at.jku.isse.gitecco.core.solver;
 
-import at.jku.isse.gitecco.core.types.Feature;
+import at.jku.isse.gitecco.core.type.Feature;
 import org.anarres.cpp.Token;
 import org.anarres.cpp.featureExpr.*;
 import org.chocosolver.solver.Model;

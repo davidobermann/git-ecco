@@ -3,7 +3,7 @@ package at.jku.isse.gitecco.featureid;
 
 import at.jku.isse.gitecco.core.git.GitCommitList;
 import at.jku.isse.gitecco.core.git.GitHelper;
-import at.jku.isse.gitecco.core.types.TraceableFeature;
+import at.jku.isse.gitecco.featureid.type.TraceableFeature;
 import at.jku.isse.gitecco.featureid.identification.ID;
 import com.opencsv.CSVWriter;
 

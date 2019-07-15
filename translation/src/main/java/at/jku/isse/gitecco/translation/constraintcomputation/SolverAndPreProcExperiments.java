@@ -1,7 +1,7 @@
 package at.jku.isse.gitecco.translation.constraintcomputation;
 
 import at.jku.isse.gitecco.core.solver.ExpressionSolver;
-import at.jku.isse.gitecco.core.types.Feature;
+import at.jku.isse.gitecco.core.type.Feature;
 import at.jku.isse.gitecco.core.preprocessor.PreprocessorHelper;
 
 import java.io.File;
