@@ -5,6 +5,7 @@ import at.jku.isse.gitecco.core.preprocessor.util.org.anarres.cpp.Token;
 import at.jku.isse.gitecco.core.preprocessor.util.org.anarres.cpp.featureExpr.*;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
+import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
@@ -27,11 +28,12 @@ public class ExpressionSolver {
      * Inner Class for handling feature implications
      */
     private class FeatureImplication {
-        BoolVar a, b;
+        BoolVar a;
+        Constraint c;
 
-        public FeatureImplication(BoolVar a, BoolVar b) {
-            this.a = a;
-            this.b = b;
+        public FeatureImplication(BoolVar a, Constraint c) {
+            this.a = a
+            this.c = c;
         }
     }
 
@@ -77,7 +79,6 @@ public class ExpressionSolver {
         this.vars.clear();
         this.stack.clear();
         this.implications.clear();
-
     }
 
     /**
@@ -109,8 +110,7 @@ public class ExpressionSolver {
 
         for (FeatureImplication im : implications) {
             ifVar = checkVars(model, im.a.getName());
-            thenVar = checkVars(model, im.b.getName());
-
+            //TODO: ...
             if(ifVar == null) ifVar = model.boolVar(im.a.getName());
             if(thenVar == null) thenVar = model.boolVar(im.b.getName());
 
@@ -138,6 +138,7 @@ public class ExpressionSolver {
 
 
     public void addFeatureImplication(String ifex, String thenex) {
+        //TODO: how to react to implicated assignments to variables?
         FeatureExpressionParser p = new FeatureExpressionParser(ifex);
         FeatureExpression root = p.parse();
         traverse(root);
@@ -145,10 +146,45 @@ public class ExpressionSolver {
 
         p = new FeatureExpressionParser(thenex);
         root = p.parse();
-        traverse(root);
-        BoolVar bthen = stack.pop().asBoolVar();
 
-        this.implications.add(new FeatureImplication(bif,bthen));
+        if(checkForAssignment(root)) {
+            if(root instanceof AssignExpr) {
+                FeatureExpression left = ((AssignExpr) root).getLeftHandSide();
+                FeatureExpression right = ((AssignExpr) root).getRightHandSide();
+                if(left instanceof Name) {
+                    //TODO: left side of numeric implication
+                } else {
+                    //TODO: right side of implication.
+                }
+            }
+        } else {
+            traverse(root);
+            BoolVar bthen = stack.pop().asBoolVar();
+            this.implications.add(new FeatureImplication(bif,bthen.extension()));
+        }
+    }
+
+    private boolean checkForAssignment(FeatureExpression expr) {
+        if (expr == null) return false;
+
+        if (expr instanceof AssignExpr) {
+           return true;
+        } else if (expr instanceof CondExpr) {
+            CondExpr e = (CondExpr) expr;
+            //idea: parse that created expression and attach it instead of the CondExpr and continue to traverse again.
+            String cond = "(!("+e.getExpr()+")||("+e.getThenExpr()+"))&&(("+e.getExpr()+")||("+e.getElseExpr()+"))";
+            traverse(new FeatureExpressionParser(cond).parse());
+        } else if (expr instanceof PrefixExpr) {
+            traverse(((PrefixExpr) expr).getExpr());
+            traverse(((PrefixExpr) expr).getOperator());
+        } else if (expr instanceof InfixExpr) {
+            traverse(((InfixExpr) expr).getLeftHandSide());
+            traverse(((InfixExpr) expr).getRightHandSide());
+            traverse(((InfixExpr) expr).getOperator());
+        } else if (expr instanceof ParenthesizedExpr) {
+            traverse(((ParenthesizedExpr) expr).getExpr());
+        }
+        return false;
     }
 
     /**
@@ -178,7 +214,7 @@ public class ExpressionSolver {
             }
         } else if (expr instanceof AssignExpr) {
             //TODO: does not work like this.
-            //TODO: need to push a BoolVar, but that does not work --> instatiate the intVar somehow conditional
+            //TODO: need to push a BoolVar, but that does not work --> instantiate the intVar somehow conditional
             AssignExpr aexp = (AssignExpr) expr;
             if(aexp.getLeftHandSide() instanceof Name) {
                 String name = ((Name) aexp.getLeftHandSide()).getToken().getText();

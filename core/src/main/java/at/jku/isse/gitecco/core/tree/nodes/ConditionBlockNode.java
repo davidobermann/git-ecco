@@ -13,7 +13,7 @@ import java.util.List;
  * All of the conditionals may also be IFDEF IFNDEF.
  */
 public final class ConditionBlockNode extends ConditionNode implements Visitable {
-    private final List<IFCondition> elseIfBlocks;
+    private final List<ELIFCondition> elseIfBlocks;
     private ConditionalNode ifBlock;
     private ELSECondition elseBlock;
     private final ConditionalNode parent;
@@ -50,7 +50,7 @@ public final class ConditionBlockNode extends ConditionNode implements Visitable
      * @param n
      * @return
      */
-    public IFCondition addElseIfBlock(IFCondition n) {
+    public ELIFCondition addElseIfBlock(ELIFCondition n) {
         this.elseIfBlocks.add(n);
         return n;
     }
@@ -85,14 +85,14 @@ public final class ConditionBlockNode extends ConditionNode implements Visitable
      * Return the elseIfBlocks as a unmodifiable List.
      * @return
      */
-    public List<IFCondition> getElseIfBlocks() {
+    public List<ELIFCondition> getElseIfBlocks() {
         return Collections.unmodifiableList(elseIfBlocks);
     }
 
     @Override
     public void accept(TreeVisitor v) {
         if(elseBlock != null) elseBlock.accept(v);
-        for (IFCondition elseIfBlock : elseIfBlocks) {
+        for (ELIFCondition elseIfBlock : elseIfBlocks) {
             elseIfBlock.accept(v);
         }
         if(ifBlock != null) ifBlock.accept(v);

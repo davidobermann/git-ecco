@@ -85,6 +85,14 @@ public class GetNodesForChangeVisitor implements TreeVisitor {
     }
 
     @Override
+    public void visit(ELIFCondition c) {
+        if(change != null && (c.containsChange(change) || change.contains(c))) {
+            this.changedNodes.add(c);
+            if(!change.contains(c)) change = null;
+        }
+    }
+
+    @Override
     public void visit(Define d) {
 
     }

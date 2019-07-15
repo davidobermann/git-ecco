@@ -97,6 +97,13 @@ public class GetAllFeaturesDefinesIncludesVisitor implements TreeVisitor {
     }
 
     @Override
+    public void visit(ELIFCondition c) {
+        for (Feature feature : Feature.parseCondition(c.getDirectCondition())) {
+            if(!featureMap.containsKey(feature)) featureMap.put(feature, c.getLineFrom());
+        }
+    }
+
+    @Override
     public void visit(ELSECondition c) {
 
     }

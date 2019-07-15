@@ -23,10 +23,10 @@ public class App extends Thread{
     // "C:\\obermanndavid\\git-to-ecco\\test_repo5"
     // "C:\\obermanndavid\\git-ecco-test\\test_featureid\\betaflight"
     // "C:\\obermanndavid\\git-ecco-test\\test_featureid\\Marlin"
-    private final static String CSV_PATH = "C:\\obermanndavid\\git-ecco-test\\results\\results_ marlin_300.csv";
+    private final static String CSV_PATH = "C:\\obermanndavid\\git-ecco-test\\results\\results_ marlin_30.csv";
     private final static boolean DISPOSE = true;
     private final static boolean DEBUG = true;
-    private final static int MAX_COMMITS = 300;
+    private final static int MAX_COMMITS = 30;
     private final static boolean MAX_COMMITS_ENA = true;
     private final static boolean PARALLEL = true;
 

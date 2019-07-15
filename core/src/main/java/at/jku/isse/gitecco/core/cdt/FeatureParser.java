@@ -67,7 +67,7 @@ public class FeatureParser {
                 pp = new PPStatement(pps);
                 currentConditional.setLineTo(pp.getLineEnd());
                 currentBlock = currentConditional.getParent();
-                currentConditional = currentBlock.addElseIfBlock(new IFCondition(currentBlock,pp.getCondName()));
+                currentConditional = currentBlock.addElseIfBlock(new ELIFCondition(currentBlock,pp.getCondName()));
                 currentConditional.setLineFrom(pp.getLineStart());
 
             } else if (pps instanceof IASTPreprocessorElseStatement) {

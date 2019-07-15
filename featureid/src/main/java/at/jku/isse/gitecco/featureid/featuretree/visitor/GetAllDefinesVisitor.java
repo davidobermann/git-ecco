@@ -70,6 +70,11 @@ public class GetAllDefinesVisitor implements TreeVisitor {
     }
 
     @Override
+    public void visit(ELIFCondition c) {
+
+    }
+
+    @Override
     public void visit(Define d) {
         defines.add(d);
     }
