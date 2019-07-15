@@ -2,4 +2,4 @@ rootProject.name = 'git-ecco'
 include 'core'
 include 'featureid'
 include 'translation'
-
+include 'jcpp'

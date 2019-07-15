@@ -1,31 +1,28 @@
-
 dependencies {
 
-    //Jgit:
-//    compile 'org.eclipse.jgit:org.eclipse.jgit:4.11.0.201803080745-r'
-    compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '5.3.0.201903130848-r'
-//    compile 'org.eclipse.jgit:org.eclipse.jgit.archive:4.11.0.201803080745-r'
-    compile 'commons-io:commons-io:2.6'
-//    compile 'org.slf4j:slf4j-simple:1.7.25'
-//    compile 'org.tukaani:xz:1.8'
+	// Eclipse JGit
+	compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '5.4.0.201906121030-r'
+//	compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '5.3.0.201903130848-r'
+//  compile 'org.eclipse.jgit:org.eclipse.jgit:4.11.0.201803080745-r'
+//  compile 'org.eclipse.jgit:org.eclipse.jgit.archive:4.11.0.201803080745-r'
 
 
-    //Eclipse CDT
-//    compile group: 'org.eclipse.osgi', name: 'org.eclipse.osgi', version: '3.7.1'
-//    compile group: 'org.eclipse.core', name: 'org.eclipse.core.resources', version: '3.6.0.v20100526-0737'
-//    compile group: 'org.eclipse.equinox', name: 'org.eclipse.equinox.common', version: '3.6.0.v20100503'
-
-    // https://mvnrepository.com/artifact/org.logicng/logicng --> old version 1.3.1
-    //compile group: 'org.logicng', name: 'logicng', version: '1.5.1'
+	// Eclipse CDT
+//  compile group: 'org.eclipse.osgi', name: 'org.eclipse.osgi', version: '3.7.1'
+//  compile group: 'org.eclipse.core', name: 'org.eclipse.core.resources', version: '3.6.0.v20100526-0737'
+//  compile group: 'org.eclipse.equinox', name: 'org.eclipse.equinox.common', version: '3.6.0.v20100503'
 
 
-    //OpenCSV
-    compile group: 'com.opencsv', name: 'opencsv', version: '4.0'
+	//compile group: 'org.logicng', name: 'logicng', version: '1.5.1'
 
 
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile fileTree(dir: 'libs/ecco', include: ['*.jar'])
+	compile 'commons-io:commons-io:2.6'
 
-    // https://mvnrepository.com/artifact/org.choco-solver/choco-solver
-    compile group: 'org.choco-solver', name: 'choco-solver', version: '4.10.0'
+
+	compile fileTree(dir: 'libs/cdt', include: ['*.jar'])
+	compile fileTree(dir: 'libs/ecco', include: ['*.jar'])
+
+	compile project(':jcpp')
+
+	compile group: 'org.choco-solver', name: 'choco-solver', version: '4.10.1'
 }

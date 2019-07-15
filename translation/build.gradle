@@ -1,8 +1,5 @@
-
 dependencies {
-    compile project(':core')
+	compile project(':core')
 
-    testCompile project(':featureid')
-
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+	testCompile project(':featureid')
 }

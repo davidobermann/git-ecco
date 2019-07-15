@@ -1,4 +1,5 @@
-
 dependencies {
-    compile project(':core')
+	compile project(':core')
+
+	compile group: 'com.opencsv', name: 'opencsv', version: '4.0'
 }

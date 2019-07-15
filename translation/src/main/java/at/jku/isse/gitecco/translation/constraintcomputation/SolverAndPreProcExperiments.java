@@ -11,8 +11,8 @@ public class SolverAndPreProcExperiments {
 
     public static void main(String... args) {
         //testPPCleaner();
-        //testPPP();
-        testFeatureExpParser();
+        testPPP();
+        //testFeatureExpParser();
     }
 
     private static void testPPCleaner() {

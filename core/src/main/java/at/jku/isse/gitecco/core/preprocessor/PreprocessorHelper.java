@@ -1,8 +1,8 @@
 package at.jku.isse.gitecco.core.preprocessor;
 
 import at.jku.isse.gitecco.core.types.Feature;
-import at.jku.isse.gitecco.core.preprocessor.util.org.anarres.cpp.OnlyExpandMacrosInIfsController;
-import at.jku.isse.gitecco.core.preprocessor.util.org.anarres.cpp.PreprocessorAPI;
+import org.anarres.cpp.OnlyExpandMacrosInIfsController;
+import org.anarres.cpp.PreprocessorAPI;
 
 import java.io.File;
 import java.util.Map;

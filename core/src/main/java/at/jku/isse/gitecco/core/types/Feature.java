@@ -1,6 +1,6 @@
 package at.jku.isse.gitecco.core.types;
 
-import at.jku.isse.gitecco.core.preprocessor.util.org.anarres.cpp.featureExpr.*;
+import org.anarres.cpp.featureExpr.*;
 import at.jku.isse.gitecco.core.tree.nodes.DefineNodes;
 
 import java.util.HashSet;
