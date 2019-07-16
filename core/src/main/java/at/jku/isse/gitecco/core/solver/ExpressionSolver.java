@@ -6,7 +6,6 @@ import org.anarres.cpp.featureExpr.*;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
@@ -104,24 +103,13 @@ public class ExpressionSolver {
 		FeatureExpression root = p.parse();
 		traverse(root);
 
+        //add the parsed problem to the solver model
+        model.post(stack.pop().asBoolVar().extension());
+
 		//add all the feature implications to the model:
-		Variable ifVar = null;
-		Variable thenVar = null;
-
 		for (FeatureImplication im : implications) {
-			ifVar = checkVars(model, im.a.getName());
-			//TODO: ...
-			if (ifVar == null) ifVar = model.boolVar(im.a.getName());
-//			if (thenVar == null) thenVar = model.boolVar(im.b.getName());
-
-			this.vars.add(ifVar.asIntVar());
-
-			//model.ifThen(ifVar.asBoolVar(),thenVar.asBoolVar().extension());
-			model.ifThenElse(ifVar.asBoolVar(), thenVar.asBoolVar().extension(), thenVar.asBoolVar().not().extension());
+			model.ifOnlyIf(im.a.extension(), im.c);
 		}
-
-		//add the parsed problem to the solver model
-		model.post(stack.pop().asBoolVar().extension());
 
 		//acutal solving
 		Solution solution = model.getSolver().findSolution();
@@ -138,7 +126,6 @@ public class ExpressionSolver {
 
 
 	public void addFeatureImplication(String ifex, String thenex) {
-		//TODO: how to react to implicated assignments to variables?
 		FeatureExpressionParser p = new FeatureExpressionParser(ifex);
 		FeatureExpression root = p.parse();
 		traverse(root);
@@ -151,12 +138,23 @@ public class ExpressionSolver {
 			if (root instanceof AssignExpr) {
 				FeatureExpression left = ((AssignExpr) root).getLeftHandSide();
 				FeatureExpression right = ((AssignExpr) root).getRightHandSide();
+                Variable var1,var2;
 				if (left instanceof Name) {
-					//TODO: left side of numeric implication
+				    String name = ((Name) left).getToken().getText();
+                    var1 = checkVars(model, name);
+                    if(var1 == null) var1 = model.intVar(name, Short.MIN_VALUE, Short.MAX_VALUE);
+                    var2 = model.intVar(Double.valueOf((((NumberLiteral) right).getToken().getText())).intValue());
 				} else {
-					//TODO: right side of implication.
-				}
-			}
+                    String name = ((Name) right).getToken().getText();
+                    var1 = checkVars(model, name);
+                    if(var1 == null) var1 = model.intVar(name, Short.MIN_VALUE, Short.MAX_VALUE);
+                    var2 = model.intVar(Double.valueOf((((NumberLiteral) left).getToken().getText())).intValue());
+                }
+                //model.ifOnlyIf(bif.extension(), model.arithm(var1.asIntVar(),"=",var2.asIntVar()));
+                implications.add(new FeatureImplication(bif, model.arithm(var1.asIntVar(),"=",var2.asIntVar())));
+            } else {
+			    throw new IllegalStateException("cannot create such implication");
+            }
 		} else {
 			traverse(root);
 			BoolVar bthen = stack.pop().asBoolVar();
@@ -213,39 +211,7 @@ public class ExpressionSolver {
 				stack.push(check);
 			}
 		} else if (expr instanceof AssignExpr) {
-			//TODO: does not work like this.
-			//TODO: need to push a BoolVar, but that does not work --> instantiate the intVar somehow conditional
-			AssignExpr aexp = (AssignExpr) expr;
-			if (aexp.getLeftHandSide() instanceof Name) {
-				String name = ((Name) aexp.getLeftHandSide()).getToken().getText();
-				Variable check = checkVars(model, name);
-				if (check == null) {
-					IntVar iv = model.intVar(name, Double.valueOf((((NumberLiteral) aexp.getRightHandSide()).getToken().getText())).intValue());
-					vars.add(iv);
-					//TODO: !! not like this !!
-					stack.push(model.boolVar(true));
-				} else {
-					try {
-						check.asIntVar().instantiateTo(Double.valueOf((((NumberLiteral) aexp.getRightHandSide()).getToken().getText())).intValue(), null);
-					} catch (ContradictionException e) {
-						e.printStackTrace();
-					}
-				}
-			} else {
-				String name = ((Name) aexp.getRightHandSide()).getToken().getText();
-				Variable check = checkVars(model, name);
-				if (check == null) {
-					IntVar iv = model.intVar(name, Double.valueOf((((NumberLiteral) aexp.getLeftHandSide()).getToken().getText())).intValue());
-					vars.add(iv);
-					stack.push(model.boolVar(true));
-				} else {
-					try {
-						check.asIntVar().instantiateTo(Double.valueOf((((NumberLiteral) aexp.getLeftHandSide()).getToken().getText())).intValue(), null);
-					} catch (ContradictionException e) {
-						e.printStackTrace();
-					}
-				}
-			}
+			System.err.println("AssignExpr should not appear in a normal condition!");
 		} else if (expr instanceof NumberLiteral) {
 			stack.push(model.intVar(Double.valueOf((((NumberLiteral) expr).getToken().getText())).intValue()));
 			isIntVar = true;
@@ -349,15 +315,11 @@ public class ExpressionSolver {
 			traverse(((PrefixExpr) expr).getExpr());
 			traverse(((PrefixExpr) expr).getOperator());
 		} else if (expr instanceof InfixExpr) {
-			int op = ((InfixExpr) expr).getOperator().getToken().getType();
-
-			if (op == 43 || op == 45 || op == 42 || op == 47 || op == 37 //266 == wirklich notwendig?
-					|| op == 94 || op == 267 || op == 266 || op == 283 || op == 60 || op == 62 || op == 275)
-				isIntVar = true;
-			else isIntVar = false;
-
+		    checkIntVar((InfixExpr)expr);
 			traverse(((InfixExpr) expr).getLeftHandSide());
+            checkIntVar((InfixExpr)expr);
 			traverse(((InfixExpr) expr).getRightHandSide());
+            checkIntVar((InfixExpr)expr);
 			traverse(((InfixExpr) expr).getOperator());
 		} else if (expr instanceof ParenthesizedExpr) {
 			traverse(((ParenthesizedExpr) expr).getExpr());
@@ -365,6 +327,15 @@ public class ExpressionSolver {
 			System.err.println("unexpected node in AST: " + expr.getClass());
 		}
 	}
+
+	public void checkIntVar(InfixExpr expr) {
+        int op = expr.getOperator().getToken().getType();
+
+        if (op == 43 || op == 45 || op == 42 || op == 47 || op == 37 //266 == wirklich notwendig?
+                || op == 94 || op == 267 || op == 266 || op == 283 || op == 60 || op == 62 || op == 275)
+            isIntVar = true;
+        else isIntVar = false;
+    }
 
 	/**
 	 * Helper Method
