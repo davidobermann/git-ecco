@@ -2,7 +2,7 @@ package at.jku.isse.gitecco.core.tree.nodes;
 
 import at.jku.isse.gitecco.core.tree.visitor.TreeVisitor;
 
-public class ELIFCondition extends ConditionalNode {
+public final class ELIFCondition extends ConditionalNode {
 
     private final String condition;
 

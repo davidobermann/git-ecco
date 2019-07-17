@@ -107,9 +107,9 @@ public class ExpressionSolver {
         model.post(stack.pop().asBoolVar().extension());
 
 		//add all the feature implications to the model:
-		for (FeatureImplication im : implications) {
+		/*for (FeatureImplication im : implications) {
 			model.ifOnlyIf(im.a.extension(), im.c);
-		}
+		}*/
 
 		//acutal solving
 		Solution solution = model.getSolver().findSolution();
@@ -123,6 +123,11 @@ public class ExpressionSolver {
 
 		return Collections.unmodifiableMap(assignments);
 	}
+
+	public void addConstraint() {
+        //model.arithm(model.intVar("x",Short.MIN_VALUE,Short.MAX_VALUE),"=",7);
+        //model.post(model.boolVar("X").ift(model.boolVar("A"),model.boolVar("B")).intVar().asBoolVar().extension());
+    }
 
 
 	public void addFeatureImplication(String ifex, String thenex) {

@@ -10,9 +10,6 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revplot.PlotCommitList;
-import org.eclipse.jgit.revplot.PlotLane;
-import org.eclipse.jgit.revplot.PlotWalk;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevTree;
@@ -30,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.Future;
 
 /**
  * HelperClass for working with JGit.
@@ -134,21 +130,24 @@ public class GitHelper {
      *
      * @param newCommit commit to diff with --> also contains the parent for diffing
      * @return List of Strings of paths.
-     * @throws IOException
-     * @throws GitAPIException
      */
-    public List<String> getChangedFiles(GitCommit newCommit) throws IOException, GitAPIException {
+    public List<String> getChangedFiles(GitCommit newCommit) {
         final List<String> paths = new ArrayList<>();
-        List<DiffEntry> diffs = git.diff().
-                setOldTree(prepareTreeParser(git.getRepository(), newCommit.getDiffCommitName())).
-                setNewTree(prepareTreeParser(git.getRepository(), newCommit.getCommitName())).
-                call();
-        for (DiffEntry entry : diffs) {
-            if(entry.getChangeType() != DiffEntry.ChangeType.DELETE) {
-                //if needed prepend pathURL + "\\" to get the absolute path
-                paths.add(entry.getNewPath().replace('/', '\\'));
+        try {
+            List<DiffEntry> diffs = git.diff().
+                    setOldTree(prepareTreeParser(git.getRepository(), newCommit.getDiffCommitName())).
+                    setNewTree(prepareTreeParser(git.getRepository(), newCommit.getCommitName())).
+                    call();
+            for (DiffEntry entry : diffs) {
+                if(entry.getChangeType() != DiffEntry.ChangeType.DELETE) {
+                    //if needed prepend pathURL + "\\" to get the absolute path
+                    paths.add(entry.getNewPath().replace('/', '\\'));
+                }
             }
+        } catch (GitAPIException | IOException e) {
+            e.printStackTrace();
         }
+
         return Collections.unmodifiableList(paths);
     }
 

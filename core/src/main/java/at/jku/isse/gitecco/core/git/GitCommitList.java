@@ -5,7 +5,6 @@ import at.jku.isse.gitecco.core.cdt.FeatureParser;
 import at.jku.isse.gitecco.core.tree.nodes.BinaryFileNode;
 import at.jku.isse.gitecco.core.tree.nodes.RootNode;
 import at.jku.isse.gitecco.core.tree.nodes.SourceFileNode;
-import at.jku.isse.gitecco.core.tree.util.ComittableChange;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorStatement;
@@ -19,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -77,7 +75,6 @@ public class GitCommitList extends ArrayList<GitCommit> {
     @Override
     public boolean add(GitCommit gitCommit) {
         final RootNode tree = new RootNode(gitHelper.getPath());
-        final List<ComittableChange> committableChanges = new ArrayList<>();
         gitHelper.checkOutCommit(gitCommit.getCommitName());
 
         for (String file : gitHelper.getRepositoryContents(gitCommit)) {
@@ -126,8 +123,7 @@ public class GitCommitList extends ArrayList<GitCommit> {
         }
 
         gitCommit.setTree(tree);
-        //TODO: set changes another time --> later on when traversing the trees a second time
-        //gitCommit.setChanges(committableChanges);
+
         //trigger listeners, etc.
         notifyObservers(gitCommit);
         System.out.println("commit nr.:"+this.size());
