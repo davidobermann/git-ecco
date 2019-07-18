@@ -50,6 +50,17 @@ public class ExpressionSolver {
 	}
 
 	/**
+	 * Create new empty solver.
+	 */
+	public ExpressionSolver() {
+		this.expr = "";
+		this.model = new Model();
+		this.vars = new LinkedList<>();
+		this.stack = new Stack<>();
+		this.implications = new LinkedList<>();
+	}
+
+	/**
 	 * Resets the solver so a new expression can be solved.
 	 */
 	public void reset() {
@@ -101,7 +112,13 @@ public class ExpressionSolver {
 		//parse the expression and traverse the syntax tree
 		FeatureExpressionParser p = new FeatureExpressionParser(expr);
 		FeatureExpression root = p.parse();
-		traverse(root);
+
+		try {
+            traverse(root);
+        } catch(EmptyStackException e) {
+		    System.err.println("malformed condition!!");
+		    e.printStackTrace();
+        }
 
         //add the parsed problem to the solver model
         model.post(stack.pop().asBoolVar().extension());
@@ -196,7 +213,7 @@ public class ExpressionSolver {
 	 *
 	 * @param expr the expression tree to be parsed.
 	 */
-	private void traverse(FeatureExpression expr) {
+	private void traverse(FeatureExpression expr) throws EmptyStackException{
 		if (expr == null) return;
 
 		if (expr instanceof Name) {
@@ -329,11 +346,11 @@ public class ExpressionSolver {
 		} else if (expr instanceof ParenthesizedExpr) {
 			traverse(((ParenthesizedExpr) expr).getExpr());
 		} else {
-			System.err.println("unexpected node in AST: " + expr.getClass());
+			System.err.println("unexpected node in AST: " + expr.toString() + " " + expr.getClass());
 		}
 	}
 
-	public void checkIntVar(InfixExpr expr) {
+	private void checkIntVar(InfixExpr expr) {
         int op = expr.getOperator().getToken().getType();
 
         if (op == 43 || op == 45 || op == 42 || op == 47 || op == 37 //266 == wirklich notwendig?

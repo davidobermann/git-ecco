@@ -1,7 +1,6 @@
 package at.jku.isse.gitecco.core.git;
 
 import at.jku.isse.gitecco.core.tree.nodes.RootNode;
-import at.jku.isse.gitecco.core.tree.util.ComittableChange;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.util.*;
@@ -17,7 +16,6 @@ public class GitCommit {
     private final List<GitCommitType> types;
     private final String branch;
     private final RevCommit revCommit;
-    private List<ComittableChange> changes = new ArrayList<>();
 
     /**
      * Creates a new GitCommit
@@ -40,21 +38,6 @@ public class GitCommit {
      */
     public void disposeTree() {
         this.tree = null;
-    }
-
-    /**
-     * Retrieves all changes as a list.
-     * @return
-     */
-    public List<ComittableChange> getChanges() {
-        return Collections.unmodifiableList(changes);
-    }
-
-    /**
-     * Sets the changes List for committing it later.
-     */
-    public void setChanges(Collection<ComittableChange> changes) {
-        this.changes.addAll(changes);
     }
 
     /**

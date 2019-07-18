@@ -57,6 +57,7 @@ public class GetNodesForChangeVisitor implements TreeVisitor {
             this.changedNodes.add(c);
             //this is necessary to mark newly added features as changed.
             if(!change.contains(c)) change = null;
+            //change is set to null so that no further nodes will be interpreted as changed.
         }
     }
 

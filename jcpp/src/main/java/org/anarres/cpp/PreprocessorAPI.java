@@ -4,6 +4,8 @@ import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -194,7 +196,29 @@ public class PreprocessorAPI {
         }
 
         List<File> files = new LinkedList<File>();
-        getFilesToProcess(src, files);
+        List<File> filesToCopy = new LinkedList<File>();
+        getFilesToProcess(src, files, filesToCopy);
+
+        for(File f : filesToCopy) {
+            try {
+                String sourcePath = f.getCanonicalPath();
+                String relativePath = sourcePath.substring(src.getCanonicalPath().length());
+                File target;
+                if (relativePath.length() == 0) {
+                    target = new File(targetDir, f.getName());
+                } else {
+                    target = new File(targetDir, relativePath);
+                }
+
+                target.getParentFile().mkdirs();
+
+                Files.copy(Paths.get(f.getPath()),Paths.get(target.getPath()));
+
+            } catch(IOException e) {
+                System.err.println("Preprocessor failed: \n -> failed to copy non source file " + f.getPath());
+                e.printStackTrace();
+            }
+        }
 
         for (File f : files) {
 
@@ -253,17 +277,21 @@ public class PreprocessorAPI {
 
     }
 
-    private void getFilesToProcess(File f, List<File> files) {
+    private void getFilesToProcess(File f, List<File> files, List<File> filestoCopy) {
         if (f.isDirectory()) {
             for (File file : f.listFiles()) {
-                getFilesToProcess(file, files);
+                if(!file.getPath().endsWith(".git")) {
+                    getFilesToProcess(file, files, filestoCopy);
+                }
             }
         } else if (f.isFile()) {
             for (String ext : this.fileTypes) {
                 if (f.getName().endsWith("." + ext)) {
                     files.add(f);
+                    return;
                 }
             }
+            filestoCopy.add(f);
         }
     }
 }

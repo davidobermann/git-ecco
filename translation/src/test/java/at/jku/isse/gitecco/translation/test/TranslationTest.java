@@ -1,14 +1,16 @@
 package at.jku.isse.gitecco.translation.test;
 
+import at.jku.isse.gitecco.core.preprocessor.PreprocessorHelper;
 import at.jku.isse.gitecco.core.solver.ExpressionSolver;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
-import org.chocosolver.solver.constraints.nary.cnf.LogOp;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.File;
 
 import static org.chocosolver.solver.constraints.nary.cnf.LogOp.*;
 
@@ -91,6 +93,17 @@ public class TranslationTest {
         //model.addClauses(and(c.add(c).intVar().asBoolVar()));
 
         model.getSolver().findAllSolutions().forEach(System.out::println);
+    }
+
+    @Test
+    public void pptest() {
+        String f2 = "C:\\obermanndavid\\git-ecco\\ppfiles\\test\\git2_sub\\clean";
+        PreprocessorHelper pph = new PreprocessorHelper();
+        String f1 = "C:\\obermanndavid\\git-ecco\\ppfiles\\test\\git2";
+        File file = new File("C:\\obermanndavid\\git-ecco\\ppfiles\\test\\git2");
+        File file2 = new File("C:\\obermanndavid\\git-ecco\\ppfiles\\test\\git2_sub\\clean");
+
+        pph.generateCleanVersion(file,file2);
     }
 
     @Test

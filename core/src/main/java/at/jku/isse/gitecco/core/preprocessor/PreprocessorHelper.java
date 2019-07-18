@@ -1,5 +1,6 @@
 package at.jku.isse.gitecco.core.preprocessor;
 
+import at.jku.isse.gitecco.core.git.GitCommitList;
 import at.jku.isse.gitecco.core.type.Feature;
 import org.anarres.cpp.OnlyExpandMacrosInIfsController;
 import org.anarres.cpp.PreprocessorAPI;
@@ -33,6 +34,9 @@ public class PreprocessorHelper {
      * @param target output folder
      */
     public void generateVariants(Map<Feature, Integer> configuration,File src, File target) {
+
+        if(target.exists()) GitCommitList.recursiveDelete(target.toPath());
+
         PreprocessorAPI pp = new PreprocessorAPI();
 
         pp.setInlineIncludes(false);

@@ -1,5 +1,7 @@
 package at.jku.isse.gitecco.core.git;
 
+import at.jku.isse.gitecco.core.tree.nodes.BinaryFileNode;
+import at.jku.isse.gitecco.core.tree.nodes.FileNode;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -69,6 +71,21 @@ public class GitHelper {
      */
     public String getPath() {
         return this.pathUrl;
+    }
+
+    /**
+     * Gets the Diff between two Commits specified by their commit names.
+     * The Diff is stored as a <code>Change</code>.
+     * All the changes will be returned as an Array.
+     *
+     * @param newCommit The commit which should be diffed --> also contains the parent to diff with
+     * @param sfn the source file node which should be examined
+     * @return An Array of Changes which contains all the changes between the commits.
+     * @throws Exception
+     */
+    public Change[] getFileDiffs(GitCommit newCommit, FileNode sfn) throws Exception {
+        if(sfn instanceof BinaryFileNode) throw new IllegalArgumentException("cannot diff a binary file node");
+        return getFileDiffs(newCommit, sfn.getFilePath());
     }
 
     /**

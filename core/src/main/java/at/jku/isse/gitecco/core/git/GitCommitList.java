@@ -2,11 +2,10 @@ package at.jku.isse.gitecco.core.git;
 
 import at.jku.isse.gitecco.core.cdt.CDTHelper;
 import at.jku.isse.gitecco.core.cdt.FeatureParser;
+import at.jku.isse.gitecco.core.preprocessor.PreprocessorHelper;
 import at.jku.isse.gitecco.core.tree.nodes.BinaryFileNode;
 import at.jku.isse.gitecco.core.tree.nodes.RootNode;
 import at.jku.isse.gitecco.core.tree.nodes.SourceFileNode;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.core.runtime.CoreException;
@@ -14,12 +13,10 @@ import org.eclipse.core.runtime.CoreException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -74,52 +71,67 @@ public class GitCommitList extends ArrayList<GitCommit> {
      */
     @Override
     public boolean add(GitCommit gitCommit) {
+        //TODO: modified for translation --> create extra version for FeatureID
         final RootNode tree = new RootNode(gitHelper.getPath());
         gitHelper.checkOutCommit(gitCommit.getCommitName());
 
-        for (String file : gitHelper.getRepositoryContents(gitCommit)) {
-            //source file or binary file --> with parsing, without.
-            if (FilenameUtils.getExtension(file).equals("cpp")
-                    || FilenameUtils.getExtension(file).equals("c")
-                    || FilenameUtils.getExtension(file).equals("h")
-                    || FilenameUtils.getExtension(file).equals("hpp")
-                    || FilenameUtils.getExtension(file).equals("hh")) {
+        final PreprocessorHelper pph = new PreprocessorHelper();
+        final File gitFolder = new File(gitHelper.getPath());
+        final File cleanFolder = new File(gitFolder.getParent(), "clean");
 
+        //delete the clean directory if it exists:
+        if(cleanFolder.exists()) recursiveDelete(cleanFolder.toPath());
 
-                final SourceFileNode fn = new SourceFileNode(tree, file);
+        //generate clean version
+        pph.generateCleanVersion(gitFolder,cleanFolder);
 
-                final String path = gitHelper.getPath()+"\\"+file;
-                List<String> codelist = null;
-                try {
-                    codelist = Files.readAllLines(Paths.get(path), StandardCharsets.ISO_8859_1);
-                } catch (IOException e1) {
-                    System.err.println("error reading file: "+file);
-                    e1.printStackTrace();
+        try {
+            Files.walk(cleanFolder.toPath())
+                    .filter(path->!path.toFile().isDirectory())
+                    .forEach(filePath -> {
+
+                String file = filePath.toFile().getPath();
+                if (file.endsWith(".cpp") || file.endsWith(".hpp") || file.endsWith(".c") || file.endsWith(".h")) {
+
+                    final SourceFileNode fn
+                            = new SourceFileNode(tree, file.substring((gitFolder.getParent() + "\\clean").length()+1));
+                    List<String> codelist = null;
+
+                    try {
+                        codelist = Files.readAllLines(filePath, StandardCharsets.ISO_8859_1);
+                    } catch (IOException e1) {
+                        System.err.println("error reading file: " + file);
+                        e1.printStackTrace();
+                    }
+                    final String code = codelist.stream().collect(Collectors.joining("\n"));
+
+                    //file parsing
+                    IASTTranslationUnit translationUnit = null;
+                    try {
+                        translationUnit = CDTHelper.parse(code.toCharArray());
+                    } catch (CoreException e1) {
+                        System.err.println("error parsing with CDT Core: "+file);
+                        e1.printStackTrace();
+                    }
+                    final IASTPreprocessorStatement[] ppstatements = translationUnit.getAllPreprocessorStatements();
+                    final FeatureParser featureParser = new FeatureParser();
+                    //actual tree building
+                    try {
+                        featureParser.parseToTree(ppstatements, codelist.size(), fn);
+                    } catch (Exception e) {
+                        System.err.println("error parsing to tree: "+file);
+                        e.printStackTrace();
+                    }
+                    tree.addChild(fn);
+                } else {
+                    final BinaryFileNode fn
+                            = new BinaryFileNode(tree, file.substring((gitFolder.getParent() + "\\clean").length()+1));
+                    tree.addChild(fn);
                 }
-                final String code = codelist.stream().collect(Collectors.joining("\n"));
 
-                //file parsing
-                IASTTranslationUnit translationUnit = null;
-                try {
-                    translationUnit = CDTHelper.parse(code.toCharArray());
-                } catch (CoreException e1) {
-                    System.err.println("error parsing with CDT Core: "+file);
-                    e1.printStackTrace();
-                }
-                final IASTPreprocessorStatement[] ppstatements = translationUnit.getAllPreprocessorStatements();
-                final FeatureParser featureParser = new FeatureParser();
-                //actual tree building
-                try {
-                    featureParser.parseToTree(ppstatements, codelist.size(), fn);
-                } catch (Exception e) {
-                    System.err.println("error parsing to tree: "+file);
-                    e.printStackTrace();
-                }
-                tree.addChild(fn);
-            } else {
-                final BinaryFileNode fn = new BinaryFileNode(tree, file);
-                tree.addChild(fn);
-            }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         gitCommit.setTree(tree);
@@ -130,48 +142,31 @@ public class GitCommitList extends ArrayList<GitCommit> {
         return super.add(gitCommit);
     }
 
-    //TODO: KEEP! may be useful later on
-    private String removeNot(String s) {
-        Pattern p = Pattern.compile("~ *\\((.*?)\\)");
-        Matcher m = p.matcher(s);
-
-        while (m.find())
-            s = s.replaceFirst("~ *\\((.*?)\\)", m.group(1));
-
-        return s;
-    }
-
     /**
-     * Helper method that prepares the given directory for further operation.
-     * Used by all the autocommit methods.
-     *
-     * @param destDir the destination directory - this one will be committed
-     * @param srcDir  the source directory
-     * @param gitDir  the .git directory - will be deleted
-     * @param gitSave the .git of the new repo that will be committed.
-     *                will be saved every time before copying the new variant
-     * @throws IOException
+     * Helper method:
+     * recursivley deletes a folder given by a path.
+     * @param directory the path to the directory which should be deleted.
      */
-    public void prepareDirectory(File destDir, File srcDir, File gitDir, File gitSave) throws IOException {
-        boolean check = false;
-        //save git folder
-        for (File file : destDir.listFiles()) {
-            if (file.getName().equals(".git")) {
-                FileUtils.moveToDirectory(file.getAbsoluteFile(), gitSave, true);
-                check = true;
-                break;
-            }
-        }
-        //delete old repo
-        FileUtils.deleteDirectory(destDir);
-        //copy new repo
-        FileUtils.copyDirectory(srcDir, destDir);
-        //delete copied git folder
-        FileUtils.deleteDirectory(gitDir);
-        //if there was a git folder in the beginning restore it.
-        if (check) FileUtils.moveToDirectory(new File(gitSave.getPath()+"\\.git"), destDir, true);
-    }
+    public static void recursiveDelete(Path directory) {
+        try {
+            Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
 
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            System.err.println("problem deleting: " + directory);
+            e.printStackTrace();
+        }
+    }
 
     private void notifyObservers(GitCommit gc) {
         for (GitCommitListener oc : observersC) {
