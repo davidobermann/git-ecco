@@ -71,7 +71,6 @@ public class GitCommitList extends ArrayList<GitCommit> {
      */
     @Override
     public boolean add(GitCommit gitCommit) {
-        //TODO: modified for translation --> create extra version for FeatureID
         final RootNode tree = new RootNode(gitHelper.getPath());
         gitHelper.checkOutCommit(gitCommit.getCommitName());
 

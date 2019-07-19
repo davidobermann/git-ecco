@@ -40,7 +40,7 @@ public class ID {
         Map<Feature, FeatureType> featureMap = new HashMap<>();
         GetAllFeaturesDefinesIncludesVisitor allincVisitor = new GetAllFeaturesDefinesIncludesVisitor();
         GetAllDefinesVisitor definesVisitor = new GetAllDefinesVisitor();
-        List<DefineNodes> allDefines = new ArrayList<>();
+        List<DefineNode> allDefines = new ArrayList<>();
         FeatureType type = null;
 
         for (FileNode child : tree.getChildren()) {
@@ -62,7 +62,7 @@ public class ID {
                     definesVisitor.reset();
                     FileNode tmpF = tree.getChild(include.getFileName());
                     if(tmpF != null) tmpF.accept(definesVisitor);
-                    for (DefineNodes define : definesVisitor.getDefines()) {
+                    for (DefineNode define : definesVisitor.getDefines()) {
                         //just acting like undefs are just defines because in this scenario it does not matter
                         allDefines.add(new Define(define.getMacroName(), null, include.getLineInfo()));
                     }
@@ -72,7 +72,7 @@ public class ID {
                 allDefines.addAll(allincVisitor.getDefines());
 
                 for (Map.Entry<Feature, Integer> entry : allincVisitor.getFeatureMap().entrySet()) {
-                    for (DefineNodes define : allDefines) {
+                    for (DefineNode define : allDefines) {
                         type = featureMap.get(entry.getKey());
                         boolean sameName = entry.getKey().getName().equals(define.getMacroName());
                         int lineResult = entry.getValue().compareTo(define.getLineInfo());

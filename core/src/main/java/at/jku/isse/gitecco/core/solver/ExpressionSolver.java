@@ -1,11 +1,12 @@
 package at.jku.isse.gitecco.core.solver;
 
 import at.jku.isse.gitecco.core.type.Feature;
+import at.jku.isse.gitecco.core.type.FeatureImplication;
 import org.anarres.cpp.Token;
 import org.anarres.cpp.featureExpr.*;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
-import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.constraints.nary.cnf.LogOp;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
@@ -21,20 +22,6 @@ public class ExpressionSolver {
 	private final List<IntVar> vars;
 	private final Stack<Variable> stack;
 	private boolean isIntVar = false;
-	private final List<FeatureImplication> implications;
-
-	/**
-	 * Inner Class for handling feature implications
-	 */
-	private class FeatureImplication {
-		BoolVar a;
-		Constraint c;
-
-		public FeatureImplication(BoolVar a, Constraint c) {
-			this.a = a;
-			this.c = c;
-		}
-	}
 
 	/**
 	 * Create new solver with a given expression to solve.
@@ -46,7 +33,6 @@ public class ExpressionSolver {
 		this.model = new Model();
 		this.vars = new LinkedList<>();
 		this.stack = new Stack<>();
-		this.implications = new LinkedList<>();
 	}
 
 	/**
@@ -57,7 +43,6 @@ public class ExpressionSolver {
 		this.model = new Model();
 		this.vars = new LinkedList<>();
 		this.stack = new Stack<>();
-		this.implications = new LinkedList<>();
 	}
 
 	/**
@@ -68,14 +53,6 @@ public class ExpressionSolver {
 		this.model = new Model();
 		this.vars.clear();
 		this.stack.clear();
-		this.implications.clear();
-	}
-
-	/**
-	 * Resets just the implications
-	 */
-	public void clearImpications() {
-		this.implications.clear();
 	}
 
 	/**
@@ -88,7 +65,6 @@ public class ExpressionSolver {
 		this.model = new Model();
 		this.vars.clear();
 		this.stack.clear();
-		this.implications.clear();
 	}
 
 	/**
@@ -109,24 +85,8 @@ public class ExpressionSolver {
 	public Map<Feature, Integer> solve() {
 		Map<Feature, Integer> assignments = new HashMap<>();
 
-		//parse the expression and traverse the syntax tree
-		FeatureExpressionParser p = new FeatureExpressionParser(expr);
-		FeatureExpression root = p.parse();
-
-		try {
-            traverse(root);
-        } catch(EmptyStackException e) {
-		    System.err.println("malformed condition!!");
-		    e.printStackTrace();
-        }
-
         //add the parsed problem to the solver model
-        model.post(stack.pop().asBoolVar().extension());
-
-		//add all the feature implications to the model:
-		/*for (FeatureImplication im : implications) {
-			model.ifOnlyIf(im.a.extension(), im.c);
-		}*/
+        model.post(getBoolVarFromExpr(this.expr).extension());
 
 		//acutal solving
 		Solution solution = model.getSolver().findSolution();
@@ -141,71 +101,51 @@ public class ExpressionSolver {
 		return Collections.unmodifiableMap(assignments);
 	}
 
-	public void addConstraint() {
-        //model.arithm(model.intVar("x",Short.MIN_VALUE,Short.MAX_VALUE),"=",7);
-        //model.post(model.boolVar("X").ift(model.boolVar("A"),model.boolVar("B")).intVar().asBoolVar().extension());
+	/**
+	 * Builds a constraint from the given set of FeatureImplications for one feature.
+     * This will build a chain of if then else expressions for the solver model.
+     *
+	 * @param feature
+	 * @param implications
+	 */
+	public void addClause(Feature feature, Queue<FeatureImplication> implications) {
+        LogOp elsePart = null;
+
+        while (!implications.isEmpty()) {
+            FeatureImplication im = implications.remove();
+            BoolVar ifPart = getBoolVarFromExpr(im.getCondition());
+            BoolVar thenPart = getBoolVarFromExpr(im.getValue());
+
+            if(elsePart == null) {
+                elsePart = LogOp.implies(ifPart,thenPart);
+            } else {
+                elsePart = LogOp.ifThenElse(ifPart, thenPart, elsePart);
+            }
+        }
+
+        model.addClauses(elsePart);
     }
 
+    /**
+     * Helper method for parsing and traversing an expression given as String
+     * If the last variable on the stack is not a boolean variable
+     * we can assume the condition string was only a single number literal.
+     * Thus we can translate this to a boolean variable just like the C preprocessor --> > 0 true else false.
+     *
+     * @param expr
+     * @return
+     */
+    private BoolVar getBoolVarFromExpr (String expr) {
+	    traverse(new FeatureExpressionParser(expr).parse());
+	    Variable var = stack.pop();
 
-	public void addFeatureImplication(String ifex, String thenex) {
-		FeatureExpressionParser p = new FeatureExpressionParser(ifex);
-		FeatureExpression root = p.parse();
-		traverse(root);
-		BoolVar bif = stack.pop().asBoolVar();
+	    if(var instanceof IntVar) {
+            if(var.asIntVar().getValue() > 0) return model.boolVar(true);
+            else return model.boolVar(false);
+	    }
 
-		p = new FeatureExpressionParser(thenex);
-		root = p.parse();
-
-		if (checkForAssignment(root)) {
-			if (root instanceof AssignExpr) {
-				FeatureExpression left = ((AssignExpr) root).getLeftHandSide();
-				FeatureExpression right = ((AssignExpr) root).getRightHandSide();
-                Variable var1,var2;
-				if (left instanceof Name) {
-				    String name = ((Name) left).getToken().getText();
-                    var1 = checkVars(model, name);
-                    if(var1 == null) var1 = model.intVar(name, Short.MIN_VALUE, Short.MAX_VALUE);
-                    var2 = model.intVar(Double.valueOf((((NumberLiteral) right).getToken().getText())).intValue());
-				} else {
-                    String name = ((Name) right).getToken().getText();
-                    var1 = checkVars(model, name);
-                    if(var1 == null) var1 = model.intVar(name, Short.MIN_VALUE, Short.MAX_VALUE);
-                    var2 = model.intVar(Double.valueOf((((NumberLiteral) left).getToken().getText())).intValue());
-                }
-                //model.ifOnlyIf(bif.extension(), model.arithm(var1.asIntVar(),"=",var2.asIntVar()));
-                implications.add(new FeatureImplication(bif, model.arithm(var1.asIntVar(),"=",var2.asIntVar())));
-            } else {
-			    throw new IllegalStateException("cannot create such implication");
-            }
-		} else {
-			traverse(root);
-			BoolVar bthen = stack.pop().asBoolVar();
-			this.implications.add(new FeatureImplication(bif, bthen.extension()));
-		}
-	}
-
-	private boolean checkForAssignment(FeatureExpression expr) {
-		if (expr == null) return false;
-
-		if (expr instanceof AssignExpr) {
-			return true;
-		} else if (expr instanceof CondExpr) {
-			CondExpr e = (CondExpr) expr;
-			//idea: parse that created expression and attach it instead of the CondExpr and continue to traverse again.
-			String cond = "(!(" + e.getExpr() + ")||(" + e.getThenExpr() + "))&&((" + e.getExpr() + ")||(" + e.getElseExpr() + "))";
-			traverse(new FeatureExpressionParser(cond).parse());
-		} else if (expr instanceof PrefixExpr) {
-			traverse(((PrefixExpr) expr).getExpr());
-			traverse(((PrefixExpr) expr).getOperator());
-		} else if (expr instanceof InfixExpr) {
-			traverse(((InfixExpr) expr).getLeftHandSide());
-			traverse(((InfixExpr) expr).getRightHandSide());
-			traverse(((InfixExpr) expr).getOperator());
-		} else if (expr instanceof ParenthesizedExpr) {
-			traverse(((ParenthesizedExpr) expr).getExpr());
-		}
-		return false;
-	}
+	    return var.asBoolVar();
+    }
 
 	/**
 	 * Helper Method
@@ -350,6 +290,11 @@ public class ExpressionSolver {
 		}
 	}
 
+    /**
+     * Helper method: checks if an IntVar is needed or if a BoolVar is fine.
+     * Sets the IntVar flag in case it is needed.
+     * @param expr
+     */
 	private void checkIntVar(InfixExpr expr) {
         int op = expr.getOperator().getToken().getType();
 

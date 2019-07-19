@@ -8,7 +8,7 @@ import java.util.*;
 
 public class GetAllFeaturesDefinesIncludesVisitor implements TreeVisitor {
     private final Map<Feature, Integer> featureMap;
-    private final List<DefineNodes> defines;
+    private final List<DefineNode> defines;
     private final List<IncludeNode> includes;
 
     public GetAllFeaturesDefinesIncludesVisitor() {
@@ -43,7 +43,7 @@ public class GetAllFeaturesDefinesIncludesVisitor implements TreeVisitor {
      * Returns all the found defines and undefs.
      * @return all the found defines and undefs.
      */
-    public List<DefineNodes> getDefines() {
+    public List<DefineNode> getDefines() {
         return Collections.unmodifiableList(defines);
     }
 
@@ -98,7 +98,7 @@ public class GetAllFeaturesDefinesIncludesVisitor implements TreeVisitor {
 
     @Override
     public void visit(ELIFCondition c) {
-        for (Feature feature : Feature.parseCondition(c.getDirectCondition())) {
+        for (Feature feature : Feature.parseCondition(c.getLocalCondition())) {
             if(!featureMap.containsKey(feature)) featureMap.put(feature, c.getLineFrom());
         }
     }

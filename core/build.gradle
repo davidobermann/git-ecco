@@ -16,9 +16,6 @@ dependencies {
 	//compile group: 'org.logicng', name: 'logicng', version: '1.5.1'
 
 
-	compile 'commons-io:commons-io:2.6'
-
-
 	compile fileTree(dir: 'libs/cdt', include: ['*.jar'])
 	compile fileTree(dir: 'libs/ecco', include: ['*.jar'])
 

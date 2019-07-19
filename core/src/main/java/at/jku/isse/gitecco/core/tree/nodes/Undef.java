@@ -8,7 +8,7 @@ import java.util.Objects;
 /**
  * Class to represent a #undef preprocessor statement
  */
-public final class Undef extends DefineNodes implements Visitable {
+public final class Undef extends DefineNode implements Visitable {
 
     public Undef(String name, int lineInfo) {
         super(name, lineInfo);

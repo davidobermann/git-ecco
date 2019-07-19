@@ -1,6 +1,6 @@
 package at.jku.isse.gitecco.core.type;
 
-import at.jku.isse.gitecco.core.tree.nodes.DefineNodes;
+import at.jku.isse.gitecco.core.tree.nodes.DefineNode;
 import org.anarres.cpp.featureExpr.*;
 
 import java.util.HashSet;
@@ -27,7 +27,7 @@ public class Feature implements Comparable<Feature> {
 	 * @param n
 	 * @return
 	 */
-	public boolean compareToDefine(DefineNodes n) {
+	public boolean compareToDefine(DefineNode n) {
 		return this.name.equals(n.getMacroName());
 	}
 

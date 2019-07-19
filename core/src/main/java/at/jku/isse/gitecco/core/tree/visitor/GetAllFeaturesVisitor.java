@@ -57,7 +57,7 @@ public class GetAllFeaturesVisitor implements TreeVisitor {
 
     @Override
     public void visit(ELIFCondition c) {
-        features.addAll(Feature.parseCondition(c.getDirectCondition()));
+        features.addAll(Feature.parseCondition(c.getLocalCondition()));
     }
 
     @Override

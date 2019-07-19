@@ -6,7 +6,7 @@ import at.jku.isse.gitecco.core.tree.visitor.Visitable;
 /**
  * Class to represent a #define preprocessor statement
  */
-public final class Define extends DefineNodes implements Visitable {
+public final class Define extends DefineNode implements Visitable {
     private final String macroExpansion;
 
     public Define(String name, String exp, int lineInfo) {

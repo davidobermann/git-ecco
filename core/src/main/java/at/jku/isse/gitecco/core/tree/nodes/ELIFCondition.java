@@ -25,20 +25,21 @@ public final class ELIFCondition extends ConditionalNode {
     }
 
     @Override
+    public String getLocalCondition() {
+        return this.condition;
+    }
+
+    @Override
     public void accept(TreeVisitor v) {
         for (ConditionBlockNode child : getChildren()) {
             child.accept(v);
         }
-        for (DefineNodes defineNode : getDefineNodes()) {
+        for (DefineNode defineNode : getDefineNodes()) {
             defineNode.accept(v);
         }
         for (IncludeNode includeNode : getIncludeNodes()) {
             includeNode.accept(v);
         }
         v.visit(this);
-    }
-
-    public String getDirectCondition() {
-        return this.condition;
     }
 }

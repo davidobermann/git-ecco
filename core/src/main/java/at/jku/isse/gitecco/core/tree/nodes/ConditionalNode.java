@@ -15,7 +15,7 @@ public abstract class ConditionalNode extends ConditionNode {
     private int lineTo = -1;
     private final List<ConditionBlockNode> children;
     private final ConditionBlockNode parent;
-    private final List<DefineNodes> defineNodes = new ArrayList();
+    private final List<DefineNode> defineNodes = new ArrayList();
     private final List<IncludeNode> includeNodes = new ArrayList<>();
 
     public ConditionalNode(ConditionBlockNode parent) {
@@ -43,7 +43,7 @@ public abstract class ConditionalNode extends ConditionNode {
      * Adds a new define to the node.
      * @param d
      */
-    public void addDefineNode(DefineNodes d) {
+    public void addDefineNode(DefineNode d) {
         this.defineNodes.add(d);
     }
 
@@ -51,7 +51,7 @@ public abstract class ConditionalNode extends ConditionNode {
      * Returns all the define nodes parented by this node.
      * @return
      */
-    public List<DefineNodes> getDefineNodes() {
+    public List<DefineNode> getDefineNodes() {
         return Collections.unmodifiableList(defineNodes);
     }
 
@@ -132,10 +132,15 @@ public abstract class ConditionalNode extends ConditionNode {
     }
 
 
-
     /**
      * Returns the condition of this node.
      * @return
      */
     public abstract String getCondition();
+
+    /**
+     * Returns just the local (immediate) condition of this node.
+     * @return
+     */
+    public abstract String getLocalCondition();
 }

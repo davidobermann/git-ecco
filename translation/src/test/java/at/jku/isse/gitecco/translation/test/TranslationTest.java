@@ -118,6 +118,7 @@ public class TranslationTest {
         System.out.println(solution);
     }
 
+    //helper method also in ExpressionSolver class
     private Variable checkVars(Model model, String name) {
         for (Variable var : model.getVars()) {
             if (var.getName().equals(name)) return var;

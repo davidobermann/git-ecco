@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class GetAllDefinesVisitor implements TreeVisitor {
-    private final List<DefineNodes> defines;
+    private final List<DefineNode> defines;
 
     public GetAllDefinesVisitor() {
         defines = new ArrayList<>();
@@ -18,7 +18,7 @@ public class GetAllDefinesVisitor implements TreeVisitor {
      * Returns all the found defines and undefs.
      * @return all the found defines and undefs.
      */
-    public List<DefineNodes> getDefines() {
+    public List<DefineNode> getDefines() {
         return Collections.unmodifiableList(defines);
     }
 

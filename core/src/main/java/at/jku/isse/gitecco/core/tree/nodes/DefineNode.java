@@ -7,11 +7,11 @@ import java.util.Objects;
 /**
  * SuperClass for all define nodes (define, undef)
  */
-public abstract class DefineNodes implements Comparable<DefineNodes>, Visitable {
+public abstract class DefineNode extends ConditionNode implements Comparable<DefineNode>, Visitable {
     private final String macroName;
     private final int lineInfo;
 
-    public DefineNodes(String name, int lineInfo) {
+    public DefineNode(String name, int lineInfo) {
         this.lineInfo = lineInfo;
         this.macroName = name;
     }
@@ -31,12 +31,12 @@ public abstract class DefineNodes implements Comparable<DefineNodes>, Visitable 
      * @param n
      * @return
      */
-    public boolean isIdentical(DefineNodes n) {
+    public boolean isIdentical(DefineNode n) {
         return this.equals(n) && this.lineInfo == n.lineInfo;
     }
 
     @Override
-    public int compareTo(DefineNodes o) {
+    public int compareTo(DefineNode o) {
         return getMacroName().compareTo(o.getMacroName());
     }
 
@@ -51,7 +51,7 @@ public abstract class DefineNodes implements Comparable<DefineNodes>, Visitable 
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        DefineNodes that = (DefineNodes) o;
+        DefineNode that = (DefineNode) o;
         return lineInfo == that.lineInfo &&
                 Objects.equals(macroName, that.macroName);
     }
@@ -59,5 +59,14 @@ public abstract class DefineNodes implements Comparable<DefineNodes>, Visitable 
     @Override
     public int hashCode() {
         return Objects.hash(macroName, lineInfo);
+    }
+
+    /**
+     * Never needed for define nodes. Will always be accessed through parent.
+     * @return null
+     */
+    @Override
+    public Node getParent() {
+        return null;
     }
 }

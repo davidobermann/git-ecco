@@ -27,11 +27,16 @@ public final class ELSECondition extends ConditionalNode implements Visitable {
     }
 
     @Override
+    public String getLocalCondition() {
+        return "";
+    }
+
+    @Override
     public void accept(TreeVisitor v) {
         for (ConditionBlockNode child : getChildren()) {
             child.accept(v);
         }
-        for (DefineNodes defineNode : getDefineNodes()) {
+        for (DefineNode defineNode : getDefineNodes()) {
             defineNode.accept(v);
         }
         for (IncludeNode includeNode : getIncludeNodes()) {

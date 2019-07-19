@@ -19,9 +19,10 @@ import java.util.Set;
 
 public class App {
 
-	public static void main(String... args) throws Exception{
+	public static void main(String... args) throws Exception {
 	    final boolean debug = true;
 	    //TODO: planned arguments: DEBUG, dispose tree, max commits, repo path, csv path(feature id), outpath for ecco
+        //maybe even start commit and/or end commit (hashes or numbers)
         String repoPath = "C:\\obermanndavid\\git-ecco-test\\appimpleTest\\marlin\\Marlin";
 
         final GitHelper gitHelper = new GitHelper(repoPath);
@@ -30,6 +31,8 @@ public class App {
         commitList.addGitCommitListener((gc,gcl)-> {
 
             //TODO: do the git commit and measure time or whatever
+            //for a guide how to make a git commit with jgit: git-ecco commit a071bdd677d9a7555f60e026a4b0ba975be09792
+            //file GitCommitList.java method: enableAutoCommitConfig()
 
             GetNodesForChangeVisitor visitor = new GetNodesForChangeVisitor();
             Set<ConditionalNode> changedNodes = new HashSet<>();
@@ -62,7 +65,12 @@ public class App {
 
             //for each changed node:
             for (ConditionalNode changedNode : changedNodes) {
+
                 //TODO: previous constraints and affected constraints
+                //new class that takes a changed node and walks up the tree and build the implication queue.
+                //same for the affected blocks --> tree might need additional methods
+                //for retrieving conjunctive conditions that are affected by a changed block.
+
                 solver.setExpr(changedNode.getCondition());
                 Map<Feature, Integer> result = solver.solve();
                 solver.reset();

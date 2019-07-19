@@ -46,6 +46,7 @@ public class PreprocessorAPI {
         pp.addFeature(Feature.INCLUDENEXT);
         pp.addWarning(Warning.IMPORT);
         // pp.addMacro("__JCPP__");
+        //TODO: here the system include path could be changed in case this files are going to be needed
         pp.getSystemIncludePath().add("/usr/local/include");
         pp.getSystemIncludePath().add("/usr/include");
         pp.getFrameworksPath().add("/System/Library/Frameworks");
